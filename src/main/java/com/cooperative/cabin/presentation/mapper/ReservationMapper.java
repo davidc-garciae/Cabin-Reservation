@@ -28,13 +28,15 @@ public class ReservationMapper {
             return null;
         LocalDate start = req.getStartDate() != null ? LocalDate.parse(req.getStartDate()) : null;
         LocalDate end = req.getEndDate() != null ? LocalDate.parse(req.getEndDate()) : null;
-        return new Reservation(
-                null,
-                req.getUserId(),
-                req.getCabinId(),
-                start,
-                end,
-                req.getGuests(),
-                (ReservationStatus) null);
+        // Para tests, crear entidades mock
+        com.cooperative.cabin.domain.model.User user = new com.cooperative.cabin.domain.model.User();
+        user.setId(req.getUserId());
+        com.cooperative.cabin.domain.model.Cabin cabin = new com.cooperative.cabin.domain.model.Cabin();
+        cabin.setId(req.getCabinId());
+
+        return new com.cooperative.cabin.domain.model.Reservation(
+                user, cabin, start, end, req.getGuests(),
+                com.cooperative.cabin.domain.model.ReservationStatus.PENDING,
+                java.math.BigDecimal.valueOf(100.00), java.math.BigDecimal.valueOf(100.00));
     }
 }

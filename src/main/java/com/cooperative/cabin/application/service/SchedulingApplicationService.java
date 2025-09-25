@@ -26,10 +26,8 @@ public class SchedulingApplicationService {
                 today);
         for (Reservation r : toStart) {
             if (r.getStatus() == ReservationStatus.CONFIRMED) {
-                Reservation updated = new Reservation(
-                        r.getId(), r.getUserId(), r.getCabinId(), r.getStartDate(), r.getEndDate(),
-                        r.getNumberOfGuests(), ReservationStatus.IN_USE);
-                repository.save(updated);
+                r.setStatus(ReservationStatus.IN_USE);
+                repository.save(r);
                 if (businessMetrics != null)
                     businessMetrics.incrementSchedulerTransition("start");
             }
@@ -40,10 +38,8 @@ public class SchedulingApplicationService {
         List<Reservation> toComplete = repository.findByStatusAndEndDateLessThanEqual(ReservationStatus.IN_USE, today);
         for (Reservation r : toComplete) {
             if (r.getStatus() == ReservationStatus.IN_USE) {
-                Reservation updated = new Reservation(
-                        r.getId(), r.getUserId(), r.getCabinId(), r.getStartDate(), r.getEndDate(),
-                        r.getNumberOfGuests(), ReservationStatus.COMPLETED);
-                repository.save(updated);
+                r.setStatus(ReservationStatus.COMPLETED);
+                repository.save(r);
                 if (businessMetrics != null)
                     businessMetrics.incrementSchedulerTransition("end");
             }

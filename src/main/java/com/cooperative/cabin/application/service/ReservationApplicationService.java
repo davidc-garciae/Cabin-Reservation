@@ -1,10 +1,16 @@
 package com.cooperative.cabin.application.service;
 
 import com.cooperative.cabin.domain.model.AvailabilityBlock;
+import com.cooperative.cabin.domain.model.Cabin;
 import com.cooperative.cabin.domain.model.Reservation;
 import com.cooperative.cabin.domain.model.ReservationStatus;
+import com.cooperative.cabin.domain.model.User;
 import com.cooperative.cabin.domain.policy.AvailabilityPolicies;
 import com.cooperative.cabin.domain.policy.ReservationPolicies;
+import com.cooperative.cabin.domain.exception.CabinNotFoundException;
+import com.cooperative.cabin.domain.exception.UserNotFoundException;
+import com.cooperative.cabin.infrastructure.repository.UserJpaRepository;
+import com.cooperative.cabin.infrastructure.repository.CabinJpaRepository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -13,17 +19,37 @@ public class ReservationApplicationService {
 
     private final ReservationRepository reservationRepository;
     private final AvailabilityBlockRepository availabilityBlockRepository;
+    private final UserJpaRepository userRepository;
+    private final CabinJpaRepository cabinRepository;
     private final ConfigurationService configurationService;
+    private final WaitingListApplicationService waitingListService;
     private final BusinessMetrics businessMetrics;
 
     public ReservationApplicationService(ReservationRepository reservationRepository,
             AvailabilityBlockRepository availabilityBlockRepository,
+            UserJpaRepository userRepository,
+            CabinJpaRepository cabinRepository,
             ConfigurationService configurationService,
-            BusinessMetrics businessMetrics) {
+            BusinessMetrics businessMetrics,
+            WaitingListApplicationService waitingListService) {
         this.reservationRepository = reservationRepository;
         this.availabilityBlockRepository = availabilityBlockRepository;
+        this.userRepository = userRepository;
+        this.cabinRepository = cabinRepository;
         this.configurationService = configurationService;
         this.businessMetrics = businessMetrics;
+        this.waitingListService = waitingListService;
+    }
+
+    // Constructor de compatibilidad para tests existentes
+    public ReservationApplicationService(ReservationRepository reservationRepository,
+            AvailabilityBlockRepository availabilityBlockRepository,
+            UserJpaRepository userRepository,
+            CabinJpaRepository cabinRepository,
+            ConfigurationService configurationService,
+            BusinessMetrics businessMetrics) {
+        this(reservationRepository, availabilityBlockRepository, userRepository, cabinRepository,
+                configurationService, businessMetrics, null);
     }
 
     public Reservation createPreReservation(Long userId, Long cabinId, LocalDate start, LocalDate end, int guests) {
@@ -51,7 +77,17 @@ public class ReservationApplicationService {
             throw new IllegalStateException("Debe reservar el rango completo en fechas bloqueadas");
         }
 
-        Reservation r = new Reservation(null, userId, cabinId, start, end, guests, ReservationStatus.PENDING);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+        Cabin cabin = cabinRepository.findById(cabinId)
+                .orElseThrow(() -> new CabinNotFoundException("Cabin not found with id: " + cabinId));
+
+        // Calcular precios (por ahora usar valores por defecto)
+        java.math.BigDecimal basePrice = java.math.BigDecimal.valueOf(100.00);
+        java.math.BigDecimal finalPrice = java.math.BigDecimal.valueOf(100.00);
+
+        Reservation r = new Reservation(user, cabin, start, end, guests, ReservationStatus.PENDING, basePrice,
+                finalPrice);
         Reservation saved = reservationRepository.save(r);
         if (businessMetrics != null)
             businessMetrics.incrementReservationCreated();
@@ -63,11 +99,20 @@ public class ReservationApplicationService {
         if (r == null || !r.getUserId().equals(userId)) {
             throw new IllegalStateException("Reserva no encontrada para el usuario");
         }
-        Reservation updated = new Reservation(r.getId(), r.getUserId(), r.getCabinId(), r.getStartDate(),
-                r.getEndDate(), r.getNumberOfGuests(), ReservationStatus.CANCELLED);
-        Reservation saved = reservationRepository.save(updated);
+        r.setStatus(ReservationStatus.CANCELLED);
+        r.setCancelledAt(java.time.LocalDateTime.now());
+        Reservation saved = reservationRepository.save(r);
         if (businessMetrics != null)
             businessMetrics.incrementReservationCancelled();
+
+        // Disparar waiting list notify-next automáticamente
+        if (waitingListService != null && saved.getCabin() != null) {
+            waitingListService.notifyNext(new WaitingListApplicationService.NotifyNextCommand(
+                    saved.getCabin().getId(),
+                    saved.getStartDate(),
+                    saved.getEndDate(),
+                    4));
+        }
         return saved;
     }
 
@@ -79,11 +124,23 @@ public class ReservationApplicationService {
         if (!isTransitionAllowed(current.getStatus(), newStatus)) {
             throw new IllegalStateException("Transición de estado no permitida");
         }
-        Reservation updated = new Reservation(current.getId(), current.getUserId(), current.getCabinId(),
-                current.getStartDate(), current.getEndDate(), current.getNumberOfGuests(), newStatus);
-        Reservation saved = reservationRepository.save(updated);
+        ReservationStatus oldStatus = current.getStatus();
+        current.setStatus(newStatus);
+        if (newStatus == ReservationStatus.CONFIRMED) {
+            current.setConfirmedAt(java.time.LocalDateTime.now());
+        }
+        Reservation saved = reservationRepository.save(current);
         if (businessMetrics != null)
-            businessMetrics.incrementStatusTransition(current.getStatus().name(), newStatus.name());
+            businessMetrics.incrementStatusTransition(oldStatus.name(), newStatus.name());
+
+        // Si pasa a CANCELLED, notificar waiting list automáticamente
+        if (newStatus == ReservationStatus.CANCELLED && waitingListService != null && saved.getCabin() != null) {
+            waitingListService.notifyNext(new WaitingListApplicationService.NotifyNextCommand(
+                    saved.getCabin().getId(),
+                    saved.getStartDate(),
+                    saved.getEndDate(),
+                    4));
+        }
         return saved;
     }
 

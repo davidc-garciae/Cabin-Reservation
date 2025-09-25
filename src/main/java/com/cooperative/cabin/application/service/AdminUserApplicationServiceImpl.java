@@ -25,21 +25,24 @@ public class AdminUserApplicationServiceImpl implements AdminUserApplicationServ
 
     @Override
     @Transactional
-    public AdminUserResponse upsertUser(Long id, String email, String fullName, String role, boolean active) {
+    public AdminUserResponse upsertUser(Long id, String email, String documentNumber, String fullName, String role,
+            boolean active) {
         User user;
         if (id != null) {
             // Update existing user
             user = userRepository.findById(id)
                     .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND_MESSAGE + id));
             user.setEmail(email);
-            user.setFullName(fullName);
+            user.setIdentificationNumber(documentNumber);
+            user.setName(fullName);
             user.setRole(User.UserRole.valueOf(role));
             user.setActive(active);
         } else {
             // Create new user
             user = new User();
             user.setEmail(email);
-            user.setFullName(fullName);
+            user.setIdentificationNumber(documentNumber);
+            user.setName(fullName);
             user.setRole(User.UserRole.valueOf(role));
             user.setActive(active);
         }
@@ -57,11 +60,12 @@ public class AdminUserApplicationServiceImpl implements AdminUserApplicationServ
 
     @Override
     @Transactional
-    public AdminUserResponse updateProfile(Long userId, String email, String fullName) {
+    public AdminUserResponse updateProfile(Long userId, String email, String documentNumber, String fullName) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND_MESSAGE + userId));
         user.setEmail(email);
-        user.setFullName(fullName);
+        user.setIdentificationNumber(documentNumber);
+        user.setName(fullName);
         User savedUser = userRepository.save(user);
         return toResponse(savedUser);
     }
@@ -95,7 +99,8 @@ public class AdminUserApplicationServiceImpl implements AdminUserApplicationServ
         return new AdminUserResponse(
                 user.getId(),
                 user.getEmail(),
-                user.getFullName(),
+                user.getIdentificationNumber(),
+                user.getName(),
                 user.getRole().name(),
                 user.getActive());
     }

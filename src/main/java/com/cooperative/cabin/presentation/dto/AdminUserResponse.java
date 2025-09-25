@@ -6,13 +6,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public class AdminUserResponse {
     private Long id;
     private String email;
+    private String documentNumber;
     private String fullName;
     private String role;
     private boolean active;
 
-    public AdminUserResponse(Long id, String email, String fullName, String role, boolean active) {
+    public AdminUserResponse(Long id, String email, String documentNumber, String fullName, String role,
+            boolean active) {
         this.id = id;
         this.email = email;
+        this.documentNumber = documentNumber;
         this.fullName = fullName;
         this.role = role;
         this.active = active;
@@ -24,6 +27,10 @@ public class AdminUserResponse {
 
     public String getEmail() {
         return email;
+    }
+
+    public String getDocumentNumber() {
+        return documentNumber;
     }
 
     public String getFullName() {

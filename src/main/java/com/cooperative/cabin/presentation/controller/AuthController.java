@@ -1,6 +1,7 @@
 package com.cooperative.cabin.presentation.controller;
 
 import com.cooperative.cabin.application.service.AuthApplicationService;
+import com.cooperative.cabin.presentation.dto.DocumentLoginRequest;
 import com.cooperative.cabin.presentation.dto.RecoverPasswordRequest;
 import com.cooperative.cabin.presentation.dto.ResetPasswordRequest;
 import com.cooperative.cabin.presentation.dto.ValidateTokenRequest;
@@ -29,9 +30,9 @@ public class AuthController {
   }
 
   @PostMapping("/login")
-  @Operation(summary = "Iniciar sesión", description = "Autentica un usuario y devuelve tokens JWT de acceso y refresh", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Credenciales de usuario", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginRequest.class), examples = @ExampleObject(value = """
+  @Operation(summary = "Iniciar sesión", description = "Autentica un usuario con número de documento y devuelve tokens JWT de acceso y refresh", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Credenciales de usuario con número de documento", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = DocumentLoginRequest.class), examples = @ExampleObject(value = """
       {
-        "username": "admin",
+        "documentNumber": "12345678",
         "password": "password123"
       }
       """))), responses = {
@@ -41,12 +42,12 @@ public class AuthController {
             "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
           }
           """))),
-      @ApiResponse(responseCode = "401", description = "Credenciales inválidas", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
+      @ApiResponse(responseCode = "401", description = "Credenciales inválidas o número de documento deshabilitado", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
           {
             "timestamp": "2024-01-01T10:00:00.000+00:00",
             "status": 401,
             "error": "Unauthorized",
-            "message": "Invalid credentials",
+            "message": "Número de documento no válido o deshabilitado",
             "path": "/api/auth/login"
           }
           """))),
@@ -55,17 +56,13 @@ public class AuthController {
             "timestamp": "2024-01-01T10:00:00.000+00:00",
             "status": 400,
             "error": "Bad Request",
-            "message": "Username and password are required",
+            "message": "Número de documento y contraseña son obligatorios",
             "path": "/api/auth/login"
           }
           """)))
   })
-  public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest request) {
-    // NOTE(dev-only): si el usuario es 'admin', emitimos rol ADMIN para facilitar
-    // pruebas en Swagger.
-    // Este atajo NO debe permanecer en producción; reemplazar por emisión de roles
-    // desde la base de datos/IdP.
-    Map<String, String> tokens = authApplicationService.login(request.getUsername(), request.getPassword());
+  public ResponseEntity<Map<String, String>> login(@Valid @RequestBody DocumentLoginRequest request) {
+    Map<String, String> tokens = authApplicationService.login(request.getDocumentNumber(), request.getPassword());
     return ResponseEntity.ok(tokens);
   }
 
@@ -104,31 +101,6 @@ public class AuthController {
     return ResponseEntity.ok(tokens);
   }
 
-  @Schema(description = "Solicitud de login")
-  public static class LoginRequest {
-    @Schema(description = "Nombre de usuario", example = "admin")
-    private String username;
-
-    @Schema(description = "Contraseña", example = "password123")
-    private String password;
-
-    public String getUsername() {
-      return username;
-    }
-
-    public void setUsername(String username) {
-      this.username = username;
-    }
-
-    public String getPassword() {
-      return password;
-    }
-
-    public void setPassword(String password) {
-      this.password = password;
-    }
-  }
-
   @Schema(description = "Solicitud de renovación de token")
   public static class RefreshRequest {
     @Schema(description = "Token de refresh", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
@@ -144,9 +116,9 @@ public class AuthController {
   }
 
   @PostMapping("/recover-password")
-  @Operation(summary = "Recuperar contraseña", description = "Envía un token de recuperación por email al usuario", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Email del usuario", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = RecoverPasswordRequest.class), examples = @ExampleObject(value = """
+  @Operation(summary = "Recuperar contraseña", description = "Envía un token de recuperación por email al usuario usando su número de documento", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Número de documento del usuario", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = RecoverPasswordRequest.class), examples = @ExampleObject(value = """
       {
-        "email": "usuario@ejemplo.com"
+        "documentNumber": "12345678"
       }
       """))), responses = {
       @ApiResponse(responseCode = "200", description = "Solicitud procesada (siempre devuelve 200 por seguridad)"),
@@ -155,13 +127,13 @@ public class AuthController {
             "timestamp": "2024-01-01T10:00:00.000+00:00",
             "status": 400,
             "error": "Bad Request",
-            "message": "Email format is invalid",
+            "message": "Document number format is invalid",
             "path": "/api/auth/recover-password"
           }
           """)))
   })
   public ResponseEntity<Void> recoverPassword(@Valid @RequestBody RecoverPasswordRequest request) {
-    authApplicationService.recoverPassword(request.email());
+    authApplicationService.recoverPassword(request.documentNumber());
     return ResponseEntity.ok().build();
   }
 

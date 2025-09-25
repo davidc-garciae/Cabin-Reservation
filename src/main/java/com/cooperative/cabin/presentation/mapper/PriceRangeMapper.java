@@ -46,6 +46,11 @@ public class PriceRangeMapper {
         LocalDate end = req.getEndDate();
         BigDecimal base = req.getBasePrice();
         BigDecimal mult = req.getMultiplier();
-        return new PriceRange(null, req.getCabinId(), start, end, base, mult);
+        // Para tests, crear entidad mock
+        com.cooperative.cabin.domain.model.Cabin cabin = new com.cooperative.cabin.domain.model.Cabin();
+        cabin.setId(req.getCabinId());
+
+        return new com.cooperative.cabin.domain.model.PriceRange(
+                cabin, start, end, base, mult, "Test data", null);
     }
 }

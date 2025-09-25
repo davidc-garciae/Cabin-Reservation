@@ -1,10 +1,21 @@
 package com.cooperative.cabin.domain.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "audit_logs")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class AuditLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,54 +30,41 @@ public class AuditLog {
     @Column(name = "entity_id")
     private Long entityId;
 
-    @Column(name = "old_values")
+    @Column(name = "old_values", columnDefinition = "JSONB")
     private String oldValues;
 
-    @Column(name = "new_values")
+    @Column(name = "new_values", columnDefinition = "JSONB")
     private String newValues;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "ip_address")
+    private String ipAddress;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public AuditLog() {
-    }
+    @LastModifiedDate
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
 
-    public AuditLog(Long id, String action, String entityType, Long entityId, String oldValues, String newValues) {
-        this.id = id;
+    // Constructors
+    public AuditLog(String action, String entityType, Long entityId, String oldValues, String newValues,
+            String ipAddress, User user) {
         this.action = action;
         this.entityType = entityType;
         this.entityId = entityId;
         this.oldValues = oldValues;
         this.newValues = newValues;
-        this.createdAt = LocalDateTime.now();
+        this.ipAddress = ipAddress;
+        this.user = user;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getAction() {
-        return action;
-    }
-
-    public String getEntityType() {
-        return entityType;
-    }
-
-    public Long getEntityId() {
-        return entityId;
-    }
-
-    public String getOldValues() {
-        return oldValues;
-    }
-
-    public String getNewValues() {
-        return newValues;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    // Convenience method for backward compatibility
+    public Long getUserId() {
+        return user != null ? user.getId() : null;
     }
 }
-

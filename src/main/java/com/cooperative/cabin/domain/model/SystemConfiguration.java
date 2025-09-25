@@ -1,11 +1,22 @@
 package com.cooperative.cabin.domain.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
 @Table(name = "system_configurations")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class SystemConfiguration {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,87 +34,40 @@ public class SystemConfiguration {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "updated_by")
-    private String updatedBy;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "updated_by")
+    private User updatedBy;
 
     @Column(name = "is_active", nullable = false)
     private boolean active;
 
-    @Column(name = "created_at", nullable = false)
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    public SystemConfiguration(Long id, String configKey, String configValue) {
-        this.id = id;
+    // Constructors
+    public SystemConfiguration(String configKey, String configValue) {
         this.configKey = configKey;
         this.configValue = configValue;
         this.dataType = "STRING"; // valor por defecto
         this.active = true;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = this.createdAt;
     }
 
-    protected SystemConfiguration() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getConfigKey() {
-        return configKey;
-    }
-
-    public String getConfigValue() {
-        return configValue;
-    }
-
-    public void setConfigValue(String configValue) {
+    // Constructor de compatibilidad para tests (DEPRECATED - solo para tests)
+    @Deprecated
+    public SystemConfiguration(Long id, String configKey, String configValue) {
+        this.id = id;
+        this.configKey = configKey;
         this.configValue = configValue;
-        this.updatedAt = LocalDateTime.now();
+        this.dataType = "STRING";
+        this.active = true;
     }
 
-    public String getDataType() {
-        return dataType;
-    }
-
-    public void setDataType(String dataType) {
-        this.dataType = dataType;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getUpdatedBy() {
-        return updatedBy;
-    }
-
-    public void setUpdatedBy(String updatedBy) {
-        this.updatedBy = updatedBy;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
+    // Business methods
 
     @Override
     public boolean equals(Object o) {

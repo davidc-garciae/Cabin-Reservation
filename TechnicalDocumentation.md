@@ -10,7 +10,7 @@ Documentación técnica completa del sistema de reservas de cabañas implementad
 
 ### **Características Técnicas:**
 
-- ✅ **41/44 endpoints** REST implementados (3 pendientes de Notificaciones)
+- ✅ **43/44 endpoints** REST implementados (1 pendiente de Notificaciones generales)
 - ✅ **OpenAPI 3.0 + Swagger UI** integrado
 - ✅ **Arquitectura en capas** (Presentation, Application, Domain, Infrastructure, Common)
 - ✅ **Flujo de datos** optimizado
@@ -54,7 +54,7 @@ GET    /api/availability                  # Consultar disponibilidad
 GET    /api/availability/calendar         # Calendario de disponibilidad
 ```
 
-#### **✅ Módulo de Administración (8 endpoints)**
+#### **✅ Módulo de Administración (9 endpoints)**
 
 ```
 GET    /api/admin/dashboard               # Dashboard con métricas
@@ -62,6 +62,7 @@ GET    /api/admin/reservations            # Todas las reservas
 PATCH  /api/admin/reservations/{id}/status    # Cambiar estado (admin)
 DELETE /api/admin/reservations/{id}       # Cancelar reserva (admin)
 GET    /api/admin/waiting-list            # Lista de espera
+POST   /api/admin/waiting-list/notify-next# Notificar siguiente en lista (forzar manual)
 GET    /api/admin/availability/blocks     # Listar bloqueos de disponibilidad
 POST   /api/admin/availability/blocks     # Crear bloqueo de disponibilidad
 PUT    /api/admin/availability/blocks/{id}# Actualizar bloqueo de disponibilidad
@@ -98,12 +99,10 @@ PUT    /api/admin/cabins/{id}             # Actualizar cabaña
 DELETE /api/admin/cabins/{id}             # Desactivar cabaña
 ```
 
-#### **⏳ Módulo de Notificaciones (3 endpoints) - PENDIENTE**
+#### **⏳ Módulo de Notificaciones (1 endpoint) - PENDIENTE**
 
 ```
-POST   /api/admin/notifications/send      # Enviar notificación manual
-GET    /api/admin/notifications/history   # Historial de notificaciones
-POST   /api/admin/waiting-list/{id}/notify    # Notificar siguiente en lista
+POST   /api/admin/notifications/send      # Enviar notificación manual (general)
 ```
 
 ### **2.2 Total de Endpoints: 44**
@@ -113,11 +112,18 @@ POST   /api/admin/waiting-list/{id}/notify    # Notificar siguiente en lista
 - Autenticación: 5 endpoints
 - Usuarios: 6 endpoints
 - Reservas: 6 endpoints
-- Administración: 8 endpoints
+- Administración: 9 endpoints
 - Widget de Precios: 8 endpoints
 - Configuración: 4 endpoints
 - Cabañas: 5 endpoints
-- Notificaciones: 3 endpoints
+- Notificaciones: 1 endpoint
+
+#### **✅ Módulo de Waiting List (2 endpoints)**
+
+```
+POST   /api/admin/waiting-list/notify-next    # Notifica siguiente (admin/manual)
+POST   /api/waiting-list/claim                # Reclamo con token (público autenticado)
+```
 
 ---
 

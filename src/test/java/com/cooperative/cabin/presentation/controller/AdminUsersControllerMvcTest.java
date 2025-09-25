@@ -42,8 +42,10 @@ class AdminUsersControllerMvcTest {
 
         @Test
         void getUsers_returnsList() throws Exception {
-                AdminUserResponse u1 = new AdminUserResponse(1L, "john@example.com", "John Doe", "USER", true);
-                AdminUserResponse u2 = new AdminUserResponse(2L, "admin@example.com", "Admin", "ADMIN", true);
+                AdminUserResponse u1 = new AdminUserResponse(1L, "john@example.com", "12345678", "John Doe", "USER",
+                                true);
+                AdminUserResponse u2 = new AdminUserResponse(2L, "admin@example.com", "ADMIN001", "Admin", "ADMIN",
+                                true);
                 when(adminUserApplicationService.listUsers()).thenReturn(List.of(u1, u2));
 
                 mockMvc.perform(get("/api/admin/users").accept(MediaType.APPLICATION_JSON))
@@ -55,7 +57,7 @@ class AdminUsersControllerMvcTest {
 
         @Test
         void getUserById_returnsUser() throws Exception {
-                AdminUserResponse u1 = new AdminUserResponse(5L, "u5@example.com", "U Five", "USER", true);
+                AdminUserResponse u1 = new AdminUserResponse(5L, "u5@example.com", "87654321", "U Five", "USER", true);
                 when(adminUserApplicationService.getById(5L)).thenReturn(u1);
 
                 mockMvc.perform(get("/api/admin/users/5").accept(MediaType.APPLICATION_JSON))

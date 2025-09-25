@@ -26,14 +26,17 @@ public class PricingApplicationServiceImpl implements PricingApplicationService 
         PriceRange current = repository.findById(id).orElse(null);
         if (current == null) {
             // Crear si no existe con valores provistos (comportamiento simple)
-            return repository.save(new PriceRange(id, null, startDate, endDate, basePrice, multiplier));
+            // Para crear un nuevo PriceRange necesitamos una cabaña y un usuario
+            // Por ahora usamos valores por defecto - esto debería ser manejado por el
+            // controlador
+            throw new IllegalStateException("Cannot create PriceRange without Cabin and User entities");
         }
         BigDecimal newBase = basePrice != null ? basePrice : current.getBasePrice();
         BigDecimal newMult = multiplier != null ? multiplier : current.getPriceMultiplier();
         LocalDate newStart = startDate != null ? startDate : current.getStartDate();
         LocalDate newEnd = endDate != null ? endDate : current.getEndDate();
         return repository
-                .save(new PriceRange(current.getId(), current.getCabinId(), newStart, newEnd, newBase, newMult));
+                .save(new PriceRange(current.getCabin(), newStart, newEnd, newBase, newMult, "Updated", null));
     }
 
     @Override
@@ -44,14 +47,18 @@ public class PricingApplicationServiceImpl implements PricingApplicationService 
     @Override
     public PriceRange createPriceRange(Long cabinId, LocalDate startDate, LocalDate endDate, BigDecimal basePrice,
             BigDecimal multiplier) {
-        return repository.save(new PriceRange(null, cabinId, startDate, endDate, basePrice, multiplier));
+        // Necesitamos cargar la entidad Cabin y un User para crear el PriceRange
+        throw new IllegalStateException(
+                "Cannot create PriceRange without Cabin and User entities - use proper service method");
     }
 
     @Override
     public PriceRange updatePriceRange(Long id, Long cabinId, LocalDate startDate, LocalDate endDate,
             BigDecimal basePrice,
             BigDecimal multiplier) {
-        return repository.save(new PriceRange(id, cabinId, startDate, endDate, basePrice, multiplier));
+        // Necesitamos cargar la entidad Cabin y un User para actualizar el PriceRange
+        throw new IllegalStateException(
+                "Cannot update PriceRange without Cabin and User entities - use proper service method");
     }
 
     @Override
@@ -73,7 +80,7 @@ public class PricingApplicationServiceImpl implements PricingApplicationService 
     @Override
     public BigDecimal calculatePrice(Long cabinId, LocalDate date) {
         List<PriceRange> ranges = repository
-                .findByCabinIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(cabinId, date, date);
+                .findByCabin_IdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(cabinId, date, date);
         if (ranges.isEmpty()) {
             return BigDecimal.ZERO;
         }

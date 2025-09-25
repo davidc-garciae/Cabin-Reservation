@@ -4,9 +4,12 @@ import com.cooperative.cabin.application.service.BusinessMetrics;
 import com.cooperative.cabin.application.service.ConfigurationService;
 import com.cooperative.cabin.application.service.ReservationApplicationService;
 import com.cooperative.cabin.domain.model.AvailabilityBlock;
+import com.cooperative.cabin.application.service.WaitingListApplicationService;
 import com.cooperative.cabin.domain.model.Reservation;
 import com.cooperative.cabin.infrastructure.repository.AvailabilityBlockJpaRepository;
 import com.cooperative.cabin.infrastructure.repository.ReservationJpaRepository;
+import com.cooperative.cabin.infrastructure.repository.UserJpaRepository;
+import com.cooperative.cabin.infrastructure.repository.CabinJpaRepository;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,13 +26,19 @@ public class ReservationApplicationServiceConfig {
     public ReservationApplicationService reservationApplicationService(
             ReservationApplicationService.ReservationRepository reservationRepository,
             ReservationApplicationService.AvailabilityBlockRepository availabilityBlockRepository,
+            UserJpaRepository userRepository,
+            CabinJpaRepository cabinRepository,
             ReservationApplicationService.ConfigurationService reservationConfig,
-            MeterRegistry meterRegistry) {
+            MeterRegistry meterRegistry,
+            WaitingListApplicationService waitingListApplicationService) {
         return new ReservationApplicationService(
                 reservationRepository,
                 availabilityBlockRepository,
+                userRepository,
+                cabinRepository,
                 reservationConfig,
-                new BusinessMetrics(meterRegistry));
+                new BusinessMetrics(meterRegistry),
+                waitingListApplicationService);
     }
 
     @Bean
@@ -38,7 +47,7 @@ public class ReservationApplicationServiceConfig {
         return new ReservationApplicationService.ReservationRepository() {
             @Override
             public List<Reservation> findByUserId(Long userId) {
-                return jpaRepository.findByUserId(userId);
+                return jpaRepository.findByUser_Id(userId);
             }
 
             @Override
@@ -64,7 +73,7 @@ public class ReservationApplicationServiceConfig {
         return new ReservationApplicationService.AvailabilityBlockRepository() {
             @Override
             public List<AvailabilityBlock> findByCabinId(Long cabinId) {
-                return jpaRepository.findByCabinId(cabinId);
+                return jpaRepository.findByCabin_Id(cabinId);
             }
         };
     }

@@ -9,8 +9,8 @@ import java.util.List;
 
 @Repository
 public interface PriceRangeJpaRepository extends JpaRepository<PriceRange, Long> {
-    List<PriceRange> findByCabinId(Long cabinId);
+    List<PriceRange> findByCabin_Id(Long cabinId);
 
-    List<PriceRange> findByCabinIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(Long cabinId, LocalDate start,
+    List<PriceRange> findByCabin_IdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(Long cabinId, LocalDate start,
             LocalDate end);
 }

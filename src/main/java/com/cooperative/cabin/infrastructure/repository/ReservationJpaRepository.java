@@ -11,9 +11,9 @@ import java.util.List;
 
 @Repository
 public interface ReservationJpaRepository extends JpaRepository<Reservation, Long> {
-    List<Reservation> findByUserId(Long userId);
+    List<Reservation> findByUser_Id(Long userId);
 
-    @Query("select max(r.createdAt) from Reservation r where r.userId = :userId")
+    @Query("select max(r.createdAt) from Reservation r where r.user.id = :userId")
     LocalDate findLastCreatedAtDate(Long userId);
 
     List<Reservation> findByStatusAndStartDateLessThanEqual(ReservationStatus status, LocalDate dateInclusive);

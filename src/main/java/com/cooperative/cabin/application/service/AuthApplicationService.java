@@ -1,7 +1,9 @@
 package com.cooperative.cabin.application.service;
 
+import com.cooperative.cabin.domain.model.DocumentNumber;
 import com.cooperative.cabin.domain.model.PasswordResetToken;
 import com.cooperative.cabin.domain.model.User;
+import com.cooperative.cabin.infrastructure.repository.DocumentNumberJpaRepository;
 import com.cooperative.cabin.infrastructure.repository.PasswordResetTokenRepository;
 import com.cooperative.cabin.infrastructure.repository.UserJpaRepository;
 import com.cooperative.cabin.infrastructure.security.JwtService;
@@ -9,7 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -20,25 +22,50 @@ public class AuthApplicationService {
 
     private final JwtService jwtService;
     private final UserJpaRepository userRepository;
+    private final DocumentNumberJpaRepository documentNumberRepository;
     private final PasswordResetTokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
 
     public AuthApplicationService(JwtService jwtService,
             UserJpaRepository userRepository,
+            DocumentNumberJpaRepository documentNumberRepository,
             PasswordResetTokenRepository tokenRepository,
             PasswordEncoder passwordEncoder) {
         this.jwtService = jwtService;
         this.userRepository = userRepository;
+        this.documentNumberRepository = documentNumberRepository;
         this.tokenRepository = tokenRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
-    public Map<String, String> login(String username, String password) {
-        // Verificar credenciales (implementación básica para testing)
-        // En producción, esto debería verificar contra la base de datos
-        String role = "admin".equalsIgnoreCase(username) ? "ADMIN" : "USER";
-        String access = jwtService.generateAccessToken(username, role);
-        String refresh = jwtService.generateRefreshToken(username);
+    public Map<String, String> login(String documentNumber, String password) {
+        // 1. Verificar que el número de documento existe y está activo
+        if (!documentNumberRepository.existsByDocumentNumberAndActive(documentNumber)) {
+            throw new IllegalArgumentException("Número de documento no válido o deshabilitado");
+        }
+
+        // 2. Buscar el usuario por número de documento
+        Optional<User> userOpt = userRepository.findByIdentificationNumber(documentNumber);
+        if (userOpt.isEmpty()) {
+            throw new IllegalArgumentException("Usuario no encontrado para este número de documento");
+        }
+
+        User user = userOpt.get();
+
+        // 3. Verificar que el usuario está activo
+        if (!user.getActive()) {
+            throw new IllegalArgumentException("Usuario deshabilitado");
+        }
+
+        // 4. Verificar la contraseña
+        if (!passwordEncoder.matches(password, user.getPinHash())) {
+            throw new IllegalArgumentException("Contraseña incorrecta");
+        }
+
+        // 5. Generar tokens JWT
+        String access = jwtService.generateAccessToken(user.getEmail(), user.getRole().name());
+        String refresh = jwtService.generateRefreshToken(user.getEmail());
+
         return Map.of("accessToken", access, "refreshToken", refresh);
     }
 
@@ -47,27 +74,37 @@ public class AuthApplicationService {
         return Map.of("accessToken", newAccess);
     }
 
-    public void recoverPassword(String email) {
-        // Verificar que el usuario existe
-        Optional<User> userOpt = userRepository.findByEmail(email);
-        if (userOpt.isEmpty()) {
-            // Por seguridad, no revelamos si el email existe o no
+    public void recoverPassword(String documentNumber) {
+        // Verificar que el número de documento existe y está activo
+        if (!documentNumberRepository.existsByDocumentNumberAndActive(documentNumber)) {
+            // Por seguridad, no revelamos si el número de documento existe o no
             return;
         }
+
+        // Buscar el usuario por número de documento
+        Optional<User> userOpt = userRepository.findByIdentificationNumber(documentNumber);
+        if (userOpt.isEmpty()) {
+            // Por seguridad, no revelamos si el usuario existe o no
+            return;
+        }
+
+        User user = userOpt.get();
+        String email = user.getEmail();
 
         // Marcar tokens anteriores como usados
         tokenRepository.markAllTokensAsUsedForEmail(email);
 
         // Crear nuevo token
         String token = UUID.randomUUID().toString();
-        Instant expiresAt = Instant.now().plusSeconds(24L * 60 * 60); // 24 horas
+        LocalDateTime expiresAt = LocalDateTime.now().plusHours(24); // 24 horas
 
-        PasswordResetToken resetToken = new PasswordResetToken(token, email, expiresAt);
+        PasswordResetToken resetToken = new PasswordResetToken(token, user, expiresAt);
         tokenRepository.save(resetToken);
 
         // TODO: Enviar email con el token (implementar servicio de notificaciones)
         // Por ahora, solo logueamos el token para testing
-        // System.out.println("Password reset token for " + email + ": " + token);
+        // System.out.println("Password reset token for " + email + " (document: " +
+        // documentNumber + "): " + token);
     }
 
     public void resetPassword(String token, String newPin) {
@@ -111,6 +148,6 @@ public class AuthApplicationService {
     }
 
     public void cleanupExpiredTokens() {
-        tokenRepository.deleteExpiredTokens(Instant.now());
+        tokenRepository.deleteExpiredTokens(LocalDateTime.now());
     }
 }

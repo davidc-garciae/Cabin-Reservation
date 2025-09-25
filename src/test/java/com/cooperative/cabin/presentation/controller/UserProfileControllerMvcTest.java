@@ -40,7 +40,8 @@ class UserProfileControllerMvcTest {
 
         @Test
         void getProfile_returnsUser() throws Exception {
-                AdminUserResponse response = new AdminUserResponse(7L, "john.doe@example.com", "John Doe", "PROFESSOR",
+                AdminUserResponse response = new AdminUserResponse(7L, "john.doe@example.com", "12345678", "John Doe",
+                                "PROFESSOR",
                                 true);
                 given(adminUserApplicationService.getProfile(7L)).willReturn(response);
 
@@ -52,13 +53,15 @@ class UserProfileControllerMvcTest {
 
         @Test
         void putProfile_updatesUser() throws Exception {
-                AdminUserResponse response = new AdminUserResponse(7L, "johnny@example.com", "Johnny", "PROFESSOR",
+                AdminUserResponse response = new AdminUserResponse(7L, "johnny@example.com", "87654321", "Johnny",
+                                "PROFESSOR",
                                 true);
-                given(adminUserApplicationService.updateProfile(7L, "johnny@example.com", "Johnny"))
+                given(adminUserApplicationService.updateProfile(7L, "johnny@example.com", "87654321", "Johnny"))
                                 .willReturn(response);
 
                 String body = "{" +
                                 "\"email\":\"johnny@example.com\"," +
+                                "\"documentNumber\":\"87654321\"," +
                                 "\"fullName\":\"Johnny\"" +
                                 "}";
 

@@ -1,14 +1,25 @@
 package com.cooperative.cabin.domain.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "password_reset_tokens")
+@Table(name = "password_reset_tokens", indexes = {
+        @Index(name = "idx_password_reset_token", columnList = "token"),
+        @Index(name = "idx_password_reset_user_id", columnList = "user_id"),
+        @Index(name = "idx_password_reset_expires_at", columnList = "expires_at"),
+        @Index(name = "idx_password_reset_used", columnList = "used")
+})
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class PasswordResetToken {
 
@@ -19,96 +30,42 @@ public class PasswordResetToken {
     @Column(nullable = false, unique = true)
     private String token;
 
-    @Column(nullable = false)
-    private String email;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(nullable = false)
-    private Instant expiresAt;
+    private LocalDateTime expiresAt;
 
     @Column(nullable = false)
     private boolean used = false;
 
     @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private Instant createdAt;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     @LastModifiedDate
-    private Instant updatedAt;
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
 
     // Constructors
-    public PasswordResetToken() {
-    }
-
-    public PasswordResetToken(String token, String email, Instant expiresAt) {
+    public PasswordResetToken(String token, User user, LocalDateTime expiresAt) {
         this.token = token;
-        this.email = email;
+        this.user = user;
         this.expiresAt = expiresAt;
     }
 
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
+    // Convenience methods for backward compatibility
     public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public Instant getExpiresAt() {
-        return expiresAt;
-    }
-
-    public void setExpiresAt(Instant expiresAt) {
-        this.expiresAt = expiresAt;
-    }
-
-    public boolean isUsed() {
-        return used;
-    }
-
-    public void setUsed(boolean used) {
-        this.used = used;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
+        return user != null ? user.getEmail() : null;
     }
 
     // Business methods
     public boolean isExpired() {
-        return Instant.now().isAfter(expiresAt);
+        return LocalDateTime.now().isAfter(expiresAt);
     }
 
     public boolean isValid() {
         return !used && !isExpired();
     }
 }
-

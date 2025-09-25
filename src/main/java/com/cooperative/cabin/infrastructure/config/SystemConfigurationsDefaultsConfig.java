@@ -29,7 +29,13 @@ public class SystemConfigurationsDefaultsConfig {
         return args -> {
             systemConfigurationDefaults.forEach((key, value) -> {
                 repository.findByConfigKey(key)
-                        .orElseGet(() -> repository.save(new SystemConfiguration(null, key, value)));
+                        .orElseGet(() -> {
+                            SystemConfiguration config = new SystemConfiguration(key, value);
+                            // Establecer campos de auditoría manualmente
+                            config.setCreatedAt(java.time.LocalDateTime.now());
+                            config.setUpdatedAt(java.time.LocalDateTime.now());
+                            return repository.save(config);
+                        });
             });
         };
     }

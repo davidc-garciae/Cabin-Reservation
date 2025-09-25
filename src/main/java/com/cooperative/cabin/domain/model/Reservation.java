@@ -1,29 +1,55 @@
 package com.cooperative.cabin.domain.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
-@Table(name = "reservations")
+@Table(name = "reservations", indexes = {
+        @Index(name = "idx_reservation_user_id", columnList = "user_id"),
+        @Index(name = "idx_reservation_cabin_id", columnList = "cabin_id"),
+        @Index(name = "idx_reservation_dates", columnList = "start_date, end_date"),
+        @Index(name = "idx_reservation_status", columnList = "status"),
+        @Index(name = "idx_reservation_created_at", columnList = "created_at")
+})
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class Reservation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @NotNull(message = "Usuario es obligatorio")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @Column(name = "cabin_id", nullable = false)
-    private Long cabinId;
+    @NotNull(message = "Cabaña es obligatoria")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cabin_id", nullable = false)
+    private Cabin cabin;
 
+    @NotNull(message = "Fecha de inicio es obligatoria")
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
+    @NotNull(message = "Fecha de fin es obligatoria")
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
+    @NotNull(message = "Número de huéspedes es obligatorio")
+    @Min(value = 1, message = "Debe haber al menos 1 huésped")
+    @Max(value = 20, message = "No puede haber más de 20 huéspedes")
     @Column(name = "number_of_guests", nullable = false)
     private int numberOfGuests;
 
@@ -31,55 +57,63 @@ public class Reservation {
     @Column(name = "status", nullable = false)
     private ReservationStatus status;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "base_price", nullable = false, precision = 10, scale = 2)
+    private java.math.BigDecimal basePrice;
+
+    @Column(name = "final_price", nullable = false, precision = 10, scale = 2)
+    private java.math.BigDecimal finalPrice;
+
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public Reservation(Long id, Long userId, Long cabinId, LocalDate startDate, LocalDate endDate, int numberOfGuests,
-            ReservationStatus status) {
-        this.id = id;
-        this.userId = userId;
-        this.cabinId = cabinId;
+    @Column(name = "confirmed_at")
+    private LocalDateTime confirmedAt;
+
+    @Column(name = "cancelled_at")
+    private LocalDateTime cancelledAt;
+
+    // Constructors
+    public Reservation(User user, Cabin cabin, LocalDate startDate, LocalDate endDate, int numberOfGuests,
+            ReservationStatus status, java.math.BigDecimal basePrice, java.math.BigDecimal finalPrice) {
+        this.user = user;
+        this.cabin = cabin;
         this.startDate = startDate;
         this.endDate = endDate;
         this.numberOfGuests = numberOfGuests;
         this.status = status;
-        this.createdAt = LocalDateTime.now();
+        this.basePrice = basePrice;
+        this.finalPrice = finalPrice;
     }
 
-    protected Reservation() {
+    // Constructor de compatibilidad para tests (DEPRECATED - solo para tests)
+    @Deprecated
+    public Reservation(Long id, Long userId, Long cabinId, LocalDate startDate, LocalDate endDate,
+            int numberOfGuests, ReservationStatus status) {
+        this.id = id;
+        // Crear entidades mock para tests
+        this.user = new User();
+        this.user.setId(userId);
+        this.cabin = new Cabin();
+        this.cabin.setId(cabinId);
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.numberOfGuests = numberOfGuests;
+        this.status = status;
+        this.basePrice = java.math.BigDecimal.valueOf(100.00);
+        this.finalPrice = java.math.BigDecimal.valueOf(100.00);
     }
 
-    public Long getId() {
-        return id;
-    }
-
+    // Convenience methods for backward compatibility
     public Long getUserId() {
-        return userId;
+        return user != null ? user.getId() : null;
     }
 
     public Long getCabinId() {
-        return cabinId;
+        return cabin != null ? cabin.getId() : null;
     }
 
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public LocalDate getEndDate() {
-        return endDate;
-    }
-
-    public int getNumberOfGuests() {
-        return numberOfGuests;
-    }
-
-    public ReservationStatus getStatus() {
-        return status;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
+    // Business methods
 
     public boolean isActive() {
         return status == ReservationStatus.PENDING || status == ReservationStatus.CONFIRMED

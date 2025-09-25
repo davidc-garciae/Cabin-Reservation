@@ -42,27 +42,55 @@ class AuthControllerRecoveryMvcTest {
         private ObjectMapper objectMapper;
 
         @Test
-        void recoverPassword_validEmail_returns200() throws Exception {
+        void recoverPassword_validDocumentNumber_returns200() throws Exception {
                 // Given
-                String email = "test@example.com";
-                willDoNothing().given(authApplicationService).recoverPassword(email);
+                String documentNumber = "12345678";
+                willDoNothing().given(authApplicationService).recoverPassword(documentNumber);
 
                 // When & Then
                 mockMvc.perform(post("/api/auth/recover-password")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(Map.of("email", email))))
+                                .content(objectMapper.writeValueAsString(Map.of("documentNumber", documentNumber))))
                                 .andExpect(status().isOk());
         }
 
         @Test
-        void recoverPassword_invalidEmail_returns400() throws Exception {
+        void recoverPassword_invalidDocumentNumber_returns400() throws Exception {
                 // Given
-                String invalidEmail = "invalid-email";
+                String invalidDocumentNumber = "123"; // Muy corto (menos de 8 caracteres)
 
                 // When & Then
                 mockMvc.perform(post("/api/auth/recover-password")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(Map.of("email", invalidEmail))))
+                                .content(objectMapper
+                                                .writeValueAsString(Map.of("documentNumber", invalidDocumentNumber))))
+                                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void recoverPassword_emptyDocumentNumber_returns400() throws Exception {
+                // Given
+                String emptyDocumentNumber = ""; // Vacío
+
+                // When & Then
+                mockMvc.perform(post("/api/auth/recover-password")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper
+                                                .writeValueAsString(Map.of("documentNumber", emptyDocumentNumber))))
+                                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void recoverPassword_nonNumericDocumentNumber_returns400() throws Exception {
+                // Given
+                String nonNumericDocumentNumber = "abc12345"; // Contiene letras
+
+                // When & Then
+                mockMvc.perform(post("/api/auth/recover-password")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper
+                                                .writeValueAsString(
+                                                                Map.of("documentNumber", nonNumericDocumentNumber))))
                                 .andExpect(status().isBadRequest());
         }
 

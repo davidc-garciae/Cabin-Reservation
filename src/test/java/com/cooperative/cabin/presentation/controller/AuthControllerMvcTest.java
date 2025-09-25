@@ -2,6 +2,7 @@ package com.cooperative.cabin.presentation.controller;
 
 import com.cooperative.cabin.TestMvcConfiguration;
 import com.cooperative.cabin.application.service.AuthApplicationService;
+import com.cooperative.cabin.infrastructure.repository.DocumentNumberJpaRepository;
 import com.cooperative.cabin.infrastructure.repository.PasswordResetTokenRepository;
 import com.cooperative.cabin.infrastructure.repository.UserJpaRepository;
 import com.cooperative.cabin.infrastructure.security.JwtService;
@@ -42,6 +43,9 @@ class AuthControllerMvcTest {
         private UserJpaRepository userRepository;
 
         @MockBean
+        private DocumentNumberJpaRepository documentNumberRepository;
+
+        @MockBean
         private PasswordResetTokenRepository tokenRepository;
 
         @Test
@@ -50,7 +54,7 @@ class AuthControllerMvcTest {
                                 .willReturn(Map.of("accessToken", "access.jwt", "refreshToken", "refresh.jwt"));
 
                 String body = "{" +
-                                "\"username\":\"john@example.com\"," +
+                                "\"documentNumber\":\"12345678\"," +
                                 "\"password\":\"secret\"" +
                                 "}";
 

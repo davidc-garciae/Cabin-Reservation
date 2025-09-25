@@ -25,15 +25,18 @@ public class AvailabilityBlocksAdminServiceImpl implements AvailabilityBlocksAdm
 
     @Override
     public AvailabilityBlock create(Long cabinId, LocalDate startDate, LocalDate endDate) {
-        AvailabilityBlock block = new AvailabilityBlock(null, cabinId, startDate, endDate);
-        return repository.save(block);
+        // Necesitamos cargar la entidad Cabin y un User para crear el AvailabilityBlock
+        throw new IllegalStateException(
+                "Cannot create AvailabilityBlock without Cabin and User entities - use proper service method");
     }
 
     @Override
     public AvailabilityBlock update(Long id, Long cabinId, LocalDate startDate, LocalDate endDate) {
         // Reemplazo simple por id (merge) dado que la entidad no tiene setters
-        AvailabilityBlock updated = new AvailabilityBlock(id, cabinId, startDate, endDate);
-        return repository.save(updated);
+        // Necesitamos cargar la entidad Cabin y un User para actualizar el
+        // AvailabilityBlock
+        throw new IllegalStateException(
+                "Cannot update AvailabilityBlock without Cabin and User entities - use proper service method");
     }
 
     @Override

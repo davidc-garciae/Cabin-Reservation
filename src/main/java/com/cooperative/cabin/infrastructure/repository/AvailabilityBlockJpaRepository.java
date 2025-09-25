@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface AvailabilityBlockJpaRepository extends JpaRepository<AvailabilityBlock, Long> {
-    List<AvailabilityBlock> findByCabinId(Long cabinId);
+    List<AvailabilityBlock> findByCabin_Id(Long cabinId);
 }

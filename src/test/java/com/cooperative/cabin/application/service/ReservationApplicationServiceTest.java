@@ -19,6 +19,8 @@ class ReservationApplicationServiceTest {
 
         private ReservationApplicationService.ReservationRepository reservationRepository;
         private ReservationApplicationService.AvailabilityBlockRepository availabilityBlockRepository;
+        private com.cooperative.cabin.infrastructure.repository.UserJpaRepository userRepository;
+        private com.cooperative.cabin.infrastructure.repository.CabinJpaRepository cabinRepository;
         private ReservationApplicationService.ConfigurationService configurationService;
         private ReservationApplicationService service;
         private BusinessMetrics businessMetrics;
@@ -28,16 +30,28 @@ class ReservationApplicationServiceTest {
                 reservationRepository = Mockito.mock(ReservationApplicationService.ReservationRepository.class);
                 availabilityBlockRepository = Mockito
                                 .mock(ReservationApplicationService.AvailabilityBlockRepository.class);
+                userRepository = Mockito.mock(com.cooperative.cabin.infrastructure.repository.UserJpaRepository.class);
+                cabinRepository = Mockito
+                                .mock(com.cooperative.cabin.infrastructure.repository.CabinJpaRepository.class);
                 configurationService = Mockito.mock(ReservationApplicationService.ConfigurationService.class);
                 businessMetrics = Mockito.mock(BusinessMetrics.class);
                 service = new ReservationApplicationService(reservationRepository, availabilityBlockRepository,
-                                configurationService, businessMetrics);
+                                userRepository, cabinRepository, configurationService, businessMetrics);
         }
 
         @Test
         void createPreReservation_happyPath() {
                 Long userId = 1L;
                 Long cabinId = 10L;
+
+                // Mock User y Cabin
+                com.cooperative.cabin.domain.model.User user = new com.cooperative.cabin.domain.model.User();
+                user.setId(userId);
+                com.cooperative.cabin.domain.model.Cabin cabin = new com.cooperative.cabin.domain.model.Cabin();
+                cabin.setId(cabinId);
+
+                when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(user));
+                when(cabinRepository.findById(cabinId)).thenReturn(java.util.Optional.of(cabin));
                 when(reservationRepository.findByUserId(userId)).thenReturn(Collections.emptyList());
                 when(reservationRepository.findLastCreatedAtDate(userId)).thenReturn(LocalDate.now().minusDays(40));
                 when(configurationService.getStandardTimeoutDays()).thenReturn(30);

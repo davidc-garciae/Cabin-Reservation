@@ -56,14 +56,14 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             String old = cfg.getConfigValue();
             cfg.setConfigValue(value);
             repository.save(cfg);
-            auditRepository.save(new AuditLog(null, "UPDATE", "SystemConfiguration", cfg.getId(),
-                    "{\"value\":\"" + old + "\"}", "{\"value\":\"" + value + "\"}"));
+            auditRepository.save(new AuditLog("UPDATE", "SystemConfiguration", cfg.getId(),
+                    "{\"value\":\"" + old + "\"}", "{\"value\":\"" + value + "\"}", null, null));
         } else {
-            SystemConfiguration toSave = new SystemConfiguration(null, key, value);
+            SystemConfiguration toSave = new SystemConfiguration(key, value);
             SystemConfiguration saved = repository.save(toSave);
             Long entityId = saved != null ? saved.getId() : null;
-            auditRepository.save(new AuditLog(null, "CREATE", "SystemConfiguration", entityId, null,
-                    "{\"value\":\"" + value + "\"}"));
+            auditRepository.save(new AuditLog("CREATE", "SystemConfiguration", entityId, null,
+                    "{\"value\":\"" + value + "\"}", null, null));
         }
     }
 }
