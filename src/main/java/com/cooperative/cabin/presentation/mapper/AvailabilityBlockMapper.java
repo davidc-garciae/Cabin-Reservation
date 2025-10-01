@@ -7,8 +7,7 @@ public class AvailabilityBlockMapper {
     public static BlockResponse toResponse(AvailabilityBlock b) {
         if (b == null)
             return null;
-        return new BlockResponse(b.getId(), b.getCabinId(), b.getStartDate().toString(), b.getEndDate().toString());
+        return new BlockResponse(b.getId(), b.getCabin().getId(), b.getStartDate().toString(),
+                b.getEndDate().toString());
     }
 }
-
-

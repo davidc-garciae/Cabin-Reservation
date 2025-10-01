@@ -1,5 +1,6 @@
 package com.cooperative.cabin.application.service;
 
+import com.cooperative.cabin.TestEntityFactory;
 import com.cooperative.cabin.domain.model.SystemConfiguration;
 import com.cooperative.cabin.infrastructure.repository.SystemConfigurationJpaRepository;
 import com.cooperative.cabin.infrastructure.repository.AuditLogJpaRepository;
@@ -33,7 +34,10 @@ class ConfigurationServiceTest {
         service = new ConfigurationServiceImpl(repository, defaults, auditRepository);
         when(repository.save(any())).thenAnswer(inv -> {
             SystemConfiguration arg = inv.getArgument(0);
-            return new SystemConfiguration(100L, arg.getConfigKey(), arg.getConfigValue());
+            SystemConfiguration saved = TestEntityFactory.createSystemConfiguration(arg.getConfigKey(),
+                    arg.getConfigValue());
+            saved.setId(100L);
+            return saved;
         });
     }
 
@@ -46,16 +50,20 @@ class ConfigurationServiceTest {
 
     @Test
     void returnsStoredValue() {
+        SystemConfiguration config = TestEntityFactory.createSystemConfiguration("reservation.timeout.minutes", "90");
+        config.setId(1L);
         when(repository.findByConfigKey("reservation.timeout.minutes"))
-                .thenReturn(Optional.of(new SystemConfiguration(1L, "reservation.timeout.minutes", "90")));
+                .thenReturn(Optional.of(config));
         int minutes = service.getInt("reservation.timeout.minutes");
         assertEquals(90, minutes);
     }
 
     @Test
     void parsesDurationMinutes() {
+        SystemConfiguration config = TestEntityFactory.createSystemConfiguration("reservation.timeout.minutes", "45");
+        config.setId(1L);
         when(repository.findByConfigKey("reservation.timeout.minutes"))
-                .thenReturn(Optional.of(new SystemConfiguration(1L, "reservation.timeout.minutes", "45")));
+                .thenReturn(Optional.of(config));
         Duration d = service.getDurationMinutes("reservation.timeout.minutes");
         assertEquals(Duration.ofMinutes(45), d);
     }

@@ -1,8 +1,11 @@
 package com.cooperative.cabin.presentation.controller;
 
+import com.cooperative.cabin.TestEntityFactory;
 import com.cooperative.cabin.TestMvcConfiguration;
 import com.cooperative.cabin.application.service.PricingApplicationService;
 import com.cooperative.cabin.domain.model.PriceRange;
+import com.cooperative.cabin.domain.model.Cabin;
+import com.cooperative.cabin.domain.model.User;
 import com.cooperative.cabin.infrastructure.security.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,9 +50,12 @@ class AdminPricingControllerMvcTest {
 
         @Test
         void patchPriceRange_updatesFieldsPartially() throws Exception {
-                PriceRange updated = new PriceRange(5L, 1L,
-                                LocalDate.of(2025, 2, 1), LocalDate.of(2025, 2, 28),
-                                new BigDecimal("120.00"), new BigDecimal("1.10"));
+                Cabin cabin = TestEntityFactory.createCabin(1L, "Test Cabin", 4);
+                User admin = TestEntityFactory.createAdmin(1L);
+                PriceRange updated = TestEntityFactory.createPriceRange(cabin, LocalDate.of(2025, 2, 1),
+                                LocalDate.of(2025, 2, 28), new BigDecimal("120.00"), new BigDecimal("1.10"),
+                                "Test reason", admin);
+                updated.setId(5L);
 
                 given(pricingApplicationService.partialUpdatePriceRange(
                                 eq(5L), eq(new BigDecimal("120.00")), eq(new BigDecimal("1.10")), eq(null), eq(null)))
@@ -71,12 +77,14 @@ class AdminPricingControllerMvcTest {
 
         @Test
         void getPriceRanges_returnsList() throws Exception {
+                Cabin cabin = TestEntityFactory.createCabin(1L, "Test Cabin", 4);
+                User admin = TestEntityFactory.createAdmin(1L);
+                PriceRange priceRange = TestEntityFactory.createPriceRange(cabin, LocalDate.of(2025, 1, 1),
+                                LocalDate.of(2025, 1, 31), new BigDecimal("100.00"), BigDecimal.ONE,
+                                "Test reason", admin);
+                priceRange.setId(1L);
                 given(pricingApplicationService.listPriceRanges())
-                                .willReturn(java.util.List.of(
-                                                new PriceRange(1L, 1L, java.time.LocalDate.of(2025, 1, 1),
-                                                                java.time.LocalDate.of(2025, 1, 31),
-                                                                new java.math.BigDecimal("100.00"),
-                                                                java.math.BigDecimal.ONE)));
+                                .willReturn(java.util.List.of(priceRange));
 
                 mockMvc.perform(get("/api/admin/pricing/ranges"))
                                 .andExpect(status().isOk())
@@ -85,12 +93,15 @@ class AdminPricingControllerMvcTest {
 
         @Test
         void postPriceRange_createsRange() throws Exception {
-                PriceRange created = new PriceRange(9L, 1L, java.time.LocalDate.of(2025, 3, 1),
-                                java.time.LocalDate.of(2025, 3, 31), new java.math.BigDecimal("130.00"),
-                                new java.math.BigDecimal("1.15"));
+                Cabin cabin = TestEntityFactory.createCabin(1L, "Test Cabin", 4);
+                User admin = TestEntityFactory.createAdmin(1L);
+                PriceRange created = TestEntityFactory.createPriceRange(cabin, LocalDate.of(2025, 3, 1),
+                                LocalDate.of(2025, 3, 31), new BigDecimal("130.00"), new BigDecimal("1.15"),
+                                "Test reason", admin);
+                created.setId(9L);
                 given(pricingApplicationService.createPriceRange(
-                                eq(1L), eq(java.time.LocalDate.of(2025, 3, 1)), eq(java.time.LocalDate.of(2025, 3, 31)),
-                                eq(new java.math.BigDecimal("130.00")), eq(new java.math.BigDecimal("1.15"))))
+                                eq(1L), eq(LocalDate.of(2025, 3, 1)), eq(LocalDate.of(2025, 3, 31)),
+                                eq(new BigDecimal("130.00")), eq(new BigDecimal("1.15"))))
                                 .willReturn(created);
 
                 String body = "{" +
@@ -110,13 +121,16 @@ class AdminPricingControllerMvcTest {
 
         @Test
         void putPriceRange_updatesRange() throws Exception {
-                PriceRange updated = new PriceRange(9L, 1L, java.time.LocalDate.of(2025, 3, 1),
-                                java.time.LocalDate.of(2025, 3, 31), new java.math.BigDecimal("150.00"),
-                                new java.math.BigDecimal("1.20"));
+                Cabin cabin = TestEntityFactory.createCabin(1L, "Test Cabin", 4);
+                User admin = TestEntityFactory.createAdmin(1L);
+                PriceRange updated = TestEntityFactory.createPriceRange(cabin, LocalDate.of(2025, 3, 1),
+                                LocalDate.of(2025, 3, 31), new BigDecimal("150.00"), new BigDecimal("1.20"),
+                                "Test reason", admin);
+                updated.setId(9L);
                 given(pricingApplicationService.updatePriceRange(
-                                eq(9L), eq(1L), eq(java.time.LocalDate.of(2025, 3, 1)),
-                                eq(java.time.LocalDate.of(2025, 3, 31)), eq(new java.math.BigDecimal("150.00")),
-                                eq(new java.math.BigDecimal("1.20")))).willReturn(updated);
+                                eq(9L), eq(1L), eq(LocalDate.of(2025, 3, 1)),
+                                eq(LocalDate.of(2025, 3, 31)), eq(new BigDecimal("150.00")),
+                                eq(new BigDecimal("1.20")))).willReturn(updated);
 
                 String body = "{" +
                                 "\"cabinId\":1," +

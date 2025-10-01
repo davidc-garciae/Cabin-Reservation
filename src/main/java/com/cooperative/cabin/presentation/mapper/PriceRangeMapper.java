@@ -21,7 +21,7 @@ public class PriceRangeMapper {
             f.set(dto, pr.getId());
             f = PriceRangeResponse.class.getDeclaredField("cabinId");
             f.setAccessible(true);
-            f.set(dto, pr.getCabinId());
+            f.set(dto, pr.getCabin().getId());
             f = PriceRangeResponse.class.getDeclaredField("startDate");
             f.setAccessible(true);
             f.set(dto, pr.getStartDate().toString());

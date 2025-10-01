@@ -86,33 +86,6 @@ public class Reservation {
         this.finalPrice = finalPrice;
     }
 
-    // Constructor de compatibilidad para tests (DEPRECATED - solo para tests)
-    @Deprecated
-    public Reservation(Long id, Long userId, Long cabinId, LocalDate startDate, LocalDate endDate,
-            int numberOfGuests, ReservationStatus status) {
-        this.id = id;
-        // Crear entidades mock para tests
-        this.user = new User();
-        this.user.setId(userId);
-        this.cabin = new Cabin();
-        this.cabin.setId(cabinId);
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.numberOfGuests = numberOfGuests;
-        this.status = status;
-        this.basePrice = java.math.BigDecimal.valueOf(100.00);
-        this.finalPrice = java.math.BigDecimal.valueOf(100.00);
-    }
-
-    // Convenience methods for backward compatibility
-    public Long getUserId() {
-        return user != null ? user.getId() : null;
-    }
-
-    public Long getCabinId() {
-        return cabin != null ? cabin.getId() : null;
-    }
-
     // Business methods
 
     public boolean isActive() {

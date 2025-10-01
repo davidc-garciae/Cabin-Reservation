@@ -10,7 +10,7 @@ public class ReservationPolicies {
 
     public static boolean hasActiveReservation(Long userId, List<Reservation> reservations) {
         return reservations.stream()
-                .anyMatch(r -> r.getUserId().equals(userId) && r.isActive());
+                .anyMatch(r -> r.getUser().getId().equals(userId) && r.isActive());
     }
 
     public static boolean isWithinStandardTimeout(LocalDate lastCreatedAtDate, int standardTimeoutDays,

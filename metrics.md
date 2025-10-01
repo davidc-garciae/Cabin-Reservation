@@ -14,16 +14,16 @@ En `application.yml` ya está expuesto `management.endpoints.web.exposure.includ
 - HTTP: `http.server.requests`
 - DB/conexiones si el datasource lo soporta
 
-## Métricas de negocio (definidas)
+## Métricas de negocio (implementadas)
 
-- `reservations.created` (Counter)
+- `reservations.created` (Counter) ✅
   - Incrementa al crear una pre-reserva.
-- `reservations.cancelled` (Counter)
+- `reservations.cancelled` (Counter) ✅
   - Incrementa al cancelar una reserva (usuario).
-- `reservations.status.transition{from,to}` (Counter con tags)
+- `reservations.status.transition{from,to}` (Counter con tags) ✅
   - Incrementa en cambios de estado por admin.
   - Tags: `from` (PENDING, CONFIRMED, IN_USE, …), `to`.
-- `scheduler.reservations.transition{type}` (Counter con tags)
+- `scheduler.reservations.transition{type}` (Counter con tags) ✅
   - Incrementa en transiciones automáticas del scheduler.
   - Tags: `type` = `start` (CONFIRMED→IN_USE) | `end` (IN_USE→COMPLETED).
 
@@ -43,13 +43,12 @@ En `application.yml` ya está expuesto `management.endpoints.web.exposure.includ
 
 ## Ubicación en código
 
-- Incrementos en `ReservationApplicationService` (crear/cancelar/cambio estado).
-- Incrementos del scheduler en `SchedulingApplicationService`.
+- Incrementos en `ReservationApplicationService` (crear/cancelar/cambio estado). ✅
+- Incrementos del scheduler en `SchedulingApplicationService`. ✅
+- Implementado en `BusinessMetrics` con `MeterRegistry`. ✅
 
 ## Buenas prácticas
 
 - Nombres estables en snake-case o dotted (usamos dotted).
 - Tags cortos y con cardinalidad controlada.
 - Evitar gauges arbitrarios; preferir counters/timers.
-
-

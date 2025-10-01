@@ -1,8 +1,11 @@
 package com.cooperative.cabin.presentation.controller;
 
+import com.cooperative.cabin.TestEntityFactory;
 import com.cooperative.cabin.TestMvcConfiguration;
 import com.cooperative.cabin.application.service.AvailabilityBlocksAdminService;
 import com.cooperative.cabin.domain.model.AvailabilityBlock;
+import com.cooperative.cabin.domain.model.Cabin;
+import com.cooperative.cabin.domain.model.User;
 import com.cooperative.cabin.infrastructure.security.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,9 +45,13 @@ class AdminAvailabilityBlocksControllerMvcTest {
 
         @Test
         void listBlocks_returnsList() throws Exception {
+                Cabin cabin = TestEntityFactory.createCabin(1L, "Test Cabin", 4);
+                User admin = TestEntityFactory.createAdmin(1L);
+                AvailabilityBlock block = TestEntityFactory.createAvailabilityBlock(cabin, LocalDate.of(2025, 4, 1),
+                                LocalDate.of(2025, 4, 4), "Test block", admin);
+                block.setId(1L);
                 given(service.list())
-                                .willReturn(List.of(new AvailabilityBlock(1L, 1L, LocalDate.of(2025, 4, 1),
-                                                LocalDate.of(2025, 4, 4))));
+                                .willReturn(List.of(block));
                 mockMvc.perform(get("/api/admin/availability/blocks"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$[0].id").value(1));
@@ -52,8 +59,11 @@ class AdminAvailabilityBlocksControllerMvcTest {
 
         @Test
         void createBlock_returnsCreated() throws Exception {
-                AvailabilityBlock created = new AvailabilityBlock(10L, 2L, LocalDate.of(2025, 5, 1),
-                                LocalDate.of(2025, 5, 3));
+                Cabin cabin = TestEntityFactory.createCabin(2L, "Test Cabin", 4);
+                User admin = TestEntityFactory.createAdmin(1L);
+                AvailabilityBlock created = TestEntityFactory.createAvailabilityBlock(cabin, LocalDate.of(2025, 5, 1),
+                                LocalDate.of(2025, 5, 3), "Test block", admin);
+                created.setId(10L);
                 given(service.create(eq(2L), eq(LocalDate.of(2025, 5, 1)), eq(LocalDate.of(2025, 5, 3))))
                                 .willReturn(created);
 
@@ -72,8 +82,11 @@ class AdminAvailabilityBlocksControllerMvcTest {
 
         @Test
         void updateBlock_returnsUpdated() throws Exception {
-                AvailabilityBlock updated = new AvailabilityBlock(10L, 3L, LocalDate.of(2025, 6, 1),
-                                LocalDate.of(2025, 6, 5));
+                Cabin cabin = TestEntityFactory.createCabin(3L, "Test Cabin", 4);
+                User admin = TestEntityFactory.createAdmin(1L);
+                AvailabilityBlock updated = TestEntityFactory.createAvailabilityBlock(cabin, LocalDate.of(2025, 6, 1),
+                                LocalDate.of(2025, 6, 5), "Test block", admin);
+                updated.setId(10L);
                 given(service.update(eq(10L), eq(3L), eq(LocalDate.of(2025, 6, 1)), eq(LocalDate.of(2025, 6, 5))))
                                 .willReturn(updated);
 

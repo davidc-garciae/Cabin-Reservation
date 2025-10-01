@@ -1,9 +1,12 @@
 package com.cooperative.cabin.presentation.controller;
 
+import com.cooperative.cabin.TestEntityFactory;
 import com.cooperative.cabin.TestMvcConfiguration;
 import com.cooperative.cabin.application.service.ReservationApplicationService;
 import com.cooperative.cabin.domain.model.Reservation;
 import com.cooperative.cabin.domain.model.ReservationStatus;
+import com.cooperative.cabin.domain.model.User;
+import com.cooperative.cabin.domain.model.Cabin;
 import com.cooperative.cabin.infrastructure.security.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,8 +45,11 @@ class AdminReservationControllerMvcTest {
 
         @Test
         void changeStatus_returnsUpdatedReservation() throws Exception {
-                Reservation updated = new Reservation(10L, 1L, 2L,
+                User user = TestEntityFactory.createUser(1L, "user@test.com", "12345678");
+                Cabin cabin = TestEntityFactory.createCabin(2L, "Test Cabin", 4);
+                Reservation updated = TestEntityFactory.createReservation(user, cabin,
                                 LocalDate.of(2025, 1, 10), LocalDate.of(2025, 1, 12), 2, ReservationStatus.CONFIRMED);
+                updated.setId(10L);
 
                 given(reservationApplicationService.changeStatusByAdmin(eq(10L), eq(ReservationStatus.CONFIRMED)))
                                 .willReturn(updated);

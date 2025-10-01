@@ -1,10 +1,13 @@
 package com.cooperative.cabin.presentation.controller;
 
+import com.cooperative.cabin.TestEntityFactory;
 import com.cooperative.cabin.TestMvcConfiguration;
 import com.cooperative.cabin.application.service.ReservationApplicationService;
 import com.cooperative.cabin.infrastructure.security.JwtService;
 import com.cooperative.cabin.domain.model.Reservation;
 import com.cooperative.cabin.domain.model.ReservationStatus;
+import com.cooperative.cabin.domain.model.User;
+import com.cooperative.cabin.domain.model.Cabin;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -41,9 +44,13 @@ class ReservationQueryControllerMvcTest {
 
         @Test
         void listReservations_returnsArray() throws Exception {
+                User user = TestEntityFactory.createUser(1L, "user@test.com", "12345678");
+                Cabin cabin = TestEntityFactory.createCabin(2L, "Test Cabin", 4);
                 List<Reservation> list = List.of(
-                                new Reservation(1L, 1L, 2L, LocalDate.now(), LocalDate.now().plusDays(1), 2,
+                                TestEntityFactory.createReservation(user, cabin, LocalDate.now(),
+                                                LocalDate.now().plusDays(1), 2,
                                                 ReservationStatus.PENDING));
+                list.get(0).setId(1L);
                 given(reservationApplicationService.listByUser(eq(1L))).willReturn(list);
 
                 mockMvc.perform(get("/api/reservations").header("X-User-Id", "1"))
@@ -53,8 +60,12 @@ class ReservationQueryControllerMvcTest {
 
         @Test
         void getReservation_returnsItem() throws Exception {
-                Reservation r = new Reservation(5L, 1L, 2L, LocalDate.now(), LocalDate.now().plusDays(1), 2,
+                User user = TestEntityFactory.createUser(1L, "user@test.com", "12345678");
+                Cabin cabin = TestEntityFactory.createCabin(2L, "Test Cabin", 4);
+                Reservation r = TestEntityFactory.createReservation(user, cabin, LocalDate.now(),
+                                LocalDate.now().plusDays(1), 2,
                                 ReservationStatus.PENDING);
+                r.setId(5L);
                 given(reservationApplicationService.getByIdForUser(eq(1L), eq(5L))).willReturn(r);
 
                 mockMvc.perform(get("/api/reservations/{id}", 5).header("X-User-Id", "1"))

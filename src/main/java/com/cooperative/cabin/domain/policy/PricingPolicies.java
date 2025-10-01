@@ -12,14 +12,14 @@ public class PricingPolicies {
 
     public static Optional<PriceRange> findApplicableRange(LocalDate date, Long cabinId, List<PriceRange> ranges) {
         return ranges.stream()
-                .filter(r -> r.getCabinId().equals(cabinId))
+                .filter(r -> r.getCabin().getId().equals(cabinId))
                 .filter(r -> !date.isBefore(r.getStartDate()) && !date.isAfter(r.getEndDate()))
                 .min(Comparator.comparing(PriceRange::getStartDate).reversed());
     }
 
     public static boolean hasOverlappingRanges(Long cabinId, List<PriceRange> ranges) {
         List<PriceRange> sorted = ranges.stream()
-                .filter(r -> r.getCabinId().equals(cabinId))
+                .filter(r -> r.getCabin().getId().equals(cabinId))
                 .sorted(Comparator.comparing(PriceRange::getStartDate))
                 .toList();
         for (int i = 1; i < sorted.size(); i++) {

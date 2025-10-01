@@ -1,9 +1,12 @@
 package com.cooperative.cabin.presentation.controller;
 
+import com.cooperative.cabin.TestEntityFactory;
 import com.cooperative.cabin.TestMvcConfiguration;
 import com.cooperative.cabin.application.service.ReservationApplicationService;
 import com.cooperative.cabin.domain.model.Reservation;
 import com.cooperative.cabin.domain.model.ReservationStatus;
+import com.cooperative.cabin.domain.model.User;
+import com.cooperative.cabin.domain.model.Cabin;
 import com.cooperative.cabin.infrastructure.security.JwtService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -47,8 +50,11 @@ class ReservationControllerMvcTest {
 
         @Test
         void createPreReservation_returnsCreatedReservation() throws Exception {
-                Reservation created = new Reservation(10L, 1L, 2L,
+                User user = TestEntityFactory.createUser(1L, "user@test.com", "12345678");
+                Cabin cabin = TestEntityFactory.createCabin(2L, "Test Cabin", 4);
+                Reservation created = TestEntityFactory.createReservation(user, cabin,
                                 LocalDate.of(2025, 1, 10), LocalDate.of(2025, 1, 12), 2, ReservationStatus.PENDING);
+                created.setId(10L);
 
                 given(reservationApplicationService.createPreReservation(
                                 eq(1L), eq(2L), eq(LocalDate.of(2025, 1, 10)), eq(LocalDate.of(2025, 1, 12)), eq(2)))
@@ -72,8 +78,11 @@ class ReservationControllerMvcTest {
 
         @Test
         void cancelReservation_returnsCancelledReservation() throws Exception {
-                Reservation cancelled = new Reservation(10L, 1L, 2L,
+                User user = TestEntityFactory.createUser(1L, "user@test.com", "12345678");
+                Cabin cabin = TestEntityFactory.createCabin(2L, "Test Cabin", 4);
+                Reservation cancelled = TestEntityFactory.createReservation(user, cabin,
                                 LocalDate.of(2025, 1, 10), LocalDate.of(2025, 1, 12), 2, ReservationStatus.CANCELLED);
+                cancelled.setId(10L);
 
                 given(reservationApplicationService.cancelByUser(eq(1L), eq(10L))).willReturn(cancelled);
 

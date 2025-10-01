@@ -15,8 +15,8 @@ public class ReservationMapper {
             return null;
         return new ReservationResponse(
                 r.getId(),
-                r.getUserId(),
-                r.getCabinId(),
+                r.getUser().getId(),
+                r.getCabin().getId(),
                 r.getStartDate() != null ? r.getStartDate().toString() : null,
                 r.getEndDate() != null ? r.getEndDate().toString() : null,
                 r.getNumberOfGuests(),

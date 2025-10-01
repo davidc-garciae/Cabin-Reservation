@@ -1,12 +1,16 @@
 package com.cooperative.cabin.application.service;
 
+import com.cooperative.cabin.TestEntityFactory;
 import com.cooperative.cabin.domain.model.AvailabilityBlock;
 import com.cooperative.cabin.domain.model.Reservation;
 import com.cooperative.cabin.domain.model.ReservationStatus;
+import com.cooperative.cabin.domain.model.User;
+import com.cooperative.cabin.domain.model.Cabin;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -44,11 +48,9 @@ class ReservationApplicationServiceTest {
                 Long userId = 1L;
                 Long cabinId = 10L;
 
-                // Mock User y Cabin
-                com.cooperative.cabin.domain.model.User user = new com.cooperative.cabin.domain.model.User();
-                user.setId(userId);
-                com.cooperative.cabin.domain.model.Cabin cabin = new com.cooperative.cabin.domain.model.Cabin();
-                cabin.setId(cabinId);
+                // Mock User y Cabin usando TestEntityFactory
+                User user = TestEntityFactory.createUser(userId, "user@test.com", "12345678");
+                Cabin cabin = TestEntityFactory.createCabin(cabinId, "Test Cabin", 4);
 
                 when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(user));
                 when(cabinRepository.findById(cabinId)).thenReturn(java.util.Optional.of(cabin));
@@ -63,7 +65,7 @@ class ReservationApplicationServiceTest {
                                 LocalDate.now().plusDays(12), 2);
                 assertNotNull(r);
                 assertEquals(ReservationStatus.PENDING, r.getStatus());
-                assertEquals(userId, r.getUserId());
+                assertEquals(userId, r.getUser().getId());
                 Mockito.verify(businessMetrics).incrementReservationCreated();
         }
 
@@ -71,7 +73,9 @@ class ReservationApplicationServiceTest {
         void createPreReservation_fails_whenUserHasActive() {
                 Long userId = 1L;
                 Long cabinId = 10L;
-                List<Reservation> existing = List.of(new Reservation(1L, userId, cabinId, LocalDate.now(),
+                User user = TestEntityFactory.createUser(userId, "user@test.com", "12345678");
+                Cabin cabin = TestEntityFactory.createCabin(cabinId, "Test Cabin", 4);
+                List<Reservation> existing = List.of(TestEntityFactory.createReservation(user, cabin, LocalDate.now(),
                                 LocalDate.now().plusDays(1), 2, ReservationStatus.PENDING));
                 when(reservationRepository.findByUserId(userId)).thenReturn(existing);
 
@@ -84,8 +88,11 @@ class ReservationApplicationServiceTest {
                 Long userId = 1L;
                 Long cabinId = 10L;
                 Long resId = 99L;
-                Reservation existing = new Reservation(resId, userId, cabinId, LocalDate.now().plusDays(5),
+                User user = TestEntityFactory.createUser(userId, "user@test.com", "12345678");
+                Cabin cabin = TestEntityFactory.createCabin(cabinId, "Test Cabin", 4);
+                Reservation existing = TestEntityFactory.createReservation(user, cabin, LocalDate.now().plusDays(5),
                                 LocalDate.now().plusDays(7), 2, ReservationStatus.PENDING);
+                existing.setId(resId);
                 when(reservationRepository.findById(resId)).thenReturn(existing);
                 when(reservationRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
@@ -114,9 +121,11 @@ class ReservationApplicationServiceTest {
                 when(reservationRepository.findByUserId(userId)).thenReturn(Collections.emptyList());
                 when(reservationRepository.findLastCreatedAtDate(userId)).thenReturn(LocalDate.now().minusDays(40));
                 when(configurationService.getStandardTimeoutDays()).thenReturn(30);
+                Cabin cabin = TestEntityFactory.createCabin(cabinId, "Test Cabin", 4);
+                User admin = TestEntityFactory.createAdmin(1L);
                 when(availabilityBlockRepository.findByCabinId(cabinId)).thenReturn(List.of(
-                                new AvailabilityBlock(1L, cabinId, LocalDate.of(2025, 4, 1),
-                                                LocalDate.of(2025, 4, 4))));
+                                TestEntityFactory.createAvailabilityBlock(1L, cabin, LocalDate.of(2025, 4, 1),
+                                                LocalDate.of(2025, 4, 4), "Test block", admin)));
 
                 assertThrows(IllegalStateException.class, () -> service.createPreReservation(userId, cabinId,
                                 LocalDate.of(2025, 4, 1), LocalDate.of(2025, 4, 2), 2));
@@ -127,8 +136,11 @@ class ReservationApplicationServiceTest {
                 Long resId = 200L;
                 Long userId = 2L;
                 Long cabinId = 20L;
-                Reservation pending = new Reservation(resId, userId, cabinId, LocalDate.now().plusDays(3),
+                User user = TestEntityFactory.createUser(userId, "user@test.com", "12345678");
+                Cabin cabin = TestEntityFactory.createCabin(cabinId, "Test Cabin", 4);
+                Reservation pending = TestEntityFactory.createReservation(user, cabin, LocalDate.now().plusDays(3),
                                 LocalDate.now().plusDays(5), 2, ReservationStatus.PENDING);
+                pending.setId(resId);
                 when(reservationRepository.findById(resId)).thenReturn(pending);
                 when(reservationRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
@@ -136,13 +148,17 @@ class ReservationApplicationServiceTest {
                 assertEquals(ReservationStatus.CONFIRMED, confirmed.getStatus());
                 Mockito.verify(businessMetrics).incrementStatusTransition("PENDING", "CONFIRMED");
 
-                when(reservationRepository.findById(resId)).thenReturn(new Reservation(resId, userId, cabinId,
-                                pending.getStartDate(), pending.getEndDate(), 2, ReservationStatus.IN_USE));
+                Reservation inUse = TestEntityFactory.createReservation(user, cabin, pending.getStartDate(),
+                                pending.getEndDate(), 2, ReservationStatus.IN_USE);
+                inUse.setId(resId);
+                when(reservationRepository.findById(resId)).thenReturn(inUse);
                 Reservation completed = service.changeStatusByAdmin(resId, ReservationStatus.COMPLETED);
                 assertEquals(ReservationStatus.COMPLETED, completed.getStatus());
 
-                when(reservationRepository.findById(resId)).thenReturn(new Reservation(resId, userId, cabinId,
-                                pending.getStartDate(), pending.getEndDate(), 2, ReservationStatus.CONFIRMED));
+                Reservation confirmed2 = TestEntityFactory.createReservation(user, cabin, pending.getStartDate(),
+                                pending.getEndDate(), 2, ReservationStatus.CONFIRMED);
+                confirmed2.setId(resId);
+                when(reservationRepository.findById(resId)).thenReturn(confirmed2);
                 Reservation cancelled = service.changeStatusByAdmin(resId, ReservationStatus.CANCELLED);
                 assertEquals(ReservationStatus.CANCELLED, cancelled.getStatus());
         }
@@ -152,8 +168,11 @@ class ReservationApplicationServiceTest {
                 Long resId = 201L;
                 Long userId = 3L;
                 Long cabinId = 30L;
-                Reservation completed = new Reservation(resId, userId, cabinId, LocalDate.now().plusDays(1),
+                User user = TestEntityFactory.createUser(userId, "user@test.com", "12345678");
+                Cabin cabin = TestEntityFactory.createCabin(cabinId, "Test Cabin", 4);
+                Reservation completed = TestEntityFactory.createReservation(user, cabin, LocalDate.now().plusDays(1),
                                 LocalDate.now().plusDays(2), 2, ReservationStatus.COMPLETED);
+                completed.setId(resId);
                 when(reservationRepository.findById(resId)).thenReturn(completed);
 
                 assertThrows(IllegalStateException.class,

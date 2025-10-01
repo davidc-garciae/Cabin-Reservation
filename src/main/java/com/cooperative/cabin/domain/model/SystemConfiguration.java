@@ -57,16 +57,6 @@ public class SystemConfiguration {
         this.active = true;
     }
 
-    // Constructor de compatibilidad para tests (DEPRECATED - solo para tests)
-    @Deprecated
-    public SystemConfiguration(Long id, String configKey, String configValue) {
-        this.id = id;
-        this.configKey = configKey;
-        this.configValue = configValue;
-        this.dataType = "STRING";
-        this.active = true;
-    }
-
     // Business methods
 
     @Override

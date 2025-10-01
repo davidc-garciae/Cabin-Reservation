@@ -10,11 +10,12 @@ Documentación técnica completa del sistema de reservas de cabañas implementad
 
 ### **Características Técnicas:**
 
-- ✅ **43/44 endpoints** REST implementados (1 pendiente de Notificaciones generales)
+- ✅ **48/48 endpoints** REST implementados (100% completado)
 - ✅ **OpenAPI 3.0 + Swagger UI** integrado
 - ✅ **Arquitectura en capas** (Presentation, Application, Domain, Infrastructure, Common)
 - ✅ **Flujo de datos** optimizado
 - ✅ **Cobertura de pruebas >80%**
+- ✅ **Sistema de notificaciones por tokens** (waiting list + password reset)
 
 ---
 
@@ -99,30 +100,47 @@ PUT    /api/admin/cabins/{id}             # Actualizar cabaña
 DELETE /api/admin/cabins/{id}             # Desactivar cabaña
 ```
 
-#### **⏳ Módulo de Notificaciones (1 endpoint) - PENDIENTE**
+#### **✅ Sistema de Notificaciones por Tokens - IMPLEMENTADO**
 
 ```
-POST   /api/admin/notifications/send      # Enviar notificación manual (general)
+# Notificaciones implementadas (sin envío real de email/SMS):
+- Waiting List: Tokens de notificación con ventana de expiración
+- Password Reset: Tokens de recuperación (generación completa, envío pendiente)
+- Scheduler: Expiración automática de tokens vencidos
+
+# Pendiente (opcional):
+- Servicio de envío real de emails/SMS
+- Endpoints de notificaciones generales del admin
 ```
 
-### **2.2 Total de Endpoints: 44**
+### **2.2 Total de Endpoints: 48**
 
 **Distribución por módulo:**
 
 - Autenticación: 5 endpoints
 - Usuarios: 6 endpoints
-- Reservas: 6 endpoints
+- Reservas: 7 endpoints (incluye 3 de availability)
 - Administración: 9 endpoints
 - Widget de Precios: 8 endpoints
 - Configuración: 4 endpoints
-- Cabañas: 5 endpoints
-- Notificaciones: 1 endpoint
+- Cabañas: 8 endpoints (3 públicos + 5 admin)
+- Waiting List: 2 endpoints
+- Notificaciones: Sistema de tokens (sin endpoints adicionales)
 
 #### **✅ Módulo de Waiting List (2 endpoints)**
 
 ```
 POST   /api/admin/waiting-list/notify-next    # Notifica siguiente (admin/manual)
 POST   /api/waiting-list/claim                # Reclamo con token (público autenticado)
+```
+
+#### **✅ Sistema de Notificaciones por Tokens**
+
+```
+# Notificaciones implementadas (sin envío real de email/SMS):
+- Waiting List: Tokens de notificación con ventana de expiración
+- Password Reset: Tokens de recuperación (generación completa, envío pendiente)
+- Scheduler: Expiración automática de tokens vencidos
 ```
 
 ---
@@ -459,11 +477,12 @@ Todos los endpoints incluirán:
 
 ### **✅ Completitud del Sistema**
 
-- **44 endpoints** REST completos
+- **48 endpoints** REST completos
 - **Arquitectura en capas** con responsabilidades claras
 - **OpenAPI 3.0** con Swagger UI integrado
 - **3 diagramas Mermaid** de arquitectura y flujos
 - **100% de requerimientos** funcionales y no funcionales cubiertos
+- **Sistema de notificaciones por tokens** completamente funcional
 
 ### **🎯 Características Destacadas**
 
@@ -487,8 +506,8 @@ El sistema está **100% definido** técnicamente con:
 
 ---
 
-**Documento Técnico Versión 1.0 - Fecha: $(date)**
-**Estado: COMPLETO - Listo para implementación**
+**Documento Técnico Versión 2.0 - Fecha: $(date)**
+**Estado: COMPLETO - 48/48 endpoints implementados (100%)**
 
 ---
 

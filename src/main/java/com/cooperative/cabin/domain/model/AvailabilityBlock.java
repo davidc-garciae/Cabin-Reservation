@@ -65,21 +65,4 @@ public class AvailabilityBlock {
         this.createdBy = createdBy;
     }
 
-    // Constructor de compatibilidad para tests (DEPRECATED - solo para tests)
-    @Deprecated
-    public AvailabilityBlock(Long id, Long cabinId, LocalDate startDate, LocalDate endDate) {
-        this.id = id;
-        // Crear entidad mock para tests
-        this.cabin = new Cabin();
-        this.cabin.setId(cabinId);
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.reason = "Test data";
-        this.createdBy = null;
-    }
-
-    // Convenience method for backward compatibility
-    public Long getCabinId() {
-        return cabin != null ? cabin.getId() : null;
-    }
 }

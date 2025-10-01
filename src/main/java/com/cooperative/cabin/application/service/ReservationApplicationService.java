@@ -96,7 +96,7 @@ public class ReservationApplicationService {
 
     public Reservation cancelByUser(Long userId, Long reservationId) {
         Reservation r = reservationRepository.findById(reservationId);
-        if (r == null || !r.getUserId().equals(userId)) {
+        if (r == null || !r.getUser().getId().equals(userId)) {
             throw new IllegalStateException("Reserva no encontrada para el usuario");
         }
         r.setStatus(ReservationStatus.CANCELLED);
@@ -150,7 +150,7 @@ public class ReservationApplicationService {
 
     public Reservation getByIdForUser(Long userId, Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId);
-        if (reservation == null || !reservation.getUserId().equals(userId)) {
+        if (reservation == null || !reservation.getUser().getId().equals(userId)) {
             throw new IllegalStateException("Reserva no encontrada para el usuario");
         }
         return reservation;

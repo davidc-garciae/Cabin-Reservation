@@ -13,7 +13,7 @@ public class AvailabilityPolicies {
         // La reserva debe coincidir exactamente con el rango cuando cae dentro de un
         // bloqueo
         for (AvailabilityBlock block : blocks) {
-            if (!block.getCabinId().equals(cabinId))
+            if (!block.getCabin().getId().equals(cabinId))
                 continue;
             LocalDate bStart = block.getStartDate();
             LocalDate bEnd = block.getEndDate();

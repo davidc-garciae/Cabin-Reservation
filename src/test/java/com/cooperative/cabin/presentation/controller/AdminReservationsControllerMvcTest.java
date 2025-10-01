@@ -1,9 +1,12 @@
 package com.cooperative.cabin.presentation.controller;
 
+import com.cooperative.cabin.TestEntityFactory;
 import com.cooperative.cabin.TestMvcConfiguration;
 import com.cooperative.cabin.application.service.ReservationApplicationService;
 import com.cooperative.cabin.domain.model.Reservation;
 import com.cooperative.cabin.domain.model.ReservationStatus;
+import com.cooperative.cabin.domain.model.User;
+import com.cooperative.cabin.domain.model.Cabin;
 import com.cooperative.cabin.infrastructure.security.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +46,13 @@ class AdminReservationsControllerMvcTest {
 
     @Test
     void listAll_returnsList() throws Exception {
-        List<Reservation> list = List.of(
-                new Reservation(3L, 1L, 2L, LocalDate.now(), LocalDate.now().plusDays(1), 2,
-                        ReservationStatus.PENDING));
+        User user = TestEntityFactory.createUser(1L, "user@test.com", "12345678");
+        Cabin cabin = TestEntityFactory.createCabin(2L, "Test Cabin", 4);
+        Reservation reservation = TestEntityFactory.createReservation(user, cabin, LocalDate.now(),
+                LocalDate.now().plusDays(1), 2,
+                ReservationStatus.PENDING);
+        reservation.setId(3L);
+        List<Reservation> list = List.of(reservation);
         given(service.listAllForAdmin()).willReturn(list);
         mockMvc.perform(get("/api/admin/reservations"))
                 .andExpect(status().isOk())
