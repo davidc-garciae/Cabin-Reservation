@@ -1,0 +1,904 @@
+{
+	"info": {
+		"_postman_id": "cabin-reservation-api",
+		"name": "Cabin Reservation API",
+		"description": "Colección completa para probar todos los endpoints de la API de reservas de cabañas",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "cabin-reservation"
+	},
+	"item": [
+		{
+			"name": "🔐 Authentication",
+			"item": [
+				{
+					"name": "Login - Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('access_token_admin', response.accessToken);",
+									"    pm.collectionVariables.set('refresh_token_admin', response.refreshToken);",
+									"    console.log('Admin tokens saved');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"documentNumber\": \"12345678\",\n  \"password\": \"password\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login como administrador usando documento 12345678 y PIN 1234"
+					},
+					"response": []
+				},
+				{
+					"name": "Login - Profesor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('access_token_professor', response.accessToken);",
+									"    pm.collectionVariables.set('refresh_token_professor', response.refreshToken);",
+									"    console.log('Professor tokens saved');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"documentNumber\": \"87654321\",\n  \"password\": \"password\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login como profesor usando documento 87654321 y PIN 1234"
+					},
+					"response": []
+				},
+				{
+					"name": "Login - Pensionado",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('access_token_retiree', response.accessToken);",
+									"    pm.collectionVariables.set('refresh_token_retiree', response.refreshToken);",
+									"    console.log('Retiree tokens saved');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"documentNumber\": \"99887766\",\n  \"password\": \"password\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login como pensionado usando documento 99887766 y PIN 1234"
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"{{refresh_token_admin}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/refresh",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"refresh"
+							]
+						},
+						"description": "Renovar token de acceso usando refresh token"
+					},
+					"response": []
+				},
+				{
+					"name": "Recover Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"documentNumber\": \"12345678\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/recover-password",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"recover-password"
+							]
+						},
+						"description": "Solicitar recuperación de contraseña por número de documento"
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"token\": \"abc123def456\",\n  \"newPin\": \"1234\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/reset-password",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"reset-password"
+							]
+						},
+						"description": "Restablecer contraseña usando token de recuperación"
+					},
+					"response": []
+				},
+				{
+					"name": "Validate Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"token\": \"{{access_token_admin}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/validate-token",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"validate-token"
+							]
+						},
+						"description": "Validar si un token JWT es válido"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints de autenticación y autorización"
+		},
+		{
+			"name": "🏠 Cabins (Público)",
+			"item": [
+				{
+					"name": "Get All Cabins",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/cabins",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"cabins"
+							]
+						},
+						"description": "Obtener todas las cabañas disponibles (público)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Cabin by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/cabins/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"cabins",
+								"1"
+							]
+						},
+						"description": "Obtener cabaña específica por ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Search Cabins",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/cabins/search?minCapacity=4&minPrice=100000&maxPrice=200000&name=bosque",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"cabins",
+								"search"
+							],
+							"query": [
+								{
+									"key": "minCapacity",
+									"value": "4",
+									"description": "Capacidad mínima"
+								},
+								{
+									"key": "minPrice",
+									"value": "100000",
+									"description": "Precio mínimo"
+								},
+								{
+									"key": "maxPrice",
+									"value": "200000",
+									"description": "Precio máximo"
+								},
+								{
+									"key": "name",
+									"value": "bosque",
+									"description": "Nombre de cabaña (búsqueda parcial)"
+								}
+							]
+						},
+						"description": "Buscar cabañas por criterios específicos"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints públicos para consultar cabañas"
+		},
+		{
+			"name": "📅 Availability (Público)",
+			"item": [
+				{
+					"name": "Get Available Dates",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/availability",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"availability"
+							]
+						},
+						"description": "Obtener lista de fechas disponibles"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Availability Calendar",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/availability/calendar?year=2024&month=3",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"availability",
+								"calendar"
+							],
+							"query": [
+								{
+									"key": "year",
+									"value": "2024"
+								},
+								{
+									"key": "month",
+									"value": "3"
+								}
+							]
+						},
+						"description": "Obtener calendario de disponibilidad como mapa"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Availability Calendar List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/availability/calendar/list?year=2024&month=3",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"availability",
+								"calendar",
+								"list"
+							],
+							"query": [
+								{
+									"key": "year",
+									"value": "2024"
+								},
+								{
+									"key": "month",
+									"value": "3"
+								}
+							]
+						},
+						"description": "Obtener calendario de disponibilidad como lista"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints públicos para consultar disponibilidad"
+		},
+		{
+			"name": "👤 User Profile",
+			"item": [
+				{
+					"name": "Get User Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_professor}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-User-Id",
+								"value": "2",
+								"description": "ID del usuario autenticado"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"profile"
+							]
+						},
+						"description": "Obtener perfil del usuario autenticado"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_professor}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-User-Id",
+								"value": "2",
+								"description": "ID del usuario autenticado"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"maria.gonzalez.updated@universidad.edu.co\",\n  \"documentNumber\": \"87654321\",\n  \"fullName\": \"María González Actualizada\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"profile"
+							]
+						},
+						"description": "Actualizar perfil del usuario autenticado"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para gestión del perfil de usuario"
+		},
+		{
+			"name": "📋 Reservations",
+			"item": [
+				{
+					"name": "Create Reservation",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": 2,\n  \"cabinId\": 1,\n  \"startDate\": \"2024-03-20\",\n  \"endDate\": \"2024-03-25\",\n  \"guests\": 4\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/reservations",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"reservations"
+							]
+						},
+						"description": "Crear nueva pre-reserva"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Reservation (Testing Block)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": 2,\n  \"cabinId\": 1,\n  \"startDate\": \"2024-03-15\",\n  \"endDate\": \"2024-03-17\",\n  \"guests\": 4\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/reservations",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"reservations"
+							]
+						},
+						"description": "Crear reserva que respeta bloqueo obligatorio (15-17 marzo)"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Reservation (Partial Block - Should Fail)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": 2,\n  \"cabinId\": 1,\n  \"startDate\": \"2024-03-15\",\n  \"endDate\": \"2024-03-16\",\n  \"guests\": 4\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/reservations",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"reservations"
+							]
+						},
+						"description": "Intentar crear reserva parcial en bloqueo (debe fallar)"
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel Reservation",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-User-Id",
+								"value": "2",
+								"description": "ID del usuario autenticado"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/reservations/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"reservations",
+								"1"
+							]
+						},
+						"description": "Cancelar reserva del usuario autenticado"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para gestión de reservas de usuarios"
+		},
+		{
+			"name": "⏳ Waiting List",
+			"item": [
+				{
+					"name": "Claim Priority",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_professor}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"notifyToken\": \"test-token-123\",\n  \"numberOfGuests\": 3\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/waiting-list/claim",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"waiting-list",
+								"claim"
+							]
+						},
+						"description": "Reclamar prioridad usando token de notificación"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para gestión de lista de espera"
+		},
+		{
+			"name": "👑 Admin - Dashboard",
+			"item": [
+				{
+					"name": "Get Dashboard Summary",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/dashboard",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"dashboard"
+							]
+						},
+						"description": "Obtener resumen del dashboard administrativo"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints administrativos del dashboard"
+		},
+		{
+			"name": "👑 Admin - Reservations",
+			"item": [
+				{
+					"name": "List All Reservations",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/reservations?page=0&size=20",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"reservations"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "20"
+								}
+							]
+						},
+						"description": "Listar todas las reservas del sistema (admin)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Reservation",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/reservations/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"reservations",
+								"1"
+							]
+						},
+						"description": "Eliminar reserva del sistema (admin)"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints administrativos para gestión de reservas"
+		},
+		{
+			"name": "👑 Admin - Waiting List",
+			"item": [
+				{
+					"name": "Notify Next in Queue",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cabinId\": 1,\n  \"startDate\": \"2024-03-20\",\n  \"endDate\": \"2024-03-25\",\n  \"windowHours\": 24\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/admin/waiting-list/notify-next",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"waiting-list",
+								"notify-next"
+							]
+						},
+						"description": "Notificar al siguiente en la lista de espera (admin)"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints administrativos para gestión de lista de espera"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-generate dates for testing",
+					"const today = new Date();",
+					"const tomorrow = new Date(today);",
+					"tomorrow.setDate(tomorrow.getDate() + 1);",
+					"const nextWeek = new Date(today);",
+					"nextWeek.setDate(nextWeek.getDate() + 7);",
+					"",
+					"pm.collectionVariables.set('today', today.toISOString().split('T')[0]);",
+					"pm.collectionVariables.set('tomorrow', tomorrow.toISOString().split('T')[0]);",
+					"pm.collectionVariables.set('next_week', nextWeek.toISOString().split('T')[0]);"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"description": "URL base de la API"
+		},
+		{
+			"key": "access_token_admin",
+			"value": "",
+			"description": "Token de acceso para administrador"
+		},
+		{
+			"key": "refresh_token_admin",
+			"value": "",
+			"description": "Token de refresh para administrador"
+		},
+		{
+			"key": "access_token_professor",
+			"value": "",
+			"description": "Token de acceso para profesor"
+		},
+		{
+			"key": "refresh_token_professor",
+			"value": "",
+			"description": "Token de refresh para profesor"
+		},
+		{
+			"key": "access_token_retiree",
+			"value": "",
+			"description": "Token de acceso para pensionado"
+		},
+		{
+			"key": "refresh_token_retiree",
+			"value": "",
+			"description": "Token de refresh para pensionado"
+		}
+	]
+}

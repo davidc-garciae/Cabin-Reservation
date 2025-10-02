@@ -2,10 +2,15 @@ package com.cooperative.cabin.application.service;
 
 import com.cooperative.cabin.domain.model.Reservation;
 import com.cooperative.cabin.domain.model.ReservationStatus;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 
+@Service
+@Transactional
 public class SchedulingApplicationService {
 
     private final ReservationSchedulerRepository repository;
@@ -16,6 +21,7 @@ public class SchedulingApplicationService {
         this.businessMetrics = null;
     }
 
+    @Autowired
     public SchedulingApplicationService(ReservationSchedulerRepository repository, BusinessMetrics businessMetrics) {
         this.repository = repository;
         this.businessMetrics = businessMetrics;
