@@ -31,4 +31,28 @@ public class PriceRangeResponse {
     public String getMultiplier() {
         return multiplier;
     }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setCabinId(Long cabinId) {
+        this.cabinId = cabinId;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
+    }
+
+    public void setBasePrice(String basePrice) {
+        this.basePrice = basePrice;
+    }
+
+    public void setMultiplier(String multiplier) {
+        this.multiplier = multiplier;
+    }
 }

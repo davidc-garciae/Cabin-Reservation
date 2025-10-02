@@ -7,6 +7,8 @@ import com.cooperative.cabin.domain.model.AvailabilityBlock;
 import com.cooperative.cabin.domain.model.Cabin;
 import com.cooperative.cabin.domain.model.User;
 import com.cooperative.cabin.infrastructure.security.JwtService;
+import com.cooperative.cabin.presentation.mapper.AvailabilityBlockMapper;
+import com.cooperative.cabin.presentation.dto.BlockResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -43,6 +45,9 @@ class AdminAvailabilityBlocksControllerMvcTest {
         @MockBean
         private JwtService jwtService;
 
+        @MockBean
+        private AvailabilityBlockMapper mapper;
+
         @Test
         void listBlocks_returnsList() throws Exception {
                 Cabin cabin = TestEntityFactory.createCabin(1L, "Test Cabin", 4);
@@ -50,8 +55,11 @@ class AdminAvailabilityBlocksControllerMvcTest {
                 AvailabilityBlock block = TestEntityFactory.createAvailabilityBlock(cabin, LocalDate.of(2025, 4, 1),
                                 LocalDate.of(2025, 4, 4), "Test block", admin);
                 block.setId(1L);
-                given(service.list())
-                                .willReturn(List.of(block));
+
+                BlockResponse response = new BlockResponse(1L, 1L, "2025-04-01", "2025-04-04");
+                given(service.list()).willReturn(List.of(block));
+                given(mapper.toResponse(block)).willReturn(response);
+
                 mockMvc.perform(get("/api/admin/availability/blocks"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$[0].id").value(1));
@@ -64,8 +72,10 @@ class AdminAvailabilityBlocksControllerMvcTest {
                 AvailabilityBlock created = TestEntityFactory.createAvailabilityBlock(cabin, LocalDate.of(2025, 5, 1),
                                 LocalDate.of(2025, 5, 3), "Test block", admin);
                 created.setId(10L);
+                BlockResponse response = new BlockResponse(10L, 2L, "2025-05-01", "2025-05-03");
                 given(service.create(eq(2L), eq(LocalDate.of(2025, 5, 1)), eq(LocalDate.of(2025, 5, 3))))
                                 .willReturn(created);
+                given(mapper.toResponse(created)).willReturn(response);
 
                 String body = "{" +
                                 "\"cabinId\":2," +
@@ -87,8 +97,10 @@ class AdminAvailabilityBlocksControllerMvcTest {
                 AvailabilityBlock updated = TestEntityFactory.createAvailabilityBlock(cabin, LocalDate.of(2025, 6, 1),
                                 LocalDate.of(2025, 6, 5), "Test block", admin);
                 updated.setId(10L);
+                BlockResponse response = new BlockResponse(10L, 3L, "2025-06-01", "2025-06-05");
                 given(service.update(eq(10L), eq(3L), eq(LocalDate.of(2025, 6, 1)), eq(LocalDate.of(2025, 6, 5))))
                                 .willReturn(updated);
+                given(mapper.toResponse(updated)).willReturn(response);
 
                 String body = "{" +
                                 "\"cabinId\":3," +

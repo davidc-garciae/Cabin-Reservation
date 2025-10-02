@@ -113,6 +113,26 @@ public class ReservationApplicationService {
                     saved.getEndDate(),
                     4));
         }
+
+        // TODO: IMPLEMENTAR NOTIFICACIÓN DE CANCELACIÓN
+        //
+        // REQUERIMIENTOS:
+        // 1. Enviar email de confirmación de cancelación al usuario
+        // 2. Incluir información de la reserva cancelada
+        // 3. Informar sobre políticas de reembolso si aplica
+        // 4. Notificar al admin sobre la cancelación
+        // 5. Template de email para cancelación de reserva
+        //
+        // IMPLEMENTACIÓN SUGERIDA:
+        // notificationService.sendReservationCancellationEmail(
+        // saved.getUser().getEmail(),
+        // saved.getUser().getName(),
+        // saved.getCabin().getName(),
+        // saved.getStartDate(),
+        // saved.getEndDate(),
+        // saved.getFinalPrice()
+        // );
+
         return saved;
     }
 
@@ -141,6 +161,24 @@ public class ReservationApplicationService {
                     saved.getEndDate(),
                     4));
         }
+
+        // TODO: IMPLEMENTAR NOTIFICACIONES DE CAMBIO DE ESTADO
+        //
+        // REQUERIMIENTOS:
+        // 1. Enviar email de confirmación cuando cambia a CONFIRMED
+        // 2. Enviar email de inicio cuando cambia a IN_USE
+        // 3. Enviar email de finalización cuando cambia a COMPLETED
+        // 4. Incluir información relevante según el estado
+        // 5. Templates específicos para cada tipo de notificación
+        //
+        // IMPLEMENTACIÓN SUGERIDA:
+        // switch (newStatus) {
+        // case CONFIRMED -> notificationService.sendReservationConfirmationEmail(...);
+        // case IN_USE -> notificationService.sendReservationStartEmail(...);
+        // case COMPLETED -> notificationService.sendReservationCompletionEmail(...);
+        // case CANCELLED -> notificationService.sendReservationCancellationEmail(...);
+        // }
+
         return saved;
     }
 

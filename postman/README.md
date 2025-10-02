@@ -41,8 +41,11 @@ Asegúrate de que tu aplicación esté ejecutándose en `http://localhost:8080` 
 1. **Get All Cabins** → Ver todas las cabañas disponibles
 2. **Get Cabin by ID** → Ver detalles de una cabaña específica
 3. **Search Cabins** → Buscar cabañas por criterios
-4. **Get Available Dates** → Ver fechas disponibles
-5. **Get Availability Calendar** → Ver calendario de disponibilidad
+4. **Get Available Dates** → Ver fechas disponibles (todas las cabañas)
+5. **Get Availability Calendar** → Ver calendario de disponibilidad (todas las cabañas)
+6. **Get Available Dates for Specific Cabin** → Ver fechas disponibles por cabaña específica
+7. **Get Availability Calendar for Specific Cabin** → Ver calendario por cabaña específica
+8. **Check Availability for Date Range** → Verificar disponibilidad en rango específico
 
 ### Paso 3: Gestión de Perfil
 
@@ -60,6 +63,9 @@ Asegúrate de que tu aplicación esté ejecutándose en `http://localhost:8080` 
 1. **Get Dashboard Summary** → Ver resumen del sistema
 2. **List All Reservations** → Ver todas las reservas
 3. **Notify Next in Queue** → Gestionar lista de espera
+4. **Get Pricing Calendar (Real Data)** → Ver calendario de precios con datos reales
+5. **Get Pricing History (Real Data)** → Ver historial completo de cambios de precios
+6. **Calculate Price for Specific Date** → Calcular precio real para fecha específica
 
 ## 📊 Datos de Prueba Disponibles
 
@@ -114,7 +120,36 @@ Asegúrate de que tu aplicación esté ejecutándose en `http://localhost:8080` 
 
 ## 🎯 Casos de Prueba Específicos
 
-### 1. Probar Bloqueos Obligatorios
+### 1. Probar Funcionalidad Real de Availability
+
+```
+✅ GET /api/availability/cabin/1
+# Devuelve fechas disponibles reales para Cabaña del Bosque
+
+✅ GET /api/availability/cabin/1/calendar?year=2024&month=3
+# Devuelve calendario real basado en reservas y bloques
+
+✅ GET /api/availability/cabin/1/check?startDate=2024-03-20&endDate=2024-03-25
+# Verifica disponibilidad real en rango específico
+
+❌ GET /api/availability/cabin/1/check?startDate=2024-03-15&endDate=2024-03-16
+# Debe devolver false por reserva parcial en bloqueo obligatorio
+```
+
+### 1.1. Probar Funcionalidad Real de Pricing
+
+```
+✅ GET /api/admin/pricing/calendar/2024/3
+# Devuelve calendario de precios con datos reales de la base de datos
+
+✅ GET /api/admin/pricing/history
+# Devuelve historial completo de cambios de precios con datos reales
+
+✅ GET /api/admin/pricing/calculate?cabinId=1&date=2024-03-15
+# Calcula precio real para fecha específica basado en rangos de precios
+```
+
+### 2. Probar Bloqueos Obligatorios
 
 ```
 ✅ POST /api/reservations

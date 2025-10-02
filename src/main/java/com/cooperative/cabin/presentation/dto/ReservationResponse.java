@@ -60,4 +60,33 @@ public class ReservationResponse {
     public String getStatus() {
         return status;
     }
+
+    // Setters para MapStruct
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public void setCabinId(Long cabinId) {
+        this.cabinId = cabinId;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
+    }
+
+    public void setGuests(int guests) {
+        this.guests = guests;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

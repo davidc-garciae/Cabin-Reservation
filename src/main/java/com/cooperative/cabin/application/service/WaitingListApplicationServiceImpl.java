@@ -43,6 +43,28 @@ public class WaitingListApplicationServiceImpl implements WaitingListApplication
         next.setNotifiedAt(LocalDateTime.now());
         next.setLastStatusChangeAt(LocalDateTime.now());
         waitingListRepository.save(next);
+
+        // TODO: IMPLEMENTAR NOTIFICACIÓN POR EMAIL/SMS
+        //
+        // REQUERIMIENTOS:
+        // 1. Enviar email al usuario notificado con el token
+        // 2. Incluir información de la cabaña y fechas disponibles
+        // 3. Incluir link para reclamar la reserva
+        // 4. Configurar template de email para waiting list notification
+        // 5. Manejar errores de envío
+        // 6. Considerar notificación por SMS como alternativa
+        //
+        // IMPLEMENTACIÓN SUGERIDA:
+        // notificationService.sendWaitingListNotification(
+        // next.getUser().getEmail(),
+        // next.getUser().getName(),
+        // next.getCabin().getName(),
+        // next.getRequestedStartDate(),
+        // next.getRequestedEndDate(),
+        // token,
+        // expires
+        // );
+
         return Optional.of(
                 new NotifyNextResult(next.getId(), next.getUser().getId(), next.getCabin().getId(), token, expires));
     }

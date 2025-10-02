@@ -68,13 +68,64 @@ public class PricingApplicationServiceImpl implements PricingApplicationService 
 
     @Override
     public Map<String, BigDecimal> getCalendar(int year, int month) {
-        // Implementación mínima: mapa vacío
-        return new HashMap<>();
+        Map<String, BigDecimal> calendar = new HashMap<>();
+
+        // Obtener todos los rangos de precios que se superponen con el mes especificado
+        LocalDate monthStart = LocalDate.of(year, month, 1);
+        LocalDate monthEnd = monthStart.withDayOfMonth(monthStart.lengthOfMonth());
+
+        List<PriceRange> ranges = repository.findAll().stream()
+                .filter(range -> !range.getStartDate().isAfter(monthEnd) &&
+                        !range.getEndDate().isBefore(monthStart))
+                .toList();
+
+        // Para cada día del mes, calcular el precio aplicable
+        for (int day = 1; day <= monthStart.lengthOfMonth(); day++) {
+            LocalDate currentDate = LocalDate.of(year, month, day);
+            String dateKey = currentDate.toString();
+
+            // Encontrar el rango de precio aplicable para esta fecha
+            BigDecimal price = ranges.stream()
+                    .filter(range -> !currentDate.isBefore(range.getStartDate()) &&
+                            !currentDate.isAfter(range.getEndDate()))
+                    .findFirst()
+                    .map(range -> range.getBasePrice().multiply(range.getPriceMultiplier()))
+                    .orElse(BigDecimal.ZERO);
+
+            calendar.put(dateKey, price);
+        }
+
+        return calendar;
     }
 
     @Override
     public List<Map<String, Object>> getHistory() {
-        return new ArrayList<>();
+        List<Map<String, Object>> history = new ArrayList<>();
+
+        // Obtener todos los rangos de precios ordenados por fecha de creación (más
+        // recientes primero)
+        List<PriceRange> ranges = repository.findAll().stream()
+                .sorted((r1, r2) -> r2.getCreatedAt().compareTo(r1.getCreatedAt()))
+                .toList();
+
+        for (PriceRange range : ranges) {
+            Map<String, Object> historyEntry = new HashMap<>();
+            historyEntry.put("id", range.getId());
+            historyEntry.put("cabinId", range.getCabin().getId());
+            historyEntry.put("cabinName", range.getCabin().getName());
+            historyEntry.put("startDate", range.getStartDate().toString());
+            historyEntry.put("endDate", range.getEndDate().toString());
+            historyEntry.put("basePrice", range.getBasePrice());
+            historyEntry.put("priceMultiplier", range.getPriceMultiplier());
+            historyEntry.put("finalPrice", range.getBasePrice().multiply(range.getPriceMultiplier()));
+            historyEntry.put("reason", range.getReason());
+            historyEntry.put("createdAt", range.getCreatedAt().toString());
+            historyEntry.put("createdBy", range.getCreatedBy() != null ? range.getCreatedBy().getName() : "Sistema");
+
+            history.add(historyEntry);
+        }
+
+        return history;
     }
 
     @Override

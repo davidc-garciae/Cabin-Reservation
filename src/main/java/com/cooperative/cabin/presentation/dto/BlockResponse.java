@@ -38,6 +38,20 @@ public class BlockResponse {
     public String getEndDate() {
         return endDate;
     }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setCabinId(Long cabinId) {
+        this.cabinId = cabinId;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
+    }
 }
-
-

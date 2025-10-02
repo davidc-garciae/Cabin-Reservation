@@ -7,6 +7,7 @@ import com.cooperative.cabin.domain.model.User;
 import com.cooperative.cabin.presentation.mapper.PriceRangeMapper;
 import com.cooperative.cabin.presentation.controller.PricingAdminController.CreatePriceRangeRequest;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -41,7 +42,30 @@ class PricingDtosTest {
         req.setEndDate(LocalDate.parse("2025-03-31"));
         req.setBasePrice(new BigDecimal("130.00"));
         req.setMultiplier(new BigDecimal("1.15"));
-        PriceRange pr = PriceRangeMapper.INSTANCE.fromCreateRequest(req);
+        
+        System.out.println("DEBUG: Request object: " + req);
+        System.out.println("DEBUG: CabinId: " + req.getCabinId());
+        System.out.println("DEBUG: StartDate: " + req.getStartDate());
+        System.out.println("DEBUG: EndDate: " + req.getEndDate());
+        System.out.println("DEBUG: BasePrice: " + req.getBasePrice());
+        System.out.println("DEBUG: Multiplier: " + req.getMultiplier());
+        
+        PriceRangeMapper mapper = Mappers.getMapper(PriceRangeMapper.class);
+        System.out.println("DEBUG: Mapper instance: " + mapper);
+        
+        PriceRange pr = mapper.fromCreateRequest(req);
+        System.out.println("DEBUG: Result PriceRange: " + pr);
+        
+        if (pr != null) {
+            System.out.println("DEBUG: Cabin: " + pr.getCabin());
+            System.out.println("DEBUG: Cabin ID: " + (pr.getCabin() != null ? pr.getCabin().getId() : "null"));
+            System.out.println("DEBUG: StartDate: " + pr.getStartDate());
+            System.out.println("DEBUG: EndDate: " + pr.getEndDate());
+            System.out.println("DEBUG: BasePrice: " + pr.getBasePrice());
+            System.out.println("DEBUG: PriceMultiplier: " + pr.getPriceMultiplier());
+        }
+        
+        assertThat(pr).isNotNull();
         assertThat(pr.getCabin().getId()).isEqualTo(2L);
         assertThat(pr.getStartDate()).isEqualTo(LocalDate.parse("2025-03-01"));
         assertThat(pr.getEndDate()).isEqualTo(LocalDate.parse("2025-03-31"));

@@ -116,6 +116,11 @@ Puedes ejecutar los scripts directamente desde la aplicación usando:
 
 Los `AvailabilityBlock` funcionan como **reservas mínimas obligatorias**. Si hay un bloqueo en ciertas fechas, los usuarios deben reservar **mínimamente todo el bloqueo completo**.
 
+**✅ FUNCIONALIDAD REAL IMPLEMENTADA**:
+
+- El sistema de availability ahora consulta datos reales de la base de datos, no datos simulados.
+- El sistema de pricing ahora calcula precios reales basados en rangos de precios de la base de datos.
+
 ### Ejemplos en los Datos de Prueba:
 
 1. **Cabaña del Bosque (15-17 Marzo):**

@@ -44,6 +44,9 @@ dependencies {
 	// MapStruct
 	implementation "org.mapstruct:mapstruct:${mapstructVersion}"
 	annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+	
+	// Lombok + MapStruct integration
+	annotationProcessor "org.projectlombok:lombok-mapstruct-binding:0.2.0"
 
 	// JWT (JJWT)
 	implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
@@ -65,4 +68,15 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// Configuración para MapStruct con Lombok
+compileJava {
+	options.annotationProcessorPath = configurations.annotationProcessor
+	options.compilerArgs += [
+		'-Amapstruct.defaultComponentModel=spring',
+		'-Amapstruct.unmappedTargetPolicy=IGNORE',
+		'-Amapstruct.suppressGeneratorTimestamp=true',
+		'-Amapstruct.suppressGeneratorVersionInfoComment=true'
+	]
 }

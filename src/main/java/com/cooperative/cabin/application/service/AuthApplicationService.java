@@ -101,7 +101,20 @@ public class AuthApplicationService {
         PasswordResetToken resetToken = new PasswordResetToken(token, user, expiresAt);
         tokenRepository.save(resetToken);
 
-        // TODO: Enviar email con el token (implementar servicio de notificaciones)
+        // TODO: IMPLEMENTAR SERVICIO DE NOTIFICACIONES POR EMAIL
+        //
+        // REQUERIMIENTOS:
+        // 1. Crear NotificationService interface y implementación
+        // 2. Integrar con proveedor de email (SendGrid, AWS SES, etc.)
+        // 3. Crear template de email para password reset
+        // 4. Configurar variables de entorno para credenciales de email
+        // 5. Manejar errores de envío de email
+        // 6. Agregar logs de envío exitoso/fallido
+        // 7. Considerar cola de emails para envío asíncrono
+        //
+        // IMPLEMENTACIÓN SUGERIDA:
+        // notificationService.sendPasswordResetEmail(email, token, documentNumber);
+        //
         // Por ahora, solo logueamos el token para testing
         // System.out.println("Password reset token for " + email + " (document: " +
         // documentNumber + "): " + token);

@@ -4,39 +4,36 @@ import com.cooperative.cabin.domain.model.Reservation;
 import com.cooperative.cabin.domain.model.ReservationStatus;
 import com.cooperative.cabin.presentation.dto.CreateReservationRequest;
 import com.cooperative.cabin.presentation.dto.ReservationResponse;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 
 import java.time.LocalDate;
 
-public class ReservationMapper {
-    public static final ReservationMapper INSTANCE = new ReservationMapper();
+@Mapper(componentModel = "spring")
+public interface ReservationMapper {
 
-    public ReservationResponse toResponse(Reservation r) {
-        if (r == null)
-            return null;
-        return new ReservationResponse(
-                r.getId(),
-                r.getUser().getId(),
-                r.getCabin().getId(),
-                r.getStartDate() != null ? r.getStartDate().toString() : null,
-                r.getEndDate() != null ? r.getEndDate().toString() : null,
-                r.getNumberOfGuests(),
-                r.getStatus() != null ? r.getStatus().name() : null);
-    }
+    ReservationMapper INSTANCE = Mappers.getMapper(ReservationMapper.class);
 
-    public Reservation fromCreateRequest(CreateReservationRequest req) {
-        if (req == null)
-            return null;
-        LocalDate start = req.getStartDate() != null ? LocalDate.parse(req.getStartDate()) : null;
-        LocalDate end = req.getEndDate() != null ? LocalDate.parse(req.getEndDate()) : null;
-        // Para tests, crear entidades mock
-        com.cooperative.cabin.domain.model.User user = new com.cooperative.cabin.domain.model.User();
-        user.setId(req.getUserId());
-        com.cooperative.cabin.domain.model.Cabin cabin = new com.cooperative.cabin.domain.model.Cabin();
-        cabin.setId(req.getCabinId());
+    @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "cabin.id", target = "cabinId")
+    @Mapping(source = "startDate", target = "startDate", dateFormat = "yyyy-MM-dd")
+    @Mapping(source = "endDate", target = "endDate", dateFormat = "yyyy-MM-dd")
+    @Mapping(source = "numberOfGuests", target = "guests")
+    @Mapping(source = "status", target = "status")
+    ReservationResponse toResponse(Reservation r);
 
-        return new com.cooperative.cabin.domain.model.Reservation(
-                user, cabin, start, end, req.getGuests(),
-                com.cooperative.cabin.domain.model.ReservationStatus.PENDING,
-                java.math.BigDecimal.valueOf(100.00), java.math.BigDecimal.valueOf(100.00));
-    }
+    @Mapping(source = "userId", target = "user.id")
+    @Mapping(source = "cabinId", target = "cabin.id")
+    @Mapping(source = "startDate", target = "startDate", dateFormat = "yyyy-MM-dd")
+    @Mapping(source = "endDate", target = "endDate", dateFormat = "yyyy-MM-dd")
+    @Mapping(source = "guests", target = "numberOfGuests")
+    @Mapping(target = "status", constant = "PENDING")
+    @Mapping(target = "basePrice", constant = "100.00")
+    @Mapping(target = "finalPrice", constant = "100.00")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "confirmedAt", ignore = true)
+    @Mapping(target = "cancelledAt", ignore = true)
+    Reservation fromCreateRequest(CreateReservationRequest req);
 }

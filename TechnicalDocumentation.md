@@ -55,6 +55,16 @@ GET    /api/availability                  # Consultar disponibilidad
 GET    /api/availability/calendar         # Calendario de disponibilidad
 ```
 
+#### **✅ Módulo de Disponibilidad (5 endpoints) - FUNCIONALIDAD REAL**
+
+```
+GET    /api/availability                           # Fechas disponibles (todas las cabañas)
+GET    /api/availability/calendar                  # Calendario general de disponibilidad
+GET    /api/availability/cabin/{cabinId}           # Fechas disponibles por cabaña específica
+GET    /api/availability/cabin/{cabinId}/calendar  # Calendario por cabaña específica
+GET    /api/availability/cabin/{cabinId}/check     # Verificar disponibilidad en rango específico
+```
+
 #### **✅ Módulo de Administración (9 endpoints)**
 
 ```
@@ -70,17 +80,17 @@ PUT    /api/admin/availability/blocks/{id}# Actualizar bloqueo de disponibilidad
 DELETE /api/admin/availability/blocks/{id}# Eliminar bloqueo de disponibilidad
 ```
 
-#### **✅ Widget de Precios (8 endpoints) - CRÍTICO**
+#### **✅ Widget de Precios (8 endpoints) - FUNCIONALIDAD REAL IMPLEMENTADA**
 
 ```
-GET    /api/admin/pricing/calendar/{year}/{month}  # Calendario visual
-GET    /api/admin/pricing/ranges          # Rangos de precios
+GET    /api/admin/pricing/calendar/{year}/{month}  # Calendario visual (datos reales de BD)
+GET    /api/admin/pricing/ranges          # Rangos de precios (datos reales)
 POST   /api/admin/pricing/ranges          # Crear rango de precios
 PUT    /api/admin/pricing/ranges/{id}     # Actualizar rango
 PATCH  /api/admin/pricing/ranges/{id}     # Actualización parcial del rango
 DELETE /api/admin/pricing/ranges/{id}     # Eliminar rango
-GET    /api/admin/pricing/history         # Historial de cambios
-GET    /api/admin/pricing/calculate       # Calcular precio para fecha
+GET    /api/admin/pricing/history         # Historial de cambios (datos reales de BD)
+GET    /api/admin/pricing/calculate       # Calcular precio para fecha (lógica real)
 ```
 
 #### **✅ Módulo de Configuración (2 endpoints implementados)**
@@ -113,13 +123,14 @@ DELETE /api/admin/cabins/{id}             # Desactivar cabaña
 - Endpoints de notificaciones generales del admin
 ```
 
-### **2.2 Total de Endpoints: 48**
+### **2.2 Total de Endpoints: 51**
 
 **Distribución por módulo:**
 
 - Autenticación: 5 endpoints
 - Usuarios: 6 endpoints
-- Reservas: 7 endpoints (incluye 3 de availability)
+- Reservas: 6 endpoints
+- Disponibilidad: 5 endpoints (funcionalidad real implementada)
 - Administración: 9 endpoints
 - Widget de Precios: 8 endpoints
 - Configuración: 4 endpoints
@@ -477,20 +488,25 @@ Todos los endpoints incluirán:
 
 ### **✅ Completitud del Sistema**
 
-- **48 endpoints** REST completos
+- **51 endpoints** REST completos
 - **Arquitectura en capas** con responsabilidades claras
 - **OpenAPI 3.0** con Swagger UI integrado
 - **3 diagramas Mermaid** de arquitectura y flujos
 - **100% de requerimientos** funcionales y no funcionales cubiertos
 - **Sistema de notificaciones por tokens** completamente funcional
+- **MapStruct mappers** implementados para optimización
+- **Admin Metrics Service** con datos reales de base de datos
 
 ### **🎯 Características Destacadas**
 
-1. **Widget de Precios**: 7 endpoints específicos para gestión visual
+1. **Widget de Precios**: 8 endpoints específicos para gestión visual con datos reales
 2. **Flujo de Reservas**: Proceso completo desde pre-reserva hasta confirmación
-3. **Arquitectura Hexagonal**: Separación clara de responsabilidades
-4. **Monitoreo Completo**: Métricas de negocio y técnicas
+3. **Arquitectura en Capas**: Separación clara de responsabilidades
+4. **Monitoreo Completo**: Métricas de negocio y técnicas con datos reales
 5. **Documentación Automática**: Swagger UI para testing y desarrollo
+6. **MapStruct Mappers**: Optimización de mapeo de datos
+7. **Sistema de Disponibilidad Real**: Consultas basadas en datos reales de BD
+8. **Admin Metrics Service**: Métricas administrativas con datos reales
 
 ### **🚀 Estado del Proyecto**
 
@@ -506,8 +522,9 @@ El sistema está **100% definido** técnicamente con:
 
 ---
 
-**Documento Técnico Versión 2.0 - Fecha: $(date)**
-**Estado: COMPLETO - 48/48 endpoints implementados (100%)**
+**Documento Técnico Versión 2.2 - Fecha: $(date)**
+**Estado: COMPLETO - 51/51 endpoints implementados (100%)**
+**Actualizaciones: MapStruct mappers, Admin Metrics real, TODOs de notificaciones**
 
 ---
 

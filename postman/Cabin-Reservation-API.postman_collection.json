@@ -433,6 +433,123 @@
 						"description": "Obtener calendario de disponibilidad como lista"
 					},
 					"response": []
+				},
+				{
+					"name": "Get Available Dates for Specific Cabin",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/availability/cabin/{{cabin_id_forest}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"availability",
+								"cabin",
+								"{{cabin_id_forest}}"
+							]
+						},
+						"description": "Obtener fechas disponibles para una cabaña específica (Cabaña del Bosque)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Availability Calendar for Specific Cabin",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/availability/cabin/{{cabin_id_forest}}/calendar?year=2024&month=3",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"availability",
+								"cabin",
+								"{{cabin_id_forest}}",
+								"calendar"
+							],
+							"query": [
+								{
+									"key": "year",
+									"value": "2024"
+								},
+								{
+									"key": "month",
+									"value": "3"
+								}
+							]
+						},
+						"description": "Obtener calendario de disponibilidad para una cabaña específica"
+					},
+					"response": []
+				},
+				{
+					"name": "Check Availability for Date Range",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/availability/cabin/{{cabin_id_forest}}/check?startDate=2024-03-20&endDate=2024-03-25",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"availability",
+								"cabin",
+								"{{cabin_id_forest}}",
+								"check"
+							],
+							"query": [
+								{
+									"key": "startDate",
+									"value": "2024-03-20"
+								},
+								{
+									"key": "endDate",
+									"value": "2024-03-25"
+								}
+							]
+						},
+						"description": "Verificar si una cabaña está disponible en un rango de fechas específico"
+					},
+					"response": []
+				},
+				{
+					"name": "Check Availability for Blocked Dates (Should Return False)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/availability/cabin/{{cabin_id_forest}}/check?startDate=2024-03-15&endDate=2024-03-16",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"availability",
+								"cabin",
+								"{{cabin_id_forest}}",
+								"check"
+							],
+							"query": [
+								{
+									"key": "startDate",
+									"value": "2024-03-15"
+								},
+								{
+									"key": "endDate",
+									"value": "2024-03-16"
+								}
+							]
+						},
+						"description": "Verificar disponibilidad en fechas bloqueadas (debe devolver false por reserva parcial)"
+					},
+					"response": []
 				}
 			],
 			"description": "Endpoints públicos para consultar disponibilidad"
@@ -842,6 +959,117 @@
 				}
 			],
 			"description": "Endpoints administrativos para gestión de lista de espera"
+		},
+		{
+			"name": "👑 Admin - Pricing (Funcionalidad Real)",
+			"item": [
+				{
+					"name": "Get Pricing Calendar (Real Data)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/pricing/calendar/2024/3",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"pricing",
+								"calendar",
+								"2024",
+								"3"
+							]
+						},
+						"description": "Obtener calendario de precios con datos reales de la base de datos"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Pricing History (Real Data)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/pricing/history",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"pricing",
+								"history"
+							]
+						},
+						"description": "Obtener historial completo de cambios de precios con datos reales"
+					},
+					"response": []
+				},
+				{
+					"name": "Calculate Price for Specific Date",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/pricing/calculate?cabinId={{cabin_id_forest}}&date=2024-03-15",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"pricing",
+								"calculate"
+							],
+							"query": [
+								{
+									"key": "cabinId",
+									"value": "{{cabin_id_forest}}"
+								},
+								{
+									"key": "date",
+									"value": "2024-03-15"
+								}
+							]
+						},
+						"description": "Calcular precio real para una fecha específica basado en rangos de precios"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints administrativos para gestión de precios con funcionalidad real"
 		}
 	],
 	"event": [
