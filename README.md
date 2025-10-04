@@ -40,7 +40,7 @@ Backend de reservas de cabañas construido con Spring Boot 3.x, JWT, JPA/Hiberna
 - OpenAPI 3.0 + Swagger UI
 - Micrometer + Spring Actuator
 - Gradle
-- MapStruct (adopción gradual; Cabin ya usa mapper dedicado)
+- MapStruct (implementación completa en PriceRange, Reservation, AvailabilityBlock)
 
 Documentos de referencia: `TechnicalDocumentation.md`, `RefinedRequirements.md`.
 
@@ -105,7 +105,8 @@ Notas:
 - Público: `/api/auth/**`, `/api/cabins/**`, `/api/availability**`.
 - Autenticado: `/api/users/**`, `/api/reservations/**`.
 - Admin (ROLE_ADMIN): `/api/admin/**`.
-- Seguridad definida en `SecurityConfig` (stateless, CORS on).
+- Seguridad definida en `SecurityConfig` (stateless, CORS configurado para desarrollo frontend).
+- CORS configurado para permitir `http://localhost:3000` y `http://localhost:3001` (frontend React/Next.js).
 
 ## OpenAPI y Swagger UI
 
@@ -168,7 +169,7 @@ Configuraciones/Logs/Metrics (admin):
 ## DTOs y mapeo
 
 - DTOs con `@Schema` y validaciones (Jakarta Validation).
-- MapStruct: adopción gradual. `CabinMapper` ya implementado para entity ↔ DTO; otros mappers manuales convivirán hasta migración.
+- MapStruct: implementación completa. `PriceRangeMapper`, `ReservationMapper`, `AvailabilityBlockMapper` migrados a MapStruct para optimización.
 
 ## Semillas de datos
 
@@ -187,7 +188,7 @@ Configuraciones/Logs/Metrics (admin):
   - POST `/api/admin/notifications/send`
   - GET `/api/admin/notifications/history`
   - POST `/api/admin/waiting-list/{id}/notify`
-- Migración de mappers manuales a MapStruct (reservas, precios, availability blocks).
+- Migración de mappers restantes a MapStruct (opcional - mappers manuales funcionan correctamente).
 - Integración Prometheus/Grafana.
 
 ## Troubleshooting

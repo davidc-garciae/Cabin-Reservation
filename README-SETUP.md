@@ -121,6 +121,16 @@ Linux/macOS:
 
 Aplicación en: `http://localhost:8080`
 
+## Configuración para Frontend
+
+El backend está configurado para trabajar con aplicaciones frontend que corran en:
+
+- `http://localhost:3000` (React, Next.js por defecto)
+- `http://localhost:3001` (puerto alternativo)
+- `http://127.0.0.1:3000` y `http://127.0.0.1:3001` (localhost alternativo)
+
+Si tu frontend usa un puerto diferente, actualiza la configuración CORS en `src/main/java/com/cooperative/cabin/infrastructure/config/SecurityConfig.java`.
+
 ## Swagger / OpenAPI
 
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
@@ -146,9 +156,10 @@ Authorize (JWT):
 ## Problemas comunes
 
 - Java incompatible: usa JDK 21 o ajusta toolchain en `build.gradle`.
-- Swagger sin “Authorize”: confirma `SwaggerConfig` con `bearerAuth` y permisos en `SecurityConfig`.
+- Swagger sin "Authorize": confirma `SwaggerConfig` con `bearerAuth` y permisos en `SecurityConfig`.
 - 403 en endpoints admin: necesitas rol ADMIN o token válido.
 - Errores de conexión DB: valida `SPRING_DATASOURCE_*`.
+- **CORS en frontend**: El backend está configurado para permitir `http://localhost:3000` y `http://localhost:3001`. Si usas otro puerto, actualiza `SecurityConfig.java`.
 
 ## Generación de un secreto JWT
 

@@ -454,6 +454,39 @@ Todos los endpoints incluirán:
 - Cambio a `COMPLETED`: automático al pasar `end_date` si el estado es `IN_USE`
 - Endpoint `PUT /api/admin/reservations/{id}/complete`: permanece como override administrativo para correcciones/anomalías operativas
 
+### **4.5 Configuración CORS para Frontend**
+
+El sistema está configurado para trabajar con aplicaciones frontend en desarrollo:
+
+```java
+@Bean
+public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+    configuration.setAllowedOriginPatterns(Arrays.asList(
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001"
+    ));
+    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+    configuration.setAllowedHeaders(Arrays.asList("*"));
+    configuration.setAllowCredentials(true);
+    configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
+
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/api/**", configuration);
+    return source;
+}
+```
+
+**Puertos soportados:**
+
+- `http://localhost:3000` (React, Next.js por defecto)
+- `http://localhost:3001` (puerto alternativo)
+- `http://127.0.0.1:3000` y `http://127.0.0.1:3001` (localhost alternativo)
+
+**Para cambiar puertos:** Actualizar `SecurityConfig.java` en `src/main/java/com/cooperative/cabin/infrastructure/config/`
+
 ---
 
 ## **5. Verificación de Cumplimiento**
@@ -473,14 +506,15 @@ Todos los endpoints incluirán:
 
 ### **5.2 Requerimientos No Funcionales - 100% Cubiertos**
 
-| Requerimiento             | Implementación             | Estado |
-| ------------------------- | -------------------------- | ------ |
-| Arquitectura en capas     | 4+1 capas bien definidas   | ✅     |
-| Cobertura de pruebas >80% | JUnit 5 + TestContainers   | ✅     |
-| Rendimiento <200ms        | Optimización de queries    | ✅     |
-| Seguridad JWT             | Access + Refresh tokens    | ✅     |
-| Documentación API         | OpenAPI 3.0 + Swagger      | ✅     |
-| Monitoreo                 | Spring Actuator + métricas | ✅     |
+| Requerimiento             | Implementación                       | Estado |
+| ------------------------- | ------------------------------------ | ------ |
+| Arquitectura en capas     | 4+1 capas bien definidas             | ✅     |
+| Cobertura de pruebas >80% | JUnit 5 + TestContainers             | ✅     |
+| Rendimiento <200ms        | Optimización de queries              | ✅     |
+| Seguridad JWT             | Access + Refresh tokens              | ✅     |
+| CORS Frontend             | Configurado para localhost:3000/3001 | ✅     |
+| Documentación API         | OpenAPI 3.0 + Swagger                | ✅     |
+| Monitoreo                 | Spring Actuator + métricas           | ✅     |
 
 ---
 
