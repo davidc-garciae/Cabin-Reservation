@@ -260,6 +260,51 @@
 						"description": "Validar si un token JWT es válido"
 					},
 					"response": []
+				},
+				{
+					"name": "Register New User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('access_token_new_user', response.accessToken);",
+									"    pm.collectionVariables.set('refresh_token_new_user', response.refreshToken);",
+									"    console.log('New user tokens saved');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+                        "raw": "{\n  \"documentNumber\": \"99999999\",\n  \"email\": \"nuevo.usuario@email.com\",\n  \"name\": \"Nuevo Usuario\",\n  \"phone\": \"+57-300-999-9999\",\n  \"pin\": \"1234\",\n  \"role\": \"PROFESSOR\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Registro público de nuevo usuario con documento válido"
+					},
+					"response": []
 				}
 			],
 			"description": "Endpoints de autenticación y autorización"
@@ -655,7 +700,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"userId\": 2,\n  \"cabinId\": 1,\n  \"startDate\": \"2024-03-20\",\n  \"endDate\": \"2024-03-25\",\n  \"guests\": 4\n}"
+							"raw": "{\n  \"userId\": 2,\n  \"cabinId\": 1,\n  \"startDate\": \"2024-03-20\",\n  \"endDate\": \"2024-03-25\",\n  \"guests\": 4,\n  \"checkInTime\": \"14:00\",\n  \"checkOutTime\": \"12:00\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/reservations",
@@ -683,7 +728,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"userId\": 2,\n  \"cabinId\": 1,\n  \"startDate\": \"2024-03-15\",\n  \"endDate\": \"2024-03-17\",\n  \"guests\": 4\n}"
+							"raw": "{\n  \"userId\": 2,\n  \"cabinId\": 1,\n  \"startDate\": \"2024-03-15\",\n  \"endDate\": \"2024-03-17\",\n  \"guests\": 4,\n  \"checkInTime\": \"15:00\",\n  \"checkOutTime\": \"11:00\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/reservations",
@@ -711,7 +756,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"userId\": 2,\n  \"cabinId\": 1,\n  \"startDate\": \"2024-03-15\",\n  \"endDate\": \"2024-03-16\",\n  \"guests\": 4\n}"
+							"raw": "{\n  \"userId\": 2,\n  \"cabinId\": 1,\n  \"startDate\": \"2024-03-15\",\n  \"endDate\": \"2024-03-16\",\n  \"guests\": 4,\n  \"checkInTime\": \"15:00\",\n  \"checkOutTime\": \"11:00\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/reservations",
@@ -836,6 +881,208 @@
 				}
 			],
 			"description": "Endpoints administrativos del dashboard"
+		},
+		{
+			"name": "👑 Admin - Documents",
+			"item": [
+				{
+					"name": "List All Documents",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/documents",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"documents"
+							]
+						},
+						"description": "Listar todos los números de documento"
+					},
+					"response": []
+				},
+				{
+					"name": "List Active Documents",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/documents/active",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"documents",
+								"active"
+							]
+						},
+						"description": "Listar documentos activos"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Document by Number",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/documents/number/99999999",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"documents",
+								"number",
+								"99999999"
+							]
+						},
+						"description": "Obtener documento por número"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Document",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"documentNumber\": \"88888888\",\n  \"status\": \"ACTIVE\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/admin/documents",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"documents"
+							]
+						},
+						"description": "Crear nuevo documento de prueba"
+					},
+					"response": []
+				},
+				{
+					"name": "Deactivate Document",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/documents/7/deactivate",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"documents",
+								"7",
+								"deactivate"
+							]
+						},
+						"description": "Desactivar documento por ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Activate Document",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/documents/7/activate",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"documents",
+								"7",
+								"activate"
+							]
+						},
+						"description": "Activar documento por ID"
+					},
+					"response": []
+				}
+			],
+			"description": "Gestión administrativa de números de documento"
 		},
 		{
 			"name": "👑 Admin - Reservations",

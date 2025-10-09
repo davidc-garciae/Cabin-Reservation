@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import java.math.BigDecimal;
+import java.time.LocalTime;
 
 @Configuration
 @Profile("!test") // No ejecutar en tests
@@ -34,7 +35,10 @@ public class DataInitializer {
                 BigDecimal.valueOf(150.00),
                 6,
                 "{\"wifi\": true, \"parking\": true, \"kitchen\": true, \"lake_view\": true, \"terrace\": true}",
-                "{\"address\": \"Lago del Sol 123, Villa del Lago\", \"coordinates\": {\"lat\": 40.7128, \"lng\": -74.0060}}");
+                "{\"address\": \"Lago del Sol 123, Villa del Lago\", \"coordinates\": {\"lat\": 40.7128, \"lng\": -74.0060}}",
+                LocalTime.of(15, 0), // Check-in 15:00
+                LocalTime.of(11, 0) // Check-out 11:00
+        );
         cabinRepository.save(cabin1);
 
         // Cabaña 2: Cabaña del Bosque
@@ -47,7 +51,10 @@ public class DataInitializer {
                 BigDecimal.valueOf(120.00),
                 4,
                 "{\"wifi\": true, \"parking\": true, \"fireplace\": true, \"forest_view\": true}",
-                "{\"address\": \"Bosque Encantado 456, Villa del Bosque\", \"coordinates\": {\"lat\": 40.7589, \"lng\": -73.9851}}");
+                "{\"address\": \"Bosque Encantado 456, Villa del Bosque\", \"coordinates\": {\"lat\": 40.7589, \"lng\": -73.9851}}",
+                LocalTime.of(15, 0), // Check-in 15:00
+                LocalTime.of(11, 0) // Check-out 11:00
+        );
         cabinRepository.save(cabin2);
 
         // Cabaña 3: Cabaña de Montaña
@@ -60,7 +67,10 @@ public class DataInitializer {
                 BigDecimal.valueOf(250.00),
                 8,
                 "{\"wifi\": true, \"parking\": true, \"kitchen\": true, \"hot_tub\": true, \"mountain_view\": true, \"fireplace\": true}",
-                "{\"address\": \"Cumbre Alta 789, Villa de Montaña\", \"coordinates\": {\"lat\": 40.7831, \"lng\": -73.9712}}");
+                "{\"address\": \"Cumbre Alta 789, Villa de Montaña\", \"coordinates\": {\"lat\": 40.7831, \"lng\": -73.9712}}",
+                LocalTime.of(15, 0), // Check-in 15:00
+                LocalTime.of(11, 0) // Check-out 11:00
+        );
         cabinRepository.save(cabin3);
 
         // Cabaña 4: Cabaña Rústica
@@ -73,7 +83,10 @@ public class DataInitializer {
                 BigDecimal.valueOf(80.00),
                 2,
                 "{\"parking\": true, \"fireplace\": true, \"rustic_charm\": true}",
-                "{\"address\": \"Camino Rural 321, Villa Rústica\", \"coordinates\": {\"lat\": 40.7505, \"lng\": -73.9934}}");
+                "{\"address\": \"Camino Rural 321, Villa Rústica\", \"coordinates\": {\"lat\": 40.7505, \"lng\": -73.9934}}",
+                LocalTime.of(15, 0), // Check-in 15:00
+                LocalTime.of(11, 0) // Check-out 11:00
+        );
         cabinRepository.save(cabin4);
 
         // Cabaña 5: Cabaña Familiar
@@ -86,7 +99,10 @@ public class DataInitializer {
                 BigDecimal.valueOf(300.00),
                 10,
                 "{\"wifi\": true, \"parking\": true, \"kitchen\": true, \"game_room\": true, \"pool\": true, \"garden\": true}",
-                "{\"address\": \"Avenida Familiar 654, Villa Familiar\", \"coordinates\": {\"lat\": 40.7282, \"lng\": -73.9942}}");
+                "{\"address\": \"Avenida Familiar 654, Villa Familiar\", \"coordinates\": {\"lat\": 40.7282, \"lng\": -73.9942}}",
+                LocalTime.of(15, 0), // Check-in 15:00
+                LocalTime.of(11, 0) // Check-out 11:00
+        );
         cabinRepository.save(cabin5);
 
         System.out.println("✅ Cabañas de prueba creadas exitosamente!");

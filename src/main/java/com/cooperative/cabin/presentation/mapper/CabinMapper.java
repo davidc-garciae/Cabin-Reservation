@@ -5,8 +5,12 @@ import com.cooperative.cabin.presentation.dto.CabinResponse;
 import com.cooperative.cabin.presentation.dto.CreateCabinRequest;
 import com.cooperative.cabin.presentation.dto.UpdateCabinRequest;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+
 public class CabinMapper {
     public static final CabinMapper INSTANCE = new CabinMapper();
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     public CabinResponse toResponse(Cabin cabin) {
         if (cabin == null)
@@ -24,12 +28,22 @@ public class CabinMapper {
                 cabin.getAmenities(),
                 cabin.getLocation(),
                 cabin.getCreatedAt(),
-                cabin.getUpdatedAt());
+                cabin.getUpdatedAt(),
+                cabin.getDefaultCheckInTime() != null ? cabin.getDefaultCheckInTime().format(TIME_FORMATTER) : null,
+                cabin.getDefaultCheckOutTime() != null ? cabin.getDefaultCheckOutTime().format(TIME_FORMATTER) : null);
     }
 
     public Cabin fromCreateRequest(CreateCabinRequest req) {
         if (req == null)
             return null;
+
+        LocalTime defaultCheckInTime = req.defaultCheckInTime() != null
+                ? LocalTime.parse(req.defaultCheckInTime(), TIME_FORMATTER)
+                : null;
+        LocalTime defaultCheckOutTime = req.defaultCheckOutTime() != null
+                ? LocalTime.parse(req.defaultCheckOutTime(), TIME_FORMATTER)
+                : null;
+
         return new Cabin(
                 req.name(),
                 req.description(),
@@ -39,7 +53,9 @@ public class CabinMapper {
                 req.basePrice(),
                 req.maxGuests(),
                 req.amenities(),
-                req.location());
+                req.location(),
+                defaultCheckInTime,
+                defaultCheckOutTime);
     }
 
     public void updateEntity(Cabin cabin, UpdateCabinRequest req) {

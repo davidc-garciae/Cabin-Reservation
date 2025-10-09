@@ -140,7 +140,8 @@ VALUES
     (3, '11223344', 'ACTIVE', NOW (), NOW ()),
     (4, '55667788', 'ACTIVE', NOW (), NOW ()),
     (5, '99887766', 'ACTIVE', NOW (), NOW ()),
-    (6, '44332211', 'ACTIVE', NOW (), NOW ());
+    (6, '44332211', 'ACTIVE', NOW (), NOW ()),
+    (7, '99999999', 'ACTIVE', NOW (), NOW ());
 
 -- ========================================
 -- 3. INSERTAR CABINAS
@@ -158,6 +159,8 @@ INSERT INTO
         is_active,
         amenities,
         location,
+        default_check_in_time,
+        default_check_out_time,
         created_at,
         updated_at
     )
@@ -174,6 +177,8 @@ VALUES
         true,
         '{"amenities": ["WiFi", "Chimenea", "Cocina completa", "Terraza", "Parrilla", "Estacionamiento"]}',
         '{"address": "Vía Principal Km 5", "coordinates": {"lat": 4.6097, "lng": -74.0817}, "zone": "Bosque"}',
+        '15:00:00',
+        '11:00:00',
         NOW (),
         NOW ()
     ),
@@ -189,6 +194,8 @@ VALUES
         true,
         '{"amenities": ["WiFi", "Vista al lago", "Cocina básica", "Balcón", "Embarcadero privado"]}',
         '{"address": "Vía del Lago Km 3", "coordinates": {"lat": 4.6100, "lng": -74.0820}, "zone": "Lago"}',
+        '15:00:00',
+        '11:00:00',
         NOW (),
         NOW ()
     ),
@@ -204,6 +211,8 @@ VALUES
         true,
         '{"amenities": ["WiFi", "Aire acondicionado", "Cocina completa", "Sala de juegos", "Parrilla", "Jardín"]}',
         '{"address": "Vía Familiar Km 2", "coordinates": {"lat": 4.6080, "lng": -74.0800}, "zone": "Familiar"}',
+        '15:00:00',
+        '11:00:00',
         NOW (),
         NOW ()
     ),
@@ -219,6 +228,8 @@ VALUES
         true,
         '{"amenities": ["WiFi", "Chimenea", "Jacuzzi", "Desayuno incluido", "Terraza privada"]}',
         '{"address": "Vía Romántica Km 1", "coordinates": {"lat": 4.6070, "lng": -74.0790}, "zone": "Romántica"}',
+        '15:00:00',
+        '11:00:00',
         NOW (),
         NOW ()
     );
@@ -495,6 +506,8 @@ INSERT INTO
         cabin_id,
         start_date,
         end_date,
+        check_in_time,
+        check_out_time,
         number_of_guests,
         status,
         base_price,
@@ -509,6 +522,8 @@ VALUES
         1,
         '2024-02-15',
         '2024-02-18',
+        '15:00:00',
+        '11:00:00',
         4,
         'CONFIRMED',
         150000.00,
@@ -525,6 +540,8 @@ INSERT INTO
         cabin_id,
         start_date,
         end_date,
+        check_in_time,
+        check_out_time,
         number_of_guests,
         status,
         base_price,
@@ -539,6 +556,8 @@ VALUES
         2,
         '2024-01-20',
         '2024-01-23',
+        '15:00:00',
+        '11:00:00',
         2,
         'IN_USE',
         120000.00,
@@ -555,6 +574,8 @@ INSERT INTO
         cabin_id,
         start_date,
         end_date,
+        check_in_time,
+        check_out_time,
         number_of_guests,
         status,
         base_price,
@@ -569,6 +590,8 @@ VALUES
         3,
         '2023-12-25',
         '2023-12-30',
+        '15:00:00',
+        '11:00:00',
         6,
         'COMPLETED',
         200000.00,

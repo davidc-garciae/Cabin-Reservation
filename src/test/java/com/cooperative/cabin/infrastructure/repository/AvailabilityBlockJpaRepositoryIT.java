@@ -11,6 +11,7 @@ import jakarta.annotation.Resource;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -195,7 +196,10 @@ class AvailabilityBlockJpaRepositoryIT {
                 new BigDecimal("100.00"),
                 4,
                 "{\"wifi\": true}",
-                "{\"address\": \"Test Location\"}");
+                "{\"address\": \"Test Location\"}",
+                LocalTime.of(15, 0), // Check-in 15:00
+                LocalTime.of(11, 0) // Check-out 11:00
+        );
         cabin.setCreatedAt(now);
         cabin.setUpdatedAt(now);
         return cabin;

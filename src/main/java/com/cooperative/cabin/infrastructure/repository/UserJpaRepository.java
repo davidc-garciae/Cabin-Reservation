@@ -15,6 +15,10 @@ public interface UserJpaRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByIdentificationNumber(String identificationNumber);
 
+    boolean existsByEmail(String email);
+
+    boolean existsByIdentificationNumber(String identificationNumber);
+
     Page<User> findByActiveTrue(Pageable pageable);
 
     Page<User> findByRole(User.UserRole role, Pageable pageable);

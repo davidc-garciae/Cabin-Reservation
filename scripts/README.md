@@ -42,6 +42,34 @@ Este directorio contiene scripts SQL para gestionar la base de datos de la aplic
 - Quieres mantener los datos existentes
 - Necesitas actualizar configuraciones después de cambios en el código
 
+### 🔄 `migration_add_checkin_checkout_times.sql`
+
+**Propósito:** Migración para agregar campos de horarios de check-in/check-out.
+
+**Qué hace:**
+
+- Agrega campos `check_in_time` y `check_out_time` a la tabla `reservations`
+- Agrega campos `default_check_in_time` y `default_check_out_time` a la tabla `cabins`
+- Establece valores por defecto (15:00 para check-in, 11:00 para check-out)
+- Hace los campos obligatorios después de establecer valores por defecto
+
+### 📄 `insert-test-documents.sql`
+
+**Propósito:** Inserta documentos de prueba adicionales para testing.
+
+**Qué hace:**
+
+- Inserta documentos de prueba: 99999999, 88888888, 77777777, 55555555
+- Incluye un documento inactivo (66666666) para testing
+- Actualiza la secuencia de IDs
+- Muestra estadísticas de documentos insertados
+
+**Cuándo usarlo:**
+
+- Necesitas probar el endpoint de registro público
+- Quieres documentos adicionales para testing
+- Estás desarrollando funcionalidades que requieren documentos válidos
+
 ## 🚀 Cómo Usar los Scripts
 
 ### Opción 1: Usando pgAdmin
@@ -63,6 +91,9 @@ psql -h localhost -p 5433 -U postgres -d cabin-reservation -f insert-test-data.s
 
 # Solo configuraciones del sistema
 psql -h localhost -p 5433 -U postgres -d cabin-reservation -f insert-system-configs-only.sql
+
+# Migración de horarios
+psql -h localhost -p 5433 -U postgres -d cabin-reservation -f migration_add_checkin_checkout_times.sql
 ```
 
 ### Opción 3: Desde la aplicación Spring Boot
@@ -84,6 +115,14 @@ Puedes ejecutar los scripts directamente desde la aplicación usando:
 ### Para Resetear Solo Configuraciones:
 
 1. **Resetear configs:** `insert-system-configs-only.sql`
+
+### Para Aplicar Migración de Horarios:
+
+1. **Migrar horarios:** `migration_add_checkin_checkout_times.sql`
+
+### Para Insertar Documentos de Prueba:
+
+1. **Documentos adicionales:** `insert-test-documents.sql`
 
 ### Para Producción:
 

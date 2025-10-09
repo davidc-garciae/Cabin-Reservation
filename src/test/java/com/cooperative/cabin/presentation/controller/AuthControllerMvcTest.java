@@ -77,4 +77,25 @@ class AuthControllerMvcTest {
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.accessToken").value("new.access.jwt"));
         }
+
+        @Test
+        void register_ShouldRegisterUserSuccessfully() throws Exception {
+                given(authApplicationService.register(anyString(), anyString(), anyString(), anyString(), anyString(),
+                                anyString()))
+                                .willReturn(Map.of("accessToken", "access.jwt", "refreshToken", "refresh.jwt"));
+
+                String body = "{" +
+                                "\"documentNumber\":\"12345678\"," +
+                                "\"email\":\"test@email.com\"," +
+                                "\"name\":\"Test User\"," +
+                                "\"phone\":\"+57-300-123-4567\"," +
+                                "\"pin\":\"1234\"," +
+                                "\"role\":\"PROFESSOR\"" +
+                                "}";
+
+                mockMvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content(body))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.accessToken").value("access.jwt"))
+                                .andExpect(jsonPath("$.refreshToken").value("refresh.jwt"));
+        }
 }

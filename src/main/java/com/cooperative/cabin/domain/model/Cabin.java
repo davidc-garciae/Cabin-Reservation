@@ -10,6 +10,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,6 +78,12 @@ public class Cabin {
     @Column(name = "location", columnDefinition = "TEXT")
     private String location; // JSON string with coordinates and address
 
+    @Column(name = "default_check_in_time")
+    private LocalTime defaultCheckInTime;
+
+    @Column(name = "default_check_out_time")
+    private LocalTime defaultCheckOutTime;
+
     // Relaciones bidireccionales
     @OneToMany(mappedBy = "cabin", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Reservation> reservations = new ArrayList<>();
@@ -102,7 +109,8 @@ public class Cabin {
 
     public Cabin(String name, String description, Integer capacity, Integer bedrooms,
             Integer bathrooms, java.math.BigDecimal basePrice, Integer maxGuests,
-            String amenities, String location) {
+            String amenities, String location, LocalTime defaultCheckInTime,
+            LocalTime defaultCheckOutTime) {
         this.active = true;
         this.name = name;
         this.description = description;
@@ -113,5 +121,7 @@ public class Cabin {
         this.maxGuests = maxGuests;
         this.amenities = amenities;
         this.location = location;
+        this.defaultCheckInTime = defaultCheckInTime;
+        this.defaultCheckOutTime = defaultCheckOutTime;
     }
 }

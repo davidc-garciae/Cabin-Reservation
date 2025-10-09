@@ -35,6 +35,7 @@ Asegúrate de que tu aplicación esté ejecutándose en `http://localhost:8080` 
 1. **Login - Admin** → Obtiene tokens de administrador
 2. **Login - Profesor** → Obtiene tokens de profesor
 3. **Login - Pensionado** → Obtiene tokens de pensionado
+4. **Register New User** → Registra nuevo usuario y obtiene tokens
 
 ### Paso 2: Consultas Públicas
 
@@ -54,7 +55,7 @@ Asegúrate de que tu aplicación esté ejecutándose en `http://localhost:8080` 
 
 ### Paso 4: Reservas
 
-1. **Create Reservation** → Crear nueva reserva
+1. **Create Reservation** → Crear nueva reserva (con horarios personalizados)
 2. **Create Reservation (Testing Block)** → Probar bloqueos obligatorios
 3. **Create Reservation (Partial Block - Should Fail)** → Verificar validaciones
 
@@ -77,6 +78,7 @@ Asegúrate de que tu aplicación esté ejecutándose en `http://localhost:8080` 
 | Profesor   | 87654321  | password   | profesor1@universidad.edu.co |
 | Profesor   | 11223344  | password   | profesor2@universidad.edu.co |
 | Pensionado | 99887766  | password   | pensionado1@email.com        |
+| Nuevo      | 99999999  | 1234       | nuevo.usuario@email.com      |
 
 ### 🏠 Cabañas
 
@@ -158,7 +160,9 @@ Asegúrate de que tu aplicación esté ejecutándose en `http://localhost:8080` 
   "cabinId": 1,
   "startDate": "2024-03-15",
   "endDate": "2024-03-17",  // Exacto del bloqueo
-  "guests": 4
+  "guests": 4,
+  "checkInTime": "15:00",
+  "checkOutTime": "11:00"
 }
 
 ❌ POST /api/reservations
@@ -167,17 +171,32 @@ Asegúrate de que tu aplicación esté ejecutándose en `http://localhost:8080` 
   "cabinId": 1,
   "startDate": "2024-03-15",
   "endDate": "2024-03-16",  // Parcial del bloqueo
-  "guests": 4
+  "guests": 4,
+  "checkInTime": "15:00",
+  "checkOutTime": "11:00"
 }
 ```
 
-### 2. Probar Diferentes Roles
+### 3. Probar Registro Público
+
+```
+✅ POST /api/auth/register
+{
+  "documentNumber": "99999999",
+  "email": "nuevo.usuario@email.com",
+  "name": "Nuevo Usuario",
+  "phone": "+57-300-999-9999",
+  "pin": "1234"
+}
+```
+
+### 4. Probar Diferentes Roles
 
 - **Admin:** Acceso completo a todos los endpoints
 - **Profesor:** Acceso a funciones de usuario + algunas administrativas
 - **Pensionado:** Acceso solo a funciones de usuario
 
-### 3. Probar Validaciones
+### 5. Probar Validaciones
 
 - Fechas inválidas
 - Capacidad excedida

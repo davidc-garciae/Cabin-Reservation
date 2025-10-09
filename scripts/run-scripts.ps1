@@ -3,7 +3,7 @@
 
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet("cleanup", "insert", "configs", "all")]
+    [ValidateSet("cleanup", "insert", "configs", "migrate", "test-documents", "all")]
     [string]$Action,
     
     [string]$Host = "localhost",
@@ -89,21 +89,31 @@ switch ($Action) {
         Invoke-SqlScript -ScriptPath $scriptPath -Description "Inserción de configuraciones del sistema"
     }
     
-    "all" {
-        Write-Host "`n⚠️  ADVERTENCIA: Esto eliminará TODOS los datos y los reemplazará con datos de prueba!" -ForegroundColor Red
-        $confirm = Read-Host "¿Estás seguro? (escribe 'SI' para continuar)"
-        
-        if ($confirm -eq "SI") {
-            # Limpiar
-            $cleanupScript = Join-Path $ScriptDir "cleanup-database.sql"
-            if (Invoke-SqlScript -ScriptPath $cleanupScript -Description "Limpieza de base de datos") {
-                # Insertar datos
-                $insertScript = Join-Path $ScriptDir "insert-test-data.sql"
-                Invoke-SqlScript -ScriptPath $insertScript -Description "Inserción de datos de prueba"
-            }
-        }
-        else {
-            Write-Host "❌ Operación cancelada por el usuario" -ForegroundColor Yellow
+    "migrate" {
+        $scriptPath = Join-Path $ScriptDir "migration_add_checkin_checkout_times.sql"
+        Invoke-SqlScript -ScriptPath $scriptPath -Description "Migración de horarios de check-in/check-out"
+    }
+    
+    "test-documents" {
+        $scriptPath = Join-Path $ScriptDir "insert-test-documents.sql"
+        Invoke-SqlScript -ScriptPath $scriptPath -Description "Inserción de documentos de prueba"
+    }
+    
+    # Limpiar
+    $cleanupScript = Join-Path $ScriptDir "cleanup-database.sql"
+    if (Invoke-SqlScript -ScriptPath $cleanupScript -Description "Limpieza de base de datos") {
+        # Insertar datos
+        $insertScript = Join-Path $ScriptDir "insert-test-data.sql"
+        Invoke-SqlScript -ScriptPath $insertScript -Description "Inserción de datos de prueba"
+    }
+}
+else {
+    Write-Host "❌ Operación cancelada por el usuario" -ForegroundColor Yellow
+}
+}
+}
+
+Write-Host "`n🏁 Proceso completado!" -ForegroundColor Green
         }
     }
 }

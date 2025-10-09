@@ -15,6 +15,12 @@ public class CreateReservationRequest {
     @Schema(example = "2")
     private int guests;
 
+    @Schema(example = "14:00", description = "Hora de check-in")
+    private String checkInTime;
+
+    @Schema(example = "12:00", description = "Hora de check-out")
+    private String checkOutTime;
+
     public CreateReservationRequest() {
     }
 
@@ -24,6 +30,17 @@ public class CreateReservationRequest {
         this.startDate = startDate;
         this.endDate = endDate;
         this.guests = guests;
+    }
+
+    public CreateReservationRequest(Long userId, Long cabinId, String startDate, String endDate, int guests,
+            String checkInTime, String checkOutTime) {
+        this.userId = userId;
+        this.cabinId = cabinId;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.guests = guests;
+        this.checkInTime = checkInTime;
+        this.checkOutTime = checkOutTime;
     }
 
     public Long getUserId() {
@@ -44,5 +61,21 @@ public class CreateReservationRequest {
 
     public int getGuests() {
         return guests;
+    }
+
+    public String getCheckInTime() {
+        return checkInTime;
+    }
+
+    public void setCheckInTime(String checkInTime) {
+        this.checkInTime = checkInTime;
+    }
+
+    public String getCheckOutTime() {
+        return checkOutTime;
+    }
+
+    public void setCheckOutTime(String checkOutTime) {
+        this.checkOutTime = checkOutTime;
     }
 }

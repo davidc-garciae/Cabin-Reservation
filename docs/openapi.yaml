@@ -1,0 +1,1518 @@
+openapi: 3.0.3
+info:
+  title: Cabin Reservation API
+  version: 2.0.0
+  description: |
+    API completa para el sistema de reservas de cabañas de la cooperativa.
+    
+    ## Funcionalidades Principales
+    
+    - **Autenticación JWT**: Login, registro público, recuperación de contraseña
+    - **Gestión de Reservas**: Creación, cancelación, confirmación con horarios
+    - **Horarios de Check-in/Check-out**: Configurables por cabaña y reserva
+    - **Gestión de Cabañas**: CRUD completo con horarios por defecto
+    - **Disponibilidad**: Consulta de fechas disponibles con bloqueos obligatorios
+    - **Lista de Espera**: Sistema de notificaciones y reclamo de prioridad
+    - **Panel Administrativo**: Dashboard, métricas, gestión completa
+    - **Precios Dinámicos**: Rangos de precios por temporada con historial
+    
+    ## Nuevas Funcionalidades v2.0
+    
+    - ✅ **Registro Público de Usuarios**: Nuevos usuarios pueden registrarse con documento válido
+    - ✅ **Horarios de Check-in/Check-out**: Campos obligatorios en reservas y cabañas
+    - ✅ **Validación de Documentos**: Verificación contra base de datos de asociados activos
+    
+  contact:
+    name: Equipo de Desarrollo
+    email: desarrollo@cooperativa.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8080
+    description: Servidor de desarrollo local
+  - url: https://api.cooperativa.com
+    description: Servidor de producción
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api/auth/login:
+    post:
+      tags:
+        - 🔐 Autenticación
+      summary: Iniciar sesión
+      description: Autentica un usuario existente y retorna tokens JWT
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentLoginRequest'
+            examples:
+              admin:
+                summary: Login de administrador
+                value:
+                  documentNumber: "12345678"
+                  password: "password"
+              professor:
+                summary: Login de profesor
+                value:
+                  documentNumber: "87654321"
+                  password: "password"
+      responses:
+        '200':
+          description: Login exitoso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: Credenciales inválidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/register:
+    post:
+      tags:
+        - 🔐 Autenticación
+      summary: Registro público de nuevo usuario
+      description: |
+        Registra un nuevo usuario validando su número de documento contra la base de datos de asociados activos.
+        
+        **Validaciones:**
+        - Documento debe existir en la base de datos de asociados activos
+        - Email debe ser único
+        - Documento no puede estar ya registrado
+        - PIN debe tener exactamente 4 dígitos
+        - Rol debe ser PROFESSOR o RETIREE (no se permite ADMIN)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            examples:
+              new_user:
+                summary: Registro de nuevo usuario
+                value:
+                  documentNumber: "99999999"
+                  email: "nuevo.usuario@email.com"
+                  name: "Nuevo Usuario"
+                  phone: "+57-300-999-9999"
+                  pin: "1234"
+                  role: "PROFESSOR"
+      responses:
+        '200':
+          description: Registro exitoso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+              examples:
+                success:
+                  value:
+                    accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalid_document:
+                  summary: Documento no válido
+                  value:
+                    timestamp: "2024-01-01T10:00:00.000+00:00"
+                    status: 400
+                    error: "Bad Request"
+                    message: "Número de documento no válido o deshabilitado"
+                    path: "/api/auth/register"
+                existing_document:
+                  summary: Documento ya registrado
+                  value:
+                    timestamp: "2024-01-01T10:00:00.000+00:00"
+                    status: 400
+                    error: "Bad Request"
+                    message: "Ya existe un usuario con este número de documento"
+                    path: "/api/auth/register"
+                existing_email:
+                  summary: Email ya registrado
+                  value:
+                    timestamp: "2024-01-01T10:00:00.000+00:00"
+                    status: 400
+                    error: "Bad Request"
+                    message: "Ya existe un usuario con este email"
+                    path: "/api/auth/register"
+
+  /api/auth/refresh:
+    post:
+      tags:
+        - 🔐 Autenticación
+      summary: Renovar token de acceso
+      description: Genera un nuevo token de acceso usando el refresh token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+                  description: Token de renovación
+                  example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      responses:
+        '200':
+          description: Token renovado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+
+  /api/auth/recover-password:
+    post:
+      tags:
+        - 🔐 Autenticación
+      summary: Solicitar recuperación de contraseña
+      description: Envía email con token para restablecer contraseña
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecoverPasswordRequest'
+      responses:
+        '200':
+          description: Email de recuperación enviado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Email de recuperación enviado"
+
+  /api/auth/reset-password:
+    post:
+      tags:
+        - 🔐 Autenticación
+      summary: Restablecer contraseña
+      description: Restablece la contraseña usando el token de recuperación
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '200':
+          description: Contraseña restablecida exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Contraseña restablecida exitosamente"
+
+  /api/auth/validate-token:
+    post:
+      tags:
+        - 🔐 Autenticación
+      summary: Validar token JWT
+      description: Verifica si un token JWT es válido y no ha expirado
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateTokenRequest'
+      responses:
+        '200':
+          description: Token válido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenValidationResponse'
+
+  /api/cabins:
+    get:
+      tags:
+        - 🏠 Cabañas (Público)
+      summary: Obtener todas las cabañas activas
+      description: Retorna lista de todas las cabañas disponibles para reserva
+      security: []
+      responses:
+        '200':
+          description: Lista de cabañas activas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CabinResponse'
+
+  /api/cabins/{id}:
+    get:
+      tags:
+        - 🏠 Cabañas (Público)
+      summary: Obtener cabaña por ID
+      description: Retorna detalles de una cabaña específica
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la cabaña
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Detalles de la cabaña
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CabinResponse'
+        '404':
+          description: Cabaña no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/cabins/search:
+    get:
+      tags:
+        - 🏠 Cabañas (Público)
+      summary: Buscar cabañas por criterios
+      description: Busca cabañas usando filtros específicos
+      security: []
+      parameters:
+        - name: minCapacity
+          in: query
+          description: Capacidad mínima
+          schema:
+            type: integer
+            minimum: 1
+            example: 4
+        - name: minPrice
+          in: query
+          description: Precio mínimo
+          schema:
+            type: number
+            format: decimal
+            example: 100000
+        - name: maxPrice
+          in: query
+          description: Precio máximo
+          schema:
+            type: number
+            format: decimal
+            example: 200000
+        - name: name
+          in: query
+          description: Nombre de cabaña (búsqueda parcial)
+          schema:
+            type: string
+            example: "bosque"
+      responses:
+        '200':
+          description: Lista de cabañas que coinciden con los criterios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CabinResponse'
+
+  /api/reservations:
+    post:
+      tags:
+        - 📋 Reservas
+      summary: Crear nueva reserva
+      description: |
+        Crea una nueva pre-reserva con horarios de check-in/check-out.
+        
+        **Validaciones:**
+        - Fechas válidas y en el futuro
+        - Capacidad de la cabaña respetada
+        - Bloqueos obligatorios respetados
+        - Usuario activo y válido
+        
+        **Horarios:**
+        - Si no se especifican, se usan los horarios por defecto de la cabaña
+        - Formato: HH:mm (24 horas)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReservationRequest'
+            examples:
+              basic_reservation:
+                summary: Reserva básica
+                value:
+                  userId: 2
+                  cabinId: 1
+                  startDate: "2024-03-20"
+                  endDate: "2024-03-25"
+                  guests: 4
+                  checkInTime: "14:00"
+                  checkOutTime: "12:00"
+              default_times:
+                summary: Reserva con horarios por defecto
+                value:
+                  userId: 2
+                  cabinId: 1
+                  startDate: "2024-03-20"
+                  endDate: "2024-03-25"
+                  guests: 4
+              blocked_dates:
+                summary: Reserva que respeta bloqueo obligatorio
+                value:
+                  userId: 2
+                  cabinId: 1
+                  startDate: "2024-03-15"
+                  endDate: "2024-03-17"
+                  guests: 4
+                  checkInTime: "15:00"
+                  checkOutTime: "11:00"
+      responses:
+        '201':
+          description: Reserva creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationResponse'
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalid_dates:
+                  summary: Fechas inválidas
+                  value:
+                    timestamp: "2024-01-01T10:00:00.000+00:00"
+                    status: 400
+                    error: "Bad Request"
+                    message: "Las fechas de reserva deben ser válidas y en el futuro"
+                    path: "/api/reservations"
+                capacity_exceeded:
+                  summary: Capacidad excedida
+                  value:
+                    timestamp: "2024-01-01T10:00:00.000+00:00"
+                    status: 400
+                    error: "Bad Request"
+                    message: "Número de huéspedes excede la capacidad de la cabaña"
+                    path: "/api/reservations"
+                blocked_dates:
+                  summary: Fechas bloqueadas
+                  value:
+                    timestamp: "2024-01-01T10:00:00.000+00:00"
+                    status: 400
+                    error: "Bad Request"
+                    message: "Las fechas solicitadas están bloqueadas. Debe reservar el rango completo del bloqueo"
+                    path: "/api/reservations"
+
+  /api/reservations/{id}:
+    delete:
+      tags:
+        - 📋 Reservas
+      summary: Cancelar reserva
+      description: Cancela una reserva existente del usuario autenticado
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la reserva a cancelar
+          schema:
+            type: integer
+            example: 1
+        - name: X-User-Id
+          in: header
+          required: true
+          description: ID del usuario autenticado
+          schema:
+            type: integer
+            example: 2
+      responses:
+        '200':
+          description: Reserva cancelada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Reserva cancelada exitosamente"
+        '404':
+          description: Reserva no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: No autorizado para cancelar esta reserva
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/availability:
+    get:
+      tags:
+        - 📅 Disponibilidad (Público)
+      summary: Obtener fechas disponibles
+      description: Retorna lista de fechas disponibles para todas las cabañas
+      security: []
+      responses:
+        '200':
+          description: Lista de fechas disponibles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: date
+                  example: "2024-03-20"
+
+  /api/availability/calendar:
+    get:
+      tags:
+        - 📅 Disponibilidad (Público)
+      summary: Obtener calendario de disponibilidad
+      description: Retorna calendario de disponibilidad como mapa de fechas
+      security: []
+      parameters:
+        - name: year
+          in: query
+          required: true
+          description: Año
+          schema:
+            type: integer
+            example: 2024
+        - name: month
+          in: query
+          required: true
+          description: Mes (1-12)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+            example: 3
+      responses:
+        '200':
+          description: Calendario de disponibilidad
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: boolean
+                example:
+                  "2024-03-20": true
+                  "2024-03-21": true
+                  "2024-03-22": false
+
+  /api/availability/cabin/{cabinId}:
+    get:
+      tags:
+        - 📅 Disponibilidad (Público)
+      summary: Obtener fechas disponibles para cabaña específica
+      description: Retorna fechas disponibles para una cabaña específica
+      security: []
+      parameters:
+        - name: cabinId
+          in: path
+          required: true
+          description: ID de la cabaña
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Lista de fechas disponibles para la cabaña
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: date
+
+  /api/availability/cabin/{cabinId}/check:
+    get:
+      tags:
+        - 📅 Disponibilidad (Público)
+      summary: Verificar disponibilidad en rango de fechas
+      description: Verifica si una cabaña está disponible en un rango específico de fechas
+      security: []
+      parameters:
+        - name: cabinId
+          in: path
+          required: true
+          description: ID de la cabaña
+          schema:
+            type: integer
+            example: 1
+        - name: startDate
+          in: query
+          required: true
+          description: Fecha de inicio
+          schema:
+            type: string
+            format: date
+            example: "2024-03-20"
+        - name: endDate
+          in: query
+          required: true
+          description: Fecha de fin
+          schema:
+            type: string
+            format: date
+            example: "2024-03-25"
+      responses:
+        '200':
+          description: Resultado de verificación de disponibilidad
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  available:
+                    type: boolean
+                    description: Si la cabaña está disponible en el rango especificado
+                    example: true
+                  message:
+                    type: string
+                    description: Mensaje explicativo
+                    example: "Cabaña disponible en el rango especificado"
+
+  /api/admin/documents:
+    get:
+      tags:
+        - 👑 Admin - Documents
+      summary: Listar todos los documentos
+      description: Retorna lista completa de números de documento en el sistema
+      responses:
+        '200':
+          description: Lista de documentos obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DocumentNumberResponse'
+
+  /api/admin/documents/active:
+    get:
+      tags:
+        - 👑 Admin - Documents
+      summary: Listar documentos activos
+      description: Retorna lista de números de documento con estado ACTIVE
+      responses:
+        '200':
+          description: Lista de documentos activos obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DocumentNumberResponse'
+
+  /api/admin/documents/number/{documentNumber}:
+    get:
+      tags:
+        - 👑 Admin - Documents
+      summary: Obtener documento por número
+      description: Retorna detalles de un documento por su número
+      parameters:
+        - name: documentNumber
+          in: path
+          required: true
+          description: Número del documento
+          schema:
+            type: string
+            example: "99999999"
+      responses:
+        '200':
+          description: Documento obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentNumberResponse'
+        '404':
+          description: Documento no encontrado
+
+  /api/admin/documents:
+    post:
+      tags:
+        - 👑 Admin - Documents
+      summary: Crear nuevo documento
+      description: Crea un nuevo número de documento en el sistema
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDocumentNumberRequest'
+            examples:
+              new_document:
+                summary: Crear documento de prueba
+                value:
+                  documentNumber: "88888888"
+                  status: "ACTIVE"
+      responses:
+        '201':
+          description: Documento creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentNumberResponse'
+        '400':
+          description: Documento ya existe o solicitud inválida
+
+  /api/admin/documents/{id}/activate:
+    put:
+      tags:
+        - 👑 Admin - Documents
+      summary: Activar documento
+      description: Activa un documento cambiando su estado a ACTIVE
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del documento
+          schema:
+            type: integer
+            example: 7
+      responses:
+        '200':
+          description: Documento activado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Documento activado exitosamente"
+
+  /api/admin/documents/{id}/deactivate:
+    put:
+      tags:
+        - 👑 Admin - Documents
+      summary: Desactivar documento
+      description: Deshabilita un documento cambiando su estado a DISABLED
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del documento
+          schema:
+            type: integer
+            example: 7
+      responses:
+        '200':
+          description: Documento desactivado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Documento desactivado exitosamente"
+
+  /api/admin/documents/{id}:
+    delete:
+      tags:
+        - 👑 Admin - Documents
+      summary: Eliminar documento
+      description: Elimina permanentemente un documento del sistema
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del documento
+          schema:
+            type: integer
+            example: 7
+      responses:
+        '200':
+          description: Documento eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Documento eliminado exitosamente"
+        '404':
+          description: Documento no encontrado
+
+  /api/admin/dashboard:
+    get:
+      tags:
+        - 👑 Admin - Dashboard
+      summary: Obtener resumen del dashboard
+      description: Retorna métricas y resumen del sistema para el panel administrativo
+      responses:
+        '200':
+          description: Resumen del dashboard
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardResponse'
+
+  /api/admin/cabins:
+    get:
+      tags:
+        - 👑 Admin - Cabañas
+      summary: Listar todas las cabañas (admin)
+      description: Retorna lista completa de cabañas incluyendo inactivas
+      responses:
+        '200':
+          description: Lista de todas las cabañas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CabinResponse'
+
+  /api/admin/cabins/{id}:
+    get:
+      tags:
+        - 👑 Admin - Cabañas
+      summary: Obtener cabaña por ID (admin)
+      description: Retorna detalles de una cabaña específica para administración
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la cabaña
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Detalles de la cabaña
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CabinResponse'
+        '404':
+          description: Cabaña no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - 👑 Admin - Cabañas
+      summary: Crear nueva cabaña
+      description: Crea una nueva cabaña con horarios por defecto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCabinRequest'
+            examples:
+              new_cabin:
+                summary: Nueva cabaña con horarios
+                value:
+                  name: "Cabaña del Monte"
+                  description: "Hermosa cabaña en la montaña con vista panorámica"
+                  capacity: 6
+                  bedrooms: 3
+                  bathrooms: 2
+                  basePrice: 180000.00
+                  maxGuests: 6
+                  amenities: "{\"amenities\": [\"WiFi\", \"Chimenea\", \"Vista panorámica\"]}"
+                  location: "{\"address\": \"Vía del Monte Km 8\", \"coordinates\": {\"lat\": 4.6200, \"lng\": -74.0850}}"
+                  defaultCheckInTime: "15:00"
+                  defaultCheckOutTime: "11:00"
+      responses:
+        '201':
+          description: Cabaña creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CabinResponse'
+
+    put:
+      tags:
+        - 👑 Admin - Cabañas
+      summary: Actualizar cabaña
+      description: Actualiza una cabaña existente incluyendo horarios por defecto
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la cabaña a actualizar
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCabinRequest'
+      responses:
+        '200':
+          description: Cabaña actualizada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CabinResponse'
+
+    delete:
+      tags:
+        - 👑 Admin - Cabañas
+      summary: Eliminar cabaña
+      description: Elimina una cabaña del sistema
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la cabaña a eliminar
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Cabaña eliminada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Cabaña eliminada exitosamente"
+
+  /api/admin/reservations:
+    get:
+      tags:
+        - 👑 Admin - Reservas
+      summary: Listar todas las reservas (admin)
+      description: Retorna lista paginada de todas las reservas del sistema
+      parameters:
+        - name: page
+          in: query
+          description: Número de página (0-based)
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+        - name: size
+          in: query
+          description: Tamaño de página
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+            example: 20
+      responses:
+        '200':
+          description: Lista paginada de reservas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ReservationResponse'
+                  totalElements:
+                    type: integer
+                    example: 50
+                  totalPages:
+                    type: integer
+                    example: 3
+                  size:
+                    type: integer
+                    example: 20
+                  number:
+                    type: integer
+                    example: 0
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token JWT obtenido del endpoint de login o registro
+
+  schemas:
+    DocumentLoginRequest:
+      type: object
+      required:
+        - documentNumber
+        - password
+      properties:
+        documentNumber:
+          type: string
+          description: Número de documento del usuario
+          example: "12345678"
+        password:
+          type: string
+          description: Contraseña del usuario
+          example: "password"
+
+    RegisterRequest:
+      type: object
+      required:
+        - documentNumber
+        - email
+        - name
+        - pin
+      properties:
+        documentNumber:
+          type: string
+          description: Número de documento válido en la base de datos de asociados
+          minLength: 7
+          maxLength: 20
+          pattern: '^\d+$'
+          example: "99999999"
+        email:
+          type: string
+          format: email
+          description: Email único del usuario
+          maxLength: 255
+          example: "nuevo.usuario@email.com"
+        name:
+          type: string
+          description: Nombre completo del usuario
+          minLength: 2
+          maxLength: 100
+          example: "Nuevo Usuario"
+        phone:
+          type: string
+          description: Número de teléfono (opcional)
+          maxLength: 20
+          pattern: '^[+]?[\d\s\-()]+$'
+          example: "+57-300-999-9999"
+        pin:
+          type: string
+          description: PIN de 4 dígitos
+          pattern: '^\d{4}$'
+          example: "1234"
+        role:
+          type: string
+          description: Rol del usuario
+          enum: [PROFESSOR, RETIREE]
+          example: "PROFESSOR"
+
+    RecoverPasswordRequest:
+      type: object
+      required:
+        - documentNumber
+      properties:
+        documentNumber:
+          type: string
+          description: Número de documento del usuario
+          example: "12345678"
+
+    ResetPasswordRequest:
+      type: object
+      required:
+        - token
+        - newPin
+      properties:
+        token:
+          type: string
+          description: Token de recuperación de contraseña
+          example: "abc123def456"
+        newPin:
+          type: string
+          description: Nuevo PIN de 4 dígitos
+          pattern: '^\d{4}$'
+          example: "5678"
+
+    ValidateTokenRequest:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          description: Token JWT a validar
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    TokenResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: Token de acceso JWT
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        refreshToken:
+          type: string
+          description: Token de renovación JWT
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    TokenValidationResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+          description: Si el token es válido
+          example: true
+        expiresAt:
+          type: string
+          format: date-time
+          description: Fecha y hora de expiración del token
+          example: "2024-01-01T11:00:00.000Z"
+
+    CreateReservationRequest:
+      type: object
+      required:
+        - userId
+        - cabinId
+        - startDate
+        - endDate
+        - guests
+      properties:
+        userId:
+          type: integer
+          description: ID del usuario que hace la reserva
+          example: 2
+        cabinId:
+          type: integer
+          description: ID de la cabaña a reservar
+          example: 1
+        startDate:
+          type: string
+          format: date
+          description: Fecha de inicio de la reserva
+          example: "2024-03-20"
+        endDate:
+          type: string
+          format: date
+          description: Fecha de fin de la reserva
+          example: "2024-03-25"
+        guests:
+          type: integer
+          description: Número de huéspedes
+          minimum: 1
+          example: 4
+        checkInTime:
+          type: string
+          description: Hora de check-in (opcional, usa horario por defecto de la cabaña)
+          pattern: '^\d{2}:\d{2}$'
+          example: "14:00"
+        checkOutTime:
+          type: string
+          description: Hora de check-out (opcional, usa horario por defecto de la cabaña)
+          pattern: '^\d{2}:\d{2}$'
+          example: "12:00"
+
+    CreateCabinRequest:
+      type: object
+      required:
+        - name
+        - capacity
+        - bedrooms
+        - bathrooms
+        - basePrice
+        - maxGuests
+      properties:
+        name:
+          type: string
+          description: Nombre de la cabaña
+          minLength: 2
+          maxLength: 100
+          example: "Cabaña del Monte"
+        description:
+          type: string
+          description: Descripción de la cabaña
+          maxLength: 1000
+          example: "Hermosa cabaña en la montaña con vista panorámica"
+        capacity:
+          type: integer
+          description: Capacidad de la cabaña
+          minimum: 1
+          maximum: 20
+          example: 6
+        bedrooms:
+          type: integer
+          description: Número de habitaciones
+          minimum: 1
+          maximum: 10
+          example: 3
+        bathrooms:
+          type: integer
+          description: Número de baños
+          minimum: 1
+          maximum: 5
+          example: 2
+        basePrice:
+          type: number
+          format: decimal
+          description: Precio base por noche
+          minimum: 0.01
+          maximum: 9999.99
+          example: 180000.00
+        maxGuests:
+          type: integer
+          description: Máximo número de huéspedes
+          minimum: 1
+          maximum: 20
+          example: 6
+        amenities:
+          type: string
+          description: Amenidades en formato JSON
+          example: "{\"amenities\": [\"WiFi\", \"Chimenea\", \"Vista panorámica\"]}"
+        location:
+          type: string
+          description: Ubicación en formato JSON
+          example: "{\"address\": \"Vía del Monte Km 8\", \"coordinates\": {\"lat\": 4.6200, \"lng\": -74.0850}}"
+        defaultCheckInTime:
+          type: string
+          description: Hora de check-in por defecto
+          pattern: '^\d{2}:\d{2}$'
+          example: "15:00"
+        defaultCheckOutTime:
+          type: string
+          description: Hora de check-out por defecto
+          pattern: '^\d{2}:\d{2}$'
+          example: "11:00"
+
+    UpdateCabinRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Nombre de la cabaña
+          minLength: 2
+          maxLength: 100
+          example: "Cabaña del Monte Actualizada"
+        description:
+          type: string
+          description: Descripción de la cabaña
+          maxLength: 1000
+          example: "Cabaña actualizada con nuevas amenidades"
+        capacity:
+          type: integer
+          description: Capacidad de la cabaña
+          minimum: 1
+          maximum: 20
+          example: 8
+        bedrooms:
+          type: integer
+          description: Número de habitaciones
+          minimum: 1
+          maximum: 10
+          example: 4
+        bathrooms:
+          type: integer
+          description: Número de baños
+          minimum: 1
+          maximum: 5
+          example: 3
+        basePrice:
+          type: number
+          format: decimal
+          description: Precio base por noche
+          minimum: 0.01
+          maximum: 9999.99
+          example: 200000.00
+        maxGuests:
+          type: integer
+          description: Máximo número de huéspedes
+          minimum: 1
+          maximum: 20
+          example: 8
+        active:
+          type: boolean
+          description: Si la cabaña está activa
+          example: true
+        amenities:
+          type: string
+          description: Amenidades en formato JSON
+          example: "{\"amenities\": [\"WiFi\", \"Chimenea\", \"Jacuzzi\"]}"
+        location:
+          type: string
+          description: Ubicación en formato JSON
+          example: "{\"address\": \"Vía del Monte Km 8\", \"coordinates\": {\"lat\": 4.6200, \"lng\": -74.0850}}"
+        defaultCheckInTime:
+          type: string
+          description: Hora de check-in por defecto
+          pattern: '^\d{2}:\d{2}$'
+          example: "14:00"
+        defaultCheckOutTime:
+          type: string
+          description: Hora de check-out por defecto
+          pattern: '^\d{2}:\d{2}$'
+          example: "12:00"
+
+    CabinResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID único de la cabaña
+          example: 1
+        name:
+          type: string
+          description: Nombre de la cabaña
+          example: "Cabaña del Bosque"
+        description:
+          type: string
+          description: Descripción de la cabaña
+          example: "Hermosa cabaña rodeada de árboles nativos"
+        capacity:
+          type: integer
+          description: Capacidad de la cabaña
+          example: 6
+        bedrooms:
+          type: integer
+          description: Número de habitaciones
+          example: 3
+        bathrooms:
+          type: integer
+          description: Número de baños
+          example: 2
+        basePrice:
+          type: number
+          format: decimal
+          description: Precio base por noche
+          example: 150000.00
+        maxGuests:
+          type: integer
+          description: Máximo número de huéspedes
+          example: 6
+        active:
+          type: boolean
+          description: Si la cabaña está activa
+          example: true
+        amenities:
+          type: string
+          description: Amenidades en formato JSON
+          example: "{\"amenities\": [\"WiFi\", \"Chimenea\", \"Cocina completa\"]}"
+        location:
+          type: string
+          description: Ubicación en formato JSON
+          example: "{\"address\": \"Vía Principal Km 5\", \"coordinates\": {\"lat\": 4.6097, \"lng\": -74.0817}}"
+        createdAt:
+          type: string
+          format: date-time
+          description: Fecha de creación
+          example: "2024-01-15T10:30:00.000Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Fecha de última actualización
+          example: "2024-01-20T14:45:00.000Z"
+        defaultCheckInTime:
+          type: string
+          description: Hora de check-in por defecto
+          example: "15:00"
+        defaultCheckOutTime:
+          type: string
+          description: Hora de check-out por defecto
+          example: "11:00"
+
+    ReservationResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID único de la reserva
+          example: 1
+        userId:
+          type: integer
+          description: ID del usuario que hizo la reserva
+          example: 2
+        cabinId:
+          type: integer
+          description: ID de la cabaña reservada
+          example: 1
+        startDate:
+          type: string
+          format: date
+          description: Fecha de inicio de la reserva
+          example: "2024-03-20"
+        endDate:
+          type: string
+          format: date
+          description: Fecha de fin de la reserva
+          example: "2024-03-25"
+        numberOfGuests:
+          type: integer
+          description: Número de huéspedes
+          example: 4
+        status:
+          type: string
+          enum: [PENDING, CONFIRMED, IN_USE, COMPLETED, CANCELLED]
+          description: Estado de la reserva
+          example: "PENDING"
+        basePrice:
+          type: number
+          format: decimal
+          description: Precio base de la reserva
+          example: 150000.00
+        finalPrice:
+          type: number
+          format: decimal
+          description: Precio final de la reserva
+          example: 150000.00
+        createdAt:
+          type: string
+          format: date-time
+          description: Fecha de creación de la reserva
+          example: "2024-01-15T10:30:00.000Z"
+        confirmedAt:
+          type: string
+          format: date-time
+          description: Fecha de confirmación de la reserva
+          example: "2024-01-15T10:35:00.000Z"
+        checkInTime:
+          type: string
+          description: Hora de check-in
+          example: "14:00"
+        checkOutTime:
+          type: string
+          description: Hora de check-out
+          example: "12:00"
+
+    DashboardResponse:
+      type: object
+      properties:
+        totalReservations:
+          type: integer
+          description: Total de reservas en el sistema
+          example: 150
+        activeReservations:
+          type: integer
+          description: Reservas activas (confirmadas y en uso)
+          example: 25
+        totalRevenue:
+          type: number
+          format: decimal
+          description: Ingresos totales
+          example: 15000000.00
+        occupancyRate:
+          type: number
+          format: decimal
+          description: Tasa de ocupación
+          example: 0.75
+        totalCabins:
+          type: integer
+          description: Total de cabañas
+          example: 4
+        activeCabins:
+          type: integer
+          description: Cabañas activas
+          example: 4
+
+    DocumentNumberResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID único del documento
+          example: 7
+        documentNumber:
+          type: string
+          description: Número de documento
+          example: "99999999"
+        status:
+          type: string
+          enum: [ACTIVE, DISABLED]
+          description: Estado del documento
+          example: "ACTIVE"
+        createdAt:
+          type: string
+          format: date-time
+          description: Fecha de creación
+          example: "2024-01-01T10:00:00.000Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Fecha de última actualización
+          example: "2024-01-01T10:00:00.000Z"
+
+    CreateDocumentNumberRequest:
+      type: object
+      required:
+        - documentNumber
+      properties:
+        documentNumber:
+          type: string
+          description: Número de documento
+          minLength: 7
+          maxLength: 20
+          pattern: '^\d+$'
+          example: "88888888"
+        status:
+          type: string
+          enum: [ACTIVE, DISABLED]
+          description: Estado del documento
+          default: ACTIVE
+          example: "ACTIVE"
+
+    UpdateDocumentNumberRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ACTIVE, DISABLED]
+          description: Estado del documento
+          example: "DISABLED"
+
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Fecha y hora del error
+          example: "2024-01-01T10:00:00.000Z"
+        status:
+          type: integer
+          description: Código de estado HTTP
+          example: 400
+        error:
+          type: string
+          description: Tipo de error
+          example: "Bad Request"
+        message:
+          type: string
+          description: Mensaje descriptivo del error
+          example: "Solicitud inválida"
+        path:
+          type: string
+          description: Ruta donde ocurrió el error
+          example: "/api/reservations"

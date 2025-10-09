@@ -10,6 +10,7 @@ import org.springframework.test.context.ActiveProfiles;
 import jakarta.annotation.Resource;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,7 +35,10 @@ class CabinJpaRepositoryIT {
                 new BigDecimal("150.00"),
                 8,
                 "{\"wifi\": true, \"parking\": true, \"chimenea\": true}",
-                "{\"address\": \"Lago Escondido 123\", \"coordinates\": {\"lat\": -34.6037, \"lng\": -58.3816}}");
+                "{\"address\": \"Lago Escondido 123\", \"coordinates\": {\"lat\": -34.6037, \"lng\": -58.3816}}",
+                LocalTime.of(15, 0), // Check-in 15:00
+                LocalTime.of(11, 0) // Check-out 11:00
+        );
 
         // Establecer campos de auditoría manualmente
         LocalDateTime now = LocalDateTime.now();
@@ -60,14 +64,14 @@ class CabinJpaRepositoryIT {
 
         // Crear cabañas activas e inactivas
         Cabin activeCabin = new Cabin("Cabaña Activa", "Descripción", 4, 2, 1,
-                new BigDecimal("100.00"), 4, "{}", "{}");
+                new BigDecimal("100.00"), 4, "{}", "{}", LocalTime.of(15, 0), LocalTime.of(11, 0));
         activeCabin.setActive(true);
         activeCabin.setCreatedAt(now);
         activeCabin.setUpdatedAt(now);
         repository.save(activeCabin);
 
         Cabin inactiveCabin = new Cabin("Cabaña Inactiva", "Descripción", 4, 2, 1,
-                new BigDecimal("100.00"), 4, "{}", "{}");
+                new BigDecimal("100.00"), 4, "{}", "{}", LocalTime.of(15, 0), LocalTime.of(11, 0));
         inactiveCabin.setActive(false);
         inactiveCabin.setCreatedAt(now);
         inactiveCabin.setUpdatedAt(now);
@@ -86,7 +90,7 @@ class CabinJpaRepositoryIT {
 
         // Crear cabaña
         Cabin cabin = new Cabin("Cabaña Original", "Descripción original", 4, 2, 1,
-                new BigDecimal("100.00"), 4, "{}", "{}");
+                new BigDecimal("100.00"), 4, "{}", "{}", LocalTime.of(15, 0), LocalTime.of(11, 0));
         cabin.setCreatedAt(now);
         cabin.setUpdatedAt(now);
         Cabin savedCabin = repository.save(cabin);

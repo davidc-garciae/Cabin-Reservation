@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Objects;
 
 @Entity
@@ -63,6 +64,12 @@ public class Reservation {
     @Column(name = "final_price", nullable = false, precision = 10, scale = 2)
     private java.math.BigDecimal finalPrice;
 
+    @Column(name = "check_in_time")
+    private LocalTime checkInTime;
+
+    @Column(name = "check_out_time")
+    private LocalTime checkOutTime;
+
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -80,6 +87,22 @@ public class Reservation {
         this.cabin = cabin;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.numberOfGuests = numberOfGuests;
+        this.status = status;
+        this.basePrice = basePrice;
+        this.finalPrice = finalPrice;
+    }
+
+    public Reservation(User user, Cabin cabin, LocalDate startDate, LocalDate endDate,
+            LocalTime checkInTime, LocalTime checkOutTime, int numberOfGuests,
+            ReservationStatus status, java.math.BigDecimal basePrice,
+            java.math.BigDecimal finalPrice) {
+        this.user = user;
+        this.cabin = cabin;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.checkInTime = checkInTime;
+        this.checkOutTime = checkOutTime;
         this.numberOfGuests = numberOfGuests;
         this.status = status;
         this.basePrice = basePrice;

@@ -9,6 +9,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Mapper(componentModel = "spring")
 public interface ReservationMapper {
@@ -21,6 +22,8 @@ public interface ReservationMapper {
     @Mapping(source = "endDate", target = "endDate", dateFormat = "yyyy-MM-dd")
     @Mapping(source = "numberOfGuests", target = "guests")
     @Mapping(source = "status", target = "status")
+    @Mapping(source = "checkInTime", target = "checkInTime", dateFormat = "HH:mm")
+    @Mapping(source = "checkOutTime", target = "checkOutTime", dateFormat = "HH:mm")
     ReservationResponse toResponse(Reservation r);
 
     @Mapping(source = "userId", target = "user.id")
@@ -28,6 +31,8 @@ public interface ReservationMapper {
     @Mapping(source = "startDate", target = "startDate", dateFormat = "yyyy-MM-dd")
     @Mapping(source = "endDate", target = "endDate", dateFormat = "yyyy-MM-dd")
     @Mapping(source = "guests", target = "numberOfGuests")
+    @Mapping(source = "checkInTime", target = "checkInTime", dateFormat = "HH:mm")
+    @Mapping(source = "checkOutTime", target = "checkOutTime", dateFormat = "HH:mm")
     @Mapping(target = "status", constant = "PENDING")
     @Mapping(target = "basePrice", constant = "100.00")
     @Mapping(target = "finalPrice", constant = "100.00")

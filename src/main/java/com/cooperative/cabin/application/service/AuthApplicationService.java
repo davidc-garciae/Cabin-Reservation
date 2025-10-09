@@ -163,4 +163,53 @@ public class AuthApplicationService {
     public void cleanupExpiredTokens() {
         tokenRepository.deleteExpiredTokens(LocalDateTime.now());
     }
+
+    public Map<String, String> register(String documentNumber, String email, String name, String phone, String pin,
+            String role) {
+        // 1. Validar que el documento existe y está activo (REUTILIZAR lógica
+        // existente)
+        if (!documentNumberRepository.existsByDocumentNumberAndActive(documentNumber)) {
+            throw new IllegalArgumentException("Número de documento no válido o deshabilitado");
+        }
+
+        // 2. Verificar que no existe usuario con este documento (NUEVO)
+        if (userRepository.existsByIdentificationNumber(documentNumber)) {
+            throw new IllegalArgumentException("Ya existe un usuario con este número de documento");
+        }
+
+        // 3. Verificar que no existe usuario con este email (NUEVO)
+        if (userRepository.existsByEmail(email)) {
+            throw new IllegalArgumentException("Ya existe un usuario con este email");
+        }
+
+        // 4. Crear nuevo usuario (REUTILIZAR lógica de AdminUserApplicationServiceImpl)
+        User user = new User();
+        user.setEmail(email);
+        user.setIdentificationNumber(documentNumber);
+        user.setName(name);
+        user.setPhone(phone);
+        user.setPinHash(passwordEncoder.encode(pin));
+
+        // Convertir string a enum y validar
+        User.UserRole userRole;
+        try {
+            userRole = User.UserRole.valueOf(role);
+            if (userRole == User.UserRole.ADMIN) {
+                throw new IllegalArgumentException("No se puede registrar un usuario con rol ADMIN");
+            }
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Rol inválido. Solo se permiten PROFESSOR o RETIREE");
+        }
+
+        user.setRole(userRole);
+        user.setActive(true);
+
+        User savedUser = userRepository.save(user);
+
+        // 5. Generar tokens JWT (REUTILIZAR lógica existente)
+        String access = jwtService.generateAccessToken(savedUser.getEmail(), savedUser.getRole().name());
+        String refresh = jwtService.generateRefreshToken(savedUser.getEmail());
+
+        return Map.of("accessToken", access, "refreshToken", refresh);
+    }
 }

@@ -12,7 +12,7 @@
   <img src="https://img.shields.io/badge/License-MIT-green" alt="License" />
 </p>
 
-Backend de reservas de cabañas construido con Spring Boot 3.x, JWT, JPA/Hibernate, OpenAPI/Swagger, Micrometer/Actuator y Gradle. Incluye endpoints públicos para catálogo/disponibilidad, endpoints autenticados para usuarios y endpoints administrativos (reservas, precios, configuraciones, disponibilidad, dashboard), DTOs estandarizados y documentación completa.
+Backend de reservas de cabañas construido con Spring Boot 3.x, JWT, JPA/Hibernate, OpenAPI/Swagger, Micrometer/Actuator y Gradle. Incluye registro público de usuarios con selección de rol, horarios de check-in/check-out, gestión administrativa de documentos, endpoints públicos para catálogo/disponibilidad, endpoints autenticados para usuarios y endpoints administrativos (reservas, precios, configuraciones, disponibilidad, dashboard, documentos), DTOs estandarizados y documentación completa.
 
 ## Tabla de contenidos
 
@@ -110,12 +110,21 @@ Notas:
 
 ## OpenAPI y Swagger UI
 
-- Swagger UI: `http://localhost:8080/swagger-ui.html`
-- OpenAPI JSON: `http://localhost:8080/v3/api-docs`
+- **Swagger UI**: `http://localhost:8080/swagger-ui.html`
+- **OpenAPI JSON**: `http://localhost:8080/v3/api-docs`
+- **Documentación OpenAPI**: [docs/openapi.yaml](docs/openapi.yaml)
+- **Documentación Completa**: [docs/README.md](docs/README.md)
+
+### **Nuevas Funcionalidades v2.0 Documentadas:**
+
+- ✅ **Registro público de usuarios** (`POST /api/auth/register`) con selección de rol
+- ✅ **Horarios de check-in/check-out** en reservas y cabañas
+- ✅ **Validación de documentos** contra base de datos de asociados
+- ✅ **Gestión administrativa de documentos** (CRUD completo)
 
 Autorización en Swagger:
 
-1. Clic en “Authorize”.
+1. Clic en "Authorize".
 2. Ingresa el token (puede ser solo el JWT; Swagger añade `Bearer`).
 
 La documentación incluye descripciones, ejemplos JSON, códigos de error y validaciones por DTO.
@@ -147,15 +156,15 @@ src/main/java/com/cooperative/cabin/
 
 ## Principales endpoints
 
-Autenticación (`/api/auth/*`): login, refresh, recover-password, reset-password, validate-token (POST)
+Autenticación (`/api/auth/*`): login, refresh, recover-password, reset-password, validate-token, register (POST) con selección de rol
 
 Usuarios: GET/PUT `/api/users/profile`
 
-Reservas: GET/POST `/api/reservations`, GET `/api/reservations/{id}`, DELETE `/api/reservations/{id}`
+Reservas: GET/POST `/api/reservations` (con horarios), GET `/api/reservations/{id}`, DELETE `/api/reservations/{id}`
 
 Disponibilidad (público): GET `/api/availability`, GET `/api/availability/calendar`
 
-Cabañas (público/admin): GET `/api/cabins`, GET `/api/cabins/{id}`; Admin: POST/PUT/DELETE `/api/admin/cabins*`
+Cabañas (público/admin): GET `/api/cabins` (con horarios por defecto), GET `/api/cabins/{id}`; Admin: POST/PUT/DELETE `/api/admin/cabins*`
 
 Precios (admin): calendar, ranges CRUD, history, calculate
 
@@ -165,6 +174,14 @@ Configuraciones/Logs/Metrics (admin):
 - `GET /api/admin/audit-logs` (paginado)
 - `GET /api/admin/metrics`
 - `GET /api/admin/dashboard`
+
+Gestión de Documentos (admin):
+
+- `GET /api/admin/documents`, `GET /api/admin/documents/active`
+- `GET /api/admin/documents/number/{number}`
+- `POST /api/admin/documents`
+- `PUT /api/admin/documents/{id}/activate`, `PUT /api/admin/documents/{id}/deactivate`
+- `DELETE /api/admin/documents/{id}`
 
 ## DTOs y mapeo
 

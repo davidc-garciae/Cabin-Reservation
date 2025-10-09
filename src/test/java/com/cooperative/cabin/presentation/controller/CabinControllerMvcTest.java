@@ -46,12 +46,14 @@ class CabinControllerMvcTest {
                 CabinResponse cabin1 = new CabinResponse(
                                 1L, "Cabaña del Lago", "Hermosa cabaña con vista al lago", 6, 3, 2,
                                 BigDecimal.valueOf(150.00), 6, true, "{\"wifi\": true}", "{\"address\": \"Lago 123\"}",
-                                LocalDateTime.parse("2024-01-15T10:30:00"), LocalDateTime.parse("2024-01-20T14:45:00"));
+                                LocalDateTime.parse("2024-01-15T10:30:00"), LocalDateTime.parse("2024-01-20T14:45:00"),
+                                "15:00", "11:00");
                 CabinResponse cabin2 = new CabinResponse(
                                 2L, "Cabaña del Bosque", "Cabaña en el bosque", 4, 2, 1,
                                 BigDecimal.valueOf(120.00), 4, true, "{\"parking\": true}",
                                 "{\"address\": \"Bosque 456\"}",
-                                LocalDateTime.parse("2024-01-16T11:00:00"), LocalDateTime.parse("2024-01-21T15:00:00"));
+                                LocalDateTime.parse("2024-01-16T11:00:00"), LocalDateTime.parse("2024-01-21T15:00:00"),
+                                "15:00", "11:00");
 
                 when(cabinApplicationService.getAllActiveCabins()).thenReturn(List.of(cabin1, cabin2));
 
@@ -72,7 +74,8 @@ class CabinControllerMvcTest {
                 CabinResponse cabin = new CabinResponse(
                                 1L, "Cabaña del Lago", "Hermosa cabaña con vista al lago", 6, 3, 2,
                                 BigDecimal.valueOf(150.00), 6, true, "{\"wifi\": true}", "{\"address\": \"Lago 123\"}",
-                                LocalDateTime.parse("2024-01-15T10:30:00"), LocalDateTime.parse("2024-01-20T14:45:00"));
+                                LocalDateTime.parse("2024-01-15T10:30:00"), LocalDateTime.parse("2024-01-20T14:45:00"),
+                                "15:00", "11:00");
 
                 when(cabinApplicationService.getCabinById(1L)).thenReturn(cabin);
 
@@ -101,7 +104,8 @@ class CabinControllerMvcTest {
                 CabinResponse cabin = new CabinResponse(
                                 1L, "Cabaña del Lago", "Hermosa cabaña con vista al lago", 6, 3, 2,
                                 BigDecimal.valueOf(150.00), 6, true, "{\"wifi\": true}", "{\"address\": \"Lago 123\"}",
-                                LocalDateTime.parse("2024-01-15T10:30:00"), LocalDateTime.parse("2024-01-20T14:45:00"));
+                                LocalDateTime.parse("2024-01-15T10:30:00"), LocalDateTime.parse("2024-01-20T14:45:00"),
+                                "15:00", "11:00");
 
                 when(cabinApplicationService.searchCabins(eq(4), any(), any(), any()))
                                 .thenReturn(List.of(cabin));
@@ -120,7 +124,8 @@ class CabinControllerMvcTest {
                 CabinResponse cabin = new CabinResponse(
                                 1L, "Cabaña del Lago", "Hermosa cabaña con vista al lago", 6, 3, 2,
                                 BigDecimal.valueOf(150.00), 6, true, "{\"wifi\": true}", "{\"address\": \"Lago 123\"}",
-                                LocalDateTime.parse("2024-01-15T10:30:00"), LocalDateTime.parse("2024-01-20T14:45:00"));
+                                LocalDateTime.parse("2024-01-15T10:30:00"), LocalDateTime.parse("2024-01-20T14:45:00"),
+                                "15:00", "11:00");
 
                 when(cabinApplicationService.searchCabins(any(), eq(BigDecimal.valueOf(100)),
                                 eq(BigDecimal.valueOf(200)),
@@ -142,7 +147,8 @@ class CabinControllerMvcTest {
                 CabinResponse cabin = new CabinResponse(
                                 1L, "Cabaña del Lago", "Hermosa cabaña con vista al lago", 6, 3, 2,
                                 BigDecimal.valueOf(150.00), 6, true, "{\"wifi\": true}", "{\"address\": \"Lago 123\"}",
-                                LocalDateTime.parse("2024-01-15T10:30:00"), LocalDateTime.parse("2024-01-20T14:45:00"));
+                                LocalDateTime.parse("2024-01-15T10:30:00"), LocalDateTime.parse("2024-01-20T14:45:00"),
+                                "15:00", "11:00");
 
                 when(cabinApplicationService.searchCabins(any(), any(), any(), eq("lago")))
                                 .thenReturn(List.of(cabin));

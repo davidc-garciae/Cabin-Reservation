@@ -10,7 +10,7 @@ Documentación técnica completa del sistema de reservas de cabañas implementad
 
 ### **Características Técnicas:**
 
-- ✅ **48/48 endpoints** REST implementados (100% completado)
+- ✅ **58/58 endpoints** REST implementados (100% completado)
 - ✅ **OpenAPI 3.0 + Swagger UI** integrado
 - ✅ **Arquitectura en capas** (Presentation, Application, Domain, Infrastructure, Common)
 - ✅ **Flujo de datos** optimizado
@@ -23,7 +23,7 @@ Documentación técnica completa del sistema de reservas de cabañas implementad
 
 ### **2.1 Verificación de Cumplimiento de Requerimientos**
 
-#### **✅ Módulo de Autenticación (5 endpoints)**
+#### **✅ Módulo de Autenticación (6 endpoints)**
 
 ```
 POST   /api/auth/login                    # Login con PIN + cédula
@@ -31,6 +31,7 @@ POST   /api/auth/refresh                  # Refresh JWT token
 POST   /api/auth/recover-password         # Recuperación por email
 POST   /api/auth/reset-password           # Reset con token
 POST   /api/auth/validate-token           # Validación de token
+POST   /api/auth/register                 # Registro público de nuevos usuarios (con selección de rol)
 ```
 
 #### **✅ Módulo de Usuarios (6 endpoints)**
@@ -47,9 +48,9 @@ DELETE /api/admin/users/{id}              # Desactivar usuario
 #### **✅ Módulo de Reservas (6 endpoints)**
 
 ```
-GET    /api/reservations                  # Mis reservas
-POST   /api/reservations                  # Crear pre-reserva
-GET    /api/reservations/{id}             # Ver reserva específica
+GET    /api/reservations                  # Mis reservas (incluye horarios check-in/check-out)
+POST   /api/reservations                  # Crear pre-reserva (con horarios opcionales)
+GET    /api/reservations/{id}             # Ver reserva específica (incluye horarios)
 PUT    /api/reservations/{id}/cancel      # Cancelar reserva
 GET    /api/availability                  # Consultar disponibilidad
 GET    /api/availability/calendar         # Calendario de disponibilidad
@@ -65,7 +66,7 @@ GET    /api/availability/cabin/{cabinId}/calendar  # Calendario por cabaña espe
 GET    /api/availability/cabin/{cabinId}/check     # Verificar disponibilidad en rango específico
 ```
 
-#### **✅ Módulo de Administración (9 endpoints)**
+#### **✅ Módulo de Administración (15 endpoints)**
 
 ```
 GET    /api/admin/dashboard               # Dashboard con métricas
@@ -78,6 +79,18 @@ GET    /api/admin/availability/blocks     # Listar bloqueos de disponibilidad
 POST   /api/admin/availability/blocks     # Crear bloqueo de disponibilidad
 PUT    /api/admin/availability/blocks/{id}# Actualizar bloqueo de disponibilidad
 DELETE /api/admin/availability/blocks/{id}# Eliminar bloqueo de disponibilidad
+```
+
+#### **✅ Módulo de Gestión de Documentos (6 endpoints)**
+
+```
+GET    /api/admin/documents                 # Listar todos los documentos
+GET    /api/admin/documents/active          # Listar documentos activos
+GET    /api/admin/documents/number/{number} # Obtener documento por número
+POST   /api/admin/documents                 # Crear nuevo documento
+PUT    /api/admin/documents/{id}/activate   # Activar documento
+PUT    /api/admin/documents/{id}/deactivate # Desactivar documento
+DELETE /api/admin/documents/{id}            # Eliminar documento
 ```
 
 #### **✅ Widget de Precios (8 endpoints) - FUNCIONALIDAD REAL IMPLEMENTADA**
@@ -103,10 +116,10 @@ PUT    /api/admin/configurations/{key}    # Actualizar configuración
 #### **✅ Módulo de Cabañas (5 endpoints)**
 
 ```
-GET    /api/cabins                        # Información de cabañas (público)
-GET    /api/cabins/{id}                   # Detalle de cabaña (público)
-POST   /api/admin/cabins                  # Crear cabaña
-PUT    /api/admin/cabins/{id}             # Actualizar cabaña
+GET    /api/cabins                        # Información de cabañas (público, incluye horarios por defecto)
+GET    /api/cabins/{id}                   # Detalle de cabaña (público, incluye horarios por defecto)
+POST   /api/admin/cabins                  # Crear cabaña (con horarios por defecto)
+PUT    /api/admin/cabins/{id}             # Actualizar cabaña (con horarios por defecto)
 DELETE /api/admin/cabins/{id}             # Desactivar cabaña
 ```
 
@@ -123,15 +136,16 @@ DELETE /api/admin/cabins/{id}             # Desactivar cabaña
 - Endpoints de notificaciones generales del admin
 ```
 
-### **2.2 Total de Endpoints: 51**
+### **2.2 Total de Endpoints: 58**
 
 **Distribución por módulo:**
 
-- Autenticación: 5 endpoints
+- Autenticación: 6 endpoints
 - Usuarios: 6 endpoints
 - Reservas: 6 endpoints
 - Disponibilidad: 5 endpoints (funcionalidad real implementada)
-- Administración: 9 endpoints
+- Administración: 15 endpoints
+- Gestión de Documentos: 6 endpoints
 - Widget de Precios: 8 endpoints
 - Configuración: 4 endpoints
 - Cabañas: 8 endpoints (3 públicos + 5 admin)
@@ -522,25 +536,29 @@ public CorsConfigurationSource corsConfigurationSource() {
 
 ### **✅ Completitud del Sistema**
 
-- **51 endpoints** REST completos
+- **58 endpoints** REST completos
 - **Arquitectura en capas** con responsabilidades claras
-- **OpenAPI 3.0** con Swagger UI integrado
+- **OpenAPI 3.0** con Swagger UI integrado + Documentación completa
 - **3 diagramas Mermaid** de arquitectura y flujos
 - **100% de requerimientos** funcionales y no funcionales cubiertos
 - **Sistema de notificaciones por tokens** completamente funcional
 - **MapStruct mappers** implementados para optimización
+- **Nuevas funcionalidades v2.0:** Registro público + Horarios check-in/check-out
 - **Admin Metrics Service** con datos reales de base de datos
 
 ### **🎯 Características Destacadas**
 
-1. **Widget de Precios**: 8 endpoints específicos para gestión visual con datos reales
-2. **Flujo de Reservas**: Proceso completo desde pre-reserva hasta confirmación
-3. **Arquitectura en Capas**: Separación clara de responsabilidades
-4. **Monitoreo Completo**: Métricas de negocio y técnicas con datos reales
-5. **Documentación Automática**: Swagger UI para testing y desarrollo
-6. **MapStruct Mappers**: Optimización de mapeo de datos
-7. **Sistema de Disponibilidad Real**: Consultas basadas en datos reales de BD
-8. **Admin Metrics Service**: Métricas administrativas con datos reales
+1. **Registro Público de Usuarios**: Endpoint público para registro de nuevos asociados con selección de rol
+2. **Horarios Check-in/Check-out**: Sistema completo de horarios en reservas y cabañas
+3. **Gestión Administrativa de Documentos**: CRUD completo para números de documento
+4. **Widget de Precios**: 8 endpoints específicos para gestión visual con datos reales
+5. **Flujo de Reservas**: Proceso completo desde pre-reserva hasta confirmación
+6. **Arquitectura en Capas**: Separación clara de responsabilidades
+7. **Monitoreo Completo**: Métricas de negocio y técnicas con datos reales
+8. **Documentación Automática**: Swagger UI para testing y desarrollo
+9. **MapStruct Mappers**: Optimización de mapeo de datos
+10. **Sistema de Disponibilidad Real**: Consultas basadas en datos reales de BD
+11. **Admin Metrics Service**: Métricas administrativas con datos reales
 
 ### **🚀 Estado del Proyecto**
 
@@ -556,9 +574,9 @@ El sistema está **100% definido** técnicamente con:
 
 ---
 
-**Documento Técnico Versión 2.2 - Fecha: $(date)**
-**Estado: COMPLETO - 51/51 endpoints implementados (100%)**
-**Actualizaciones: MapStruct mappers, Admin Metrics real, TODOs de notificaciones**
+**Documento Técnico Versión 2.3 - Fecha: $(date)**
+**Estado: COMPLETO - 58/58 endpoints implementados (100%)**
+**Actualizaciones: Registro público de usuarios con selección de rol, horarios check-in/check-out, gestión administrativa de documentos, MapStruct mappers, Admin Metrics real, TODOs de notificaciones**
 
 ---
 

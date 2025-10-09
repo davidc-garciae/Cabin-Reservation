@@ -19,6 +19,12 @@ public class ReservationResponse {
     @Schema(example = "PENDING")
     private String status;
 
+    @Schema(example = "14:00", description = "Hora de check-in")
+    private String checkInTime;
+
+    @Schema(example = "12:00", description = "Hora de check-out")
+    private String checkOutTime;
+
     public ReservationResponse() {
     }
 
@@ -31,6 +37,19 @@ public class ReservationResponse {
         this.endDate = endDate;
         this.guests = guests;
         this.status = status;
+    }
+
+    public ReservationResponse(Long id, Long userId, Long cabinId, String startDate, String endDate, int guests,
+            String status, String checkInTime, String checkOutTime) {
+        this.id = id;
+        this.userId = userId;
+        this.cabinId = cabinId;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.guests = guests;
+        this.status = status;
+        this.checkInTime = checkInTime;
+        this.checkOutTime = checkOutTime;
     }
 
     public Long getId() {
@@ -88,5 +107,21 @@ public class ReservationResponse {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getCheckInTime() {
+        return checkInTime;
+    }
+
+    public void setCheckInTime(String checkInTime) {
+        this.checkInTime = checkInTime;
+    }
+
+    public String getCheckOutTime() {
+        return checkOutTime;
+    }
+
+    public void setCheckOutTime(String checkOutTime) {
+        this.checkOutTime = checkOutTime;
     }
 }

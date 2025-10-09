@@ -55,12 +55,14 @@ class AdminCabinControllerMvcTest {
                                 1L, "Cabaña Activa", "Cabaña activa", 6, 3, 2,
                                 BigDecimal.valueOf(150.00), 6, true, "{\"wifi\": true}",
                                 "{\"address\": \"Activa 123\"}",
-                                LocalDateTime.parse("2024-01-15T10:30:00"), LocalDateTime.parse("2024-01-20T14:45:00"));
+                                LocalDateTime.parse("2024-01-15T10:30:00"), LocalDateTime.parse("2024-01-20T14:45:00"),
+                                "15:00", "11:00");
                 CabinResponse inactiveCabin = new CabinResponse(
                                 2L, "Cabaña Inactiva", "Cabaña inactiva", 4, 2, 1,
                                 BigDecimal.valueOf(120.00), 4, false, "{\"parking\": true}",
                                 "{\"address\": \"Inactiva 456\"}",
-                                LocalDateTime.parse("2024-01-16T11:00:00"), LocalDateTime.parse("2024-01-21T15:00:00"));
+                                LocalDateTime.parse("2024-01-16T11:00:00"), LocalDateTime.parse("2024-01-21T15:00:00"),
+                                "15:00", "11:00");
 
                 when(cabinApplicationService.getAllCabinsForAdmin()).thenReturn(List.of(activeCabin, inactiveCabin));
 
@@ -79,7 +81,8 @@ class AdminCabinControllerMvcTest {
                 CabinResponse cabin = new CabinResponse(
                                 1L, "Cabaña del Lago", "Hermosa cabaña con vista al lago", 6, 3, 2,
                                 BigDecimal.valueOf(150.00), 6, true, "{\"wifi\": true}", "{\"address\": \"Lago 123\"}",
-                                LocalDateTime.parse("2024-01-15T10:30:00"), LocalDateTime.parse("2024-01-20T14:45:00"));
+                                LocalDateTime.parse("2024-01-15T10:30:00"), LocalDateTime.parse("2024-01-20T14:45:00"),
+                                "15:00", "11:00");
 
                 when(cabinApplicationService.getCabinByIdForAdmin(1L)).thenReturn(cabin);
 
@@ -105,12 +108,14 @@ class AdminCabinControllerMvcTest {
         void createCabin_returnsCreatedCabin() throws Exception {
                 CreateCabinRequest request = new CreateCabinRequest(
                                 "Nueva Cabaña", "Descripción de la nueva cabaña", 4, 2, 1,
-                                BigDecimal.valueOf(120.00), 4, "{\"wifi\": true}", "{\"address\": \"Nueva 789\"}");
+                                BigDecimal.valueOf(120.00), 4, "{\"wifi\": true}", "{\"address\": \"Nueva 789\"}",
+                                "15:00", "11:00");
 
                 CabinResponse createdCabin = new CabinResponse(
                                 3L, "Nueva Cabaña", "Descripción de la nueva cabaña", 4, 2, 1,
                                 BigDecimal.valueOf(120.00), 4, true, "{\"wifi\": true}", "{\"address\": \"Nueva 789\"}",
-                                LocalDateTime.parse("2024-01-25T10:00:00"), LocalDateTime.parse("2024-01-25T10:00:00"));
+                                LocalDateTime.parse("2024-01-25T10:00:00"), LocalDateTime.parse("2024-01-25T10:00:00"),
+                                "15:00", "11:00");
 
                 when(cabinApplicationService.createCabin(any(CreateCabinRequest.class))).thenReturn(createdCabin);
 
@@ -130,7 +135,8 @@ class AdminCabinControllerMvcTest {
                 CreateCabinRequest invalidRequest = new CreateCabinRequest(
                                 "", // Empty name should fail validation
                                 "Descripción", 4, 2, 1,
-                                BigDecimal.valueOf(120.00), 4, "{\"wifi\": true}", "{\"address\": \"Nueva 789\"}");
+                                BigDecimal.valueOf(120.00), 4, "{\"wifi\": true}", "{\"address\": \"Nueva 789\"}",
+                                "15:00", "11:00");
 
                 mockMvc.perform(post("/api/admin/cabins")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -150,7 +156,8 @@ class AdminCabinControllerMvcTest {
                                 1L, "Cabaña Actualizada", "Nueva descripción", 8, 4, 3,
                                 BigDecimal.valueOf(180.00), 8, true, "{\"wifi\": true, \"pool\": true}",
                                 "{\"address\": \"Actualizada 123\"}",
-                                LocalDateTime.parse("2024-01-15T10:30:00"), LocalDateTime.parse("2024-01-25T16:00:00"));
+                                LocalDateTime.parse("2024-01-15T10:30:00"), LocalDateTime.parse("2024-01-25T16:00:00"),
+                                "15:00", "11:00");
 
                 when(cabinApplicationService.updateCabin(eq(1L), any(UpdateCabinRequest.class)))
                                 .thenReturn(updatedCabin);
