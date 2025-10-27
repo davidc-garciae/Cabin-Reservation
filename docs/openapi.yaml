@@ -853,7 +853,7 @@ paths:
                   bathrooms: 2
                   basePrice: 180000.00
                   maxGuests: 6
-                  amenities: "{\"amenities\": [\"WiFi\", \"Chimenea\", \"Vista panorámica\"]}"
+                  amenities: "[\"WiFi\", \"Chimenea\", \"Vista panorámica\"]"
                   location: "{\"address\": \"Vía del Monte Km 8\", \"coordinates\": {\"lat\": 4.6200, \"lng\": -74.0850}}"
                   defaultCheckInTime: "15:00"
                   defaultCheckOutTime: "11:00"
@@ -1180,9 +1180,9 @@ components:
         basePrice:
           type: number
           format: decimal
-          description: Precio base por noche
+          description: Precio base por noche en pesos colombianos (COP)
           minimum: 0.01
-          maximum: 9999.99
+          maximum: 99999999.99
           example: 180000.00
         maxGuests:
           type: integer
@@ -1193,7 +1193,7 @@ components:
         amenities:
           type: string
           description: Amenidades en formato JSON
-          example: "{\"amenities\": [\"WiFi\", \"Chimenea\", \"Vista panorámica\"]}"
+          example: "[\"WiFi\", \"Chimenea\", \"Vista panorámica\"]"
         location:
           type: string
           description: Ubicación en formato JSON
@@ -1244,9 +1244,9 @@ components:
         basePrice:
           type: number
           format: decimal
-          description: Precio base por noche
+          description: Precio base por noche en pesos colombianos (COP)
           minimum: 0.01
-          maximum: 9999.99
+          maximum: 99999999.99
           example: 200000.00
         maxGuests:
           type: integer
@@ -1261,7 +1261,7 @@ components:
         amenities:
           type: string
           description: Amenidades en formato JSON
-          example: "{\"amenities\": [\"WiFi\", \"Chimenea\", \"Jacuzzi\"]}"
+          example: "[\"WiFi\", \"Chimenea\", \"Jacuzzi\"]"
         location:
           type: string
           description: Ubicación en formato JSON
@@ -1307,7 +1307,7 @@ components:
         basePrice:
           type: number
           format: decimal
-          description: Precio base por noche
+          description: Precio base por noche en pesos colombianos (COP)
           example: 150000.00
         maxGuests:
           type: integer
@@ -1320,7 +1320,7 @@ components:
         amenities:
           type: string
           description: Amenidades en formato JSON
-          example: "{\"amenities\": [\"WiFi\", \"Chimenea\", \"Cocina completa\"]}"
+          example: "[\"WiFi\", \"Chimenea\", \"Cocina completa\"]"
         location:
           type: string
           description: Ubicación en formato JSON

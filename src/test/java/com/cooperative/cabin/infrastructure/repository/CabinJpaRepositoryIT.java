@@ -34,7 +34,7 @@ class CabinJpaRepositoryIT {
                 2,
                 new BigDecimal("150.00"),
                 8,
-                "{\"wifi\": true, \"parking\": true, \"chimenea\": true}",
+                "[\"WiFi\", \"Parking\", \"Chimenea\"]",
                 "{\"address\": \"Lago Escondido 123\", \"coordinates\": {\"lat\": -34.6037, \"lng\": -58.3816}}",
                 LocalTime.of(15, 0), // Check-in 15:00
                 LocalTime.of(11, 0) // Check-out 11:00

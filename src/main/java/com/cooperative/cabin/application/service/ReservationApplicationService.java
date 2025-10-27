@@ -195,16 +195,15 @@ public class ReservationApplicationService {
     }
 
     public List<Reservation> listAllForAdmin() {
-        // mínimo: reutilizamos findByUserId si fuera necesario; en real, habría un
-        // findAll
-        // Aquí devolvemos vacío por defecto para estructura
-        return reservationRepository.findByUserId(null);
+        return reservationRepository.findAll();
     }
 
     public void deleteByAdmin(Long reservationId) {
-        // En una implementación real, repository.deleteById(reservationId)
-        // Aquí no hay repo delete, así que no hacemos nada; solo estructura para TDD
-        // MVC
+        Reservation reservation = reservationRepository.findById(reservationId);
+        if (reservation == null) {
+            throw new IllegalStateException("Reserva no encontrada");
+        }
+        reservationRepository.deleteById(reservationId);
     }
 
     private boolean isTransitionAllowed(ReservationStatus from, ReservationStatus to) {
@@ -221,6 +220,8 @@ public class ReservationApplicationService {
     }
 
     public interface ReservationRepository {
+        List<Reservation> findAll();
+
         List<Reservation> findByUserId(Long userId);
 
         LocalDate findLastCreatedAtDate(Long userId);
@@ -228,6 +229,8 @@ public class ReservationApplicationService {
         Reservation save(Reservation reservation);
 
         Reservation findById(Long reservationId);
+
+        void deleteById(Long reservationId);
     }
 
     public interface AvailabilityBlockRepository {

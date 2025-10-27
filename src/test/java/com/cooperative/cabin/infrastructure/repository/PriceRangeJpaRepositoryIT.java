@@ -175,7 +175,7 @@ class PriceRangeJpaRepositoryIT {
                                 1,
                                 new BigDecimal("100.00"),
                                 4,
-                                "{\"wifi\": true}",
+                                "[\"WiFi\"]",
                                 "{\"address\": \"Test Location\"}",
                                 LocalTime.of(15, 0), // Check-in 15:00
                                 LocalTime.of(11, 0) // Check-out 11:00

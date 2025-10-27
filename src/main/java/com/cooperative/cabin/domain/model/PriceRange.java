@@ -45,7 +45,7 @@ public class PriceRange {
 
     @NotNull(message = "Precio base es obligatorio")
     @DecimalMin(value = "0.01", message = "Precio base debe ser mayor a 0")
-    @DecimalMax(value = "9999.99", message = "Precio base no puede exceder 9999.99")
+    @DecimalMax(value = "99999999.99", message = "Precio base no puede exceder 99999999.99 COP")
     @Column(name = "base_price", nullable = false)
     private BigDecimal basePrice;
 

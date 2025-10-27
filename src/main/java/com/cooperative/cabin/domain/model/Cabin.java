@@ -59,8 +59,8 @@ public class Cabin {
 
     @NotNull(message = "Precio base es obligatorio")
     @DecimalMin(value = "0.01", message = "Precio base debe ser mayor a 0")
-    @DecimalMax(value = "9999.99", message = "Precio base no puede exceder 9999.99")
-    @Column(name = "base_price", nullable = false, precision = 10, scale = 2)
+    @DecimalMax(value = "99999999.99", message = "Precio base no puede exceder 99999999.99 COP")
+    @Column(name = "base_price", nullable = false, precision = 14, scale = 2)
     private java.math.BigDecimal basePrice;
 
     @NotNull(message = "Máximo de huéspedes es obligatorio")

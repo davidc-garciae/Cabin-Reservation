@@ -34,7 +34,7 @@ public class DataInitializer {
                 2,
                 BigDecimal.valueOf(150.00),
                 6,
-                "{\"wifi\": true, \"parking\": true, \"kitchen\": true, \"lake_view\": true, \"terrace\": true}",
+                "[\"WiFi\", \"Parking\", \"Kitchen\", \"Lake View\", \"Terrace\"]",
                 "{\"address\": \"Lago del Sol 123, Villa del Lago\", \"coordinates\": {\"lat\": 40.7128, \"lng\": -74.0060}}",
                 LocalTime.of(15, 0), // Check-in 15:00
                 LocalTime.of(11, 0) // Check-out 11:00
@@ -50,7 +50,7 @@ public class DataInitializer {
                 1,
                 BigDecimal.valueOf(120.00),
                 4,
-                "{\"wifi\": true, \"parking\": true, \"fireplace\": true, \"forest_view\": true}",
+                "[\"WiFi\", \"Parking\", \"Fireplace\", \"Forest View\"]",
                 "{\"address\": \"Bosque Encantado 456, Villa del Bosque\", \"coordinates\": {\"lat\": 40.7589, \"lng\": -73.9851}}",
                 LocalTime.of(15, 0), // Check-in 15:00
                 LocalTime.of(11, 0) // Check-out 11:00
@@ -66,7 +66,7 @@ public class DataInitializer {
                 3,
                 BigDecimal.valueOf(250.00),
                 8,
-                "{\"wifi\": true, \"parking\": true, \"kitchen\": true, \"hot_tub\": true, \"mountain_view\": true, \"fireplace\": true}",
+                "[\"WiFi\", \"Parking\", \"Kitchen\", \"Hot Tub\", \"Mountain View\", \"Fireplace\"]",
                 "{\"address\": \"Cumbre Alta 789, Villa de Montaña\", \"coordinates\": {\"lat\": 40.7831, \"lng\": -73.9712}}",
                 LocalTime.of(15, 0), // Check-in 15:00
                 LocalTime.of(11, 0) // Check-out 11:00
@@ -82,7 +82,7 @@ public class DataInitializer {
                 1,
                 BigDecimal.valueOf(80.00),
                 2,
-                "{\"parking\": true, \"fireplace\": true, \"rustic_charm\": true}",
+                "{\"amenities\": [\"Parking\", \"Fireplace\", \"Rustic Charm\"]}",
                 "{\"address\": \"Camino Rural 321, Villa Rústica\", \"coordinates\": {\"lat\": 40.7505, \"lng\": -73.9934}}",
                 LocalTime.of(15, 0), // Check-in 15:00
                 LocalTime.of(11, 0) // Check-out 11:00
@@ -98,7 +98,7 @@ public class DataInitializer {
                 4,
                 BigDecimal.valueOf(300.00),
                 10,
-                "{\"wifi\": true, \"parking\": true, \"kitchen\": true, \"game_room\": true, \"pool\": true, \"garden\": true}",
+                "[\"WiFi\", \"Parking\", \"Kitchen\", \"Game Room\", \"Pool\", \"Garden\"]",
                 "{\"address\": \"Avenida Familiar 654, Villa Familiar\", \"coordinates\": {\"lat\": 40.7282, \"lng\": -73.9942}}",
                 LocalTime.of(15, 0), // Check-in 15:00
                 LocalTime.of(11, 0) // Check-out 11:00

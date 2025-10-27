@@ -46,6 +46,11 @@ public class ReservationApplicationServiceConfig {
             ReservationJpaRepository jpaRepository) {
         return new ReservationApplicationService.ReservationRepository() {
             @Override
+            public List<Reservation> findAll() {
+                return jpaRepository.findAll();
+            }
+
+            @Override
             public List<Reservation> findByUserId(Long userId) {
                 return jpaRepository.findByUser_Id(userId);
             }
@@ -63,6 +68,11 @@ public class ReservationApplicationServiceConfig {
             @Override
             public Reservation findById(Long reservationId) {
                 return jpaRepository.findById(reservationId).orElse(null);
+            }
+
+            @Override
+            public void deleteById(Long reservationId) {
+                jpaRepository.deleteById(reservationId);
             }
         };
     }
