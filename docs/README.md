@@ -96,21 +96,22 @@ redoc-cli build docs/openapi.yaml --output docs/index.html
 - `POST /api/reservations` - Crear reserva **CON HORARIOS**
 - `DELETE /api/reservations/{id}` - Cancelar reserva
 
-### 👤 **Perfil de Usuario (2 endpoints)**
+### 👤 **Perfil de Usuario (3 endpoints)**
 
 - `GET /api/users/profile` - Obtener perfil
 - `PUT /api/users/profile` - Actualizar perfil
+- `PUT /api/users/change-password` - Cambiar contraseña/PIN
 
 ### ⏳ **Lista de Espera (1 endpoint)**
 
 - `POST /api/waiting-list/claim` - Reclamar prioridad
 
-### 👑 **Panel Administrativo (32 endpoints)**
+### 👑 **Panel Administrativo (33 endpoints)**
 
 - **Dashboard:** Métricas y resumen
 - **Cabañas:** CRUD completo **CON HORARIOS**
 - **Reservas:** Gestión completa
-- **Usuarios:** Gestión de usuarios
+- **Usuarios:** Gestión de usuarios (incluye forzar cambio de contraseña)
 - **Precios:** Calendario y historial
 - **Disponibilidad:** Bloqueos y calendarios
 - **Lista de Espera:** Notificaciones

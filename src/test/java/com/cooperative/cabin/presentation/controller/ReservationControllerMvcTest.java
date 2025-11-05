@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -57,7 +58,8 @@ class ReservationControllerMvcTest {
                 created.setId(10L);
 
                 given(reservationApplicationService.createPreReservation(
-                                eq(1L), eq(2L), eq(LocalDate.of(2025, 1, 10)), eq(LocalDate.of(2025, 1, 12)), eq(2)))
+                                eq(1L), eq(2L), eq(LocalDate.of(2025, 1, 10)), eq(LocalDate.of(2025, 1, 12)), eq(2),
+                                isNull(), isNull()))
                                 .willReturn(created);
 
                 String body = "{" +

@@ -1,6 +1,7 @@
 package com.cooperative.cabin.presentation.controller;
 
 import com.cooperative.cabin.domain.exception.CabinNotFoundException;
+import com.cooperative.cabin.domain.exception.MustChangePasswordException;
 import com.cooperative.cabin.domain.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
@@ -80,6 +82,17 @@ public class GlobalExceptionHandler {
                 "status", HttpStatus.FORBIDDEN.value(),
                 "error", "Forbidden",
                 "message", "Access Denied");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+    }
+
+    @ExceptionHandler(MustChangePasswordException.class)
+    public ResponseEntity<Map<String, Object>> handleMustChangePasswordException(MustChangePasswordException ex) {
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("timestamp", Instant.now());
+        errorResponse.put("status", HttpStatus.FORBIDDEN.value());
+        errorResponse.put("error", "Forbidden");
+        errorResponse.put("message", ex.getMessage());
+        errorResponse.put("requiresPasswordChange", true);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
     }
 }

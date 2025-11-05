@@ -63,6 +63,9 @@ public class User {
     @Column(nullable = false)
     private Boolean active = true;
 
+    @Column(name = "must_change_password", nullable = false)
+    private Boolean mustChangePassword = false;
+
     // Relaciones bidireccionales
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Reservation> reservations = new ArrayList<>();

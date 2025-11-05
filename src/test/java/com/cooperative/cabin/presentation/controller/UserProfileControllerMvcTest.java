@@ -2,6 +2,7 @@ package com.cooperative.cabin.presentation.controller;
 
 import com.cooperative.cabin.TestMvcConfiguration;
 import com.cooperative.cabin.application.service.AdminUserApplicationService;
+import com.cooperative.cabin.application.service.AuthApplicationService;
 import com.cooperative.cabin.presentation.dto.AdminUserResponse;
 import com.cooperative.cabin.infrastructure.security.JwtService;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -34,6 +37,9 @@ class UserProfileControllerMvcTest {
 
         @MockBean
         private AdminUserApplicationService adminUserApplicationService;
+
+        @MockBean
+        private AuthApplicationService authApplicationService;
 
         @MockBean
         private JwtService jwtService;
@@ -72,5 +78,24 @@ class UserProfileControllerMvcTest {
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.email").value("johnny@example.com"))
                                 .andExpect(jsonPath("$.fullName").value("Johnny"));
+        }
+
+        @Test
+        void changePassword_updatesSuccessfully() throws Exception {
+                given(authApplicationService.changePassword(7L, "1234", "SecurePass123"))
+                                .willReturn(Map.of("message", "Contraseña actualizada exitosamente", "mustChangePassword", false));
+
+                String body = "{" +
+                                "\"currentPassword\":\"1234\"," +
+                                "\"newPassword\":\"SecurePass123\"" +
+                                "}";
+
+                mockMvc.perform(put("/api/users/change-password").with(csrf())
+                                .header("X-User-Id", "7")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(body))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.message").value("Contraseña actualizada exitosamente"))
+                                .andExpect(jsonPath("$.mustChangePassword").value(false));
         }
 }

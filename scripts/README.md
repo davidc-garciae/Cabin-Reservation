@@ -53,6 +53,17 @@ Este directorio contiene scripts SQL para gestionar la base de datos de la aplic
 - Establece valores por defecto (15:00 para check-in, 11:00 para check-out)
 - Hace los campos obligatorios después de establecer valores por defecto
 
+### 🔄 `migration_add_must_change_password.sql`
+
+**Propósito:** Migración para agregar campo de cambio obligatorio de contraseña.
+
+**Qué hace:**
+
+- Agrega campo `must_change_password` (BOOLEAN) a la tabla `users`
+- Establece valor por defecto `FALSE` para todos los usuarios existentes
+- Crea índice para consultas eficientes
+- Se usa para forzar cambio de contraseña cuando un usuario normal es promovido a ADMIN
+
 ### 📄 `insert-test-documents.sql`
 
 **Propósito:** Inserta documentos de prueba adicionales para testing.
@@ -94,6 +105,9 @@ psql -h localhost -p 5433 -U postgres -d cabin-reservation -f insert-system-conf
 
 # Migración de horarios
 psql -h localhost -p 5433 -U postgres -d cabin-reservation -f migration_add_checkin_checkout_times.sql
+
+# Migración de cambio de contraseña
+psql -h localhost -p 5433 -U postgres -d cabin-reservation -f migration_add_must_change_password.sql
 ```
 
 ### Opción 3: Desde la aplicación Spring Boot
@@ -116,9 +130,10 @@ Puedes ejecutar los scripts directamente desde la aplicación usando:
 
 1. **Resetear configs:** `insert-system-configs-only.sql`
 
-### Para Aplicar Migración de Horarios:
+### Para Aplicar Migraciones:
 
 1. **Migrar horarios:** `migration_add_checkin_checkout_times.sql`
+2. **Migrar cambio de contraseña:** `migration_add_must_change_password.sql`
 
 ### Para Insertar Documentos de Prueba:
 
@@ -133,16 +148,21 @@ Puedes ejecutar los scripts directamente desde la aplicación usando:
 
 ## 🔐 Credenciales de Usuarios de Prueba
 
-| Rol        | Email                        | Contraseña | Documento |
-| ---------- | ---------------------------- | ---------- | --------- |
-| Admin      | admin@cooperativa.com        | password   | 12345678  |
-| Profesor   | profesor1@universidad.edu.co | password   | 87654321  |
-| Profesor   | profesor2@universidad.edu.co | password   | 11223344  |
-| Profesor   | profesor3@universidad.edu.co | password   | 55667788  |
-| Pensionado | pensionado1@email.com        | password   | 99887766  |
-| Pensionado | pensionado2@email.com        | password   | 44332211  |
+| Rol        | Email                        | Contraseña/PIN | Documento | Nota                                |
+| ---------- | ---------------------------- | -------------- | --------- | ----------------------------------- |
+| Admin      | admin@cooperativa.com        | password       | 12345678  | Administrador usa contraseña        |
+| Profesor   | profesor1@universidad.edu.co | 1234           | 87654321  | Usuario normal usa PIN de 4 dígitos |
+| Profesor   | profesor2@universidad.edu.co | 1234           | 11223344  | Usuario normal usa PIN de 4 dígitos |
+| Profesor   | profesor3@universidad.edu.co | 1234           | 55667788  | Usuario normal usa PIN de 4 dígitos |
+| Pensionado | pensionado1@email.com        | 1234           | 99887766  | Usuario normal usa PIN de 4 dígitos |
+| Pensionado | pensionado2@email.com        | 1234           | 44332211  | Usuario normal usa PIN de 4 dígitos |
 
-**Nota:** Todos los usuarios tienen la contraseña `password` (hash: `$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi`)
+**Nota importante:**
+
+- **Administradores (ADMIN)**: Usan contraseña de 6-50 caracteres (ejemplo: `password`)
+- **Usuarios normales (PROFESSOR, RETIREE)**: Usan PIN de exactamente 4 dígitos (ejemplo: `1234`)
+- Hash BCrypt para admin: `$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi` (password)
+- Hash BCrypt para usuarios normales: Se genera con `passwordEncoder.encode("1234")` al registrar
 
 ## 🏠 Cabañas Disponibles
 

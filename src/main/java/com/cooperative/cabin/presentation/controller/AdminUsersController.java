@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/users")
@@ -51,24 +52,6 @@ public class AdminUsersController {
             "createdAt": "2024-01-01T10:00:00Z",
             "updatedAt": "2024-01-01T10:00:00Z"
           }
-          """))),
-      @ApiResponse(responseCode = "400", description = "Solicitud inválida", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
-          {
-            "timestamp": "2024-01-01T10:00:00.000+00:00",
-            "status": 400,
-            "error": "Bad Request",
-            "message": "Email is required",
-            "path": "/api/admin/users/1"
-          }
-          """))),
-      @ApiResponse(responseCode = "403", description = "Acceso denegado - Se requiere rol ADMIN", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
-          {
-            "timestamp": "2024-01-01T10:00:00.000+00:00",
-            "status": 403,
-            "error": "Forbidden",
-            "message": "Access Denied",
-            "path": "/api/admin/users/1"
-          }
           """)))
   })
   public ResponseEntity<AdminUserResponse> upsert(
@@ -81,117 +64,60 @@ public class AdminUsersController {
   }
 
   @GetMapping
-  @Operation(summary = "Listar todos los usuarios", description = "Obtiene una lista de todos los usuarios registrados en el sistema", responses = {
+  @Operation(summary = "Listar usuarios (con filtros opcionales)", description = "Lista usuarios con filtros opcionales exactos por email y número de documento. Soporta paginación con page y size.", responses = {
       @ApiResponse(responseCode = "200", description = "Lista de usuarios obtenida exitosamente", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = AdminUserResponse.class)), examples = @ExampleObject(value = """
           [
             {
               "id": 1,
-              "email": "admin@ejemplo.com",
-              "documentNumber": "ADMIN001",
-              "fullName": "Administrador",
-              "role": "ADMIN",
-              "active": true,
-              "createdAt": "2024-01-01T10:00:00Z",
-              "updatedAt": "2024-01-01T10:00:00Z"
-            },
-            {
-              "id": 2,
-              "email": "usuario@ejemplo.com",
+              "email": "admin@cooperativa.com",
               "documentNumber": "12345678",
-              "fullName": "Juan Pérez",
-              "role": "USER",
-              "active": true,
-              "createdAt": "2024-01-01T11:00:00Z",
-              "updatedAt": "2024-01-01T11:00:00Z"
+              "fullName": "Administrador Sistema",
+              "role": "ADMIN",
+              "active": true
             }
           ]
-          """))),
-      @ApiResponse(responseCode = "403", description = "Acceso denegado - Se requiere rol ADMIN", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
-          {
-            "timestamp": "2024-01-01T10:00:00.000+00:00",
-            "status": 403,
-            "error": "Forbidden",
-            "message": "Access Denied",
-            "path": "/api/admin/users"
-          }
           """)))
   })
-  public ResponseEntity<List<AdminUserResponse>> list() {
-    return ResponseEntity.ok(adminUserApplicationService.listUsers());
+  public ResponseEntity<List<AdminUserResponse>> list(
+      @Parameter(description = "Email exacto para filtrar", example = "john.doe@example.com") @RequestParam(value = "email", required = false) String email,
+      @Parameter(description = "Número de documento exacto para filtrar", example = "12345678") @RequestParam(value = "documentNumber", required = false) String documentNumber,
+      @Parameter(description = "Número de página (0-based)", example = "0") @RequestParam(value = "page", required = false) Integer page,
+      @Parameter(description = "Tamaño de página", example = "20") @RequestParam(value = "size", required = false) Integer size
+  ) {
+    return ResponseEntity.ok(adminUserApplicationService.listUsers(email, documentNumber, page, size));
   }
 
   @GetMapping("/{id}")
-  @Operation(summary = "Obtener usuario por ID", description = "Obtiene los detalles de un usuario específico por su ID", responses = {
-      @ApiResponse(responseCode = "200", description = "Usuario encontrado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AdminUserResponse.class), examples = @ExampleObject(value = """
-          {
-            "id": 1,
-            "email": "usuario@ejemplo.com",
-            "documentNumber": "12345678",
-            "fullName": "Juan Pérez",
-            "role": "USER",
-            "active": true,
-            "createdAt": "2024-01-01T10:00:00Z",
-            "updatedAt": "2024-01-01T10:00:00Z"
-          }
-          """))),
-      @ApiResponse(responseCode = "404", description = "Usuario no encontrado", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
-          {
-            "timestamp": "2024-01-01T10:00:00.000+00:00",
-            "status": 404,
-            "error": "Not Found",
-            "message": "User not found with id: 1",
-            "path": "/api/admin/users/1"
-          }
-          """))),
-      @ApiResponse(responseCode = "403", description = "Acceso denegado - Se requiere rol ADMIN", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
-          {
-            "timestamp": "2024-01-01T10:00:00.000+00:00",
-            "status": 403,
-            "error": "Forbidden",
-            "message": "Access Denied",
-            "path": "/api/admin/users/1"
-          }
-          """)))
-  })
-  public ResponseEntity<AdminUserResponse> get(
+  @Operation(summary = "Obtener usuario por ID",
+      responses = {
+          @ApiResponse(responseCode = "200", description = "Usuario obtenido exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AdminUserResponse.class)))
+      })
+  public ResponseEntity<AdminUserResponse> getById(
       @Parameter(description = "ID del usuario", example = "1") @PathVariable("id") Long id) {
     return ResponseEntity.ok(adminUserApplicationService.getById(id));
   }
 
-  @DeleteMapping("/{id}")
-  @Operation(summary = "Eliminar usuario", description = "Elimina un usuario del sistema por su ID", responses = {
-      @ApiResponse(responseCode = "204", description = "Usuario eliminado exitosamente"),
-      @ApiResponse(responseCode = "404", description = "Usuario no encontrado", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
+  @PostMapping("/{id}/force-password-change")
+  @Operation(summary = "Forzar cambio de contraseña", description = "Fuerza que un usuario cambie su contraseña en el próximo login", responses = {
+      @ApiResponse(responseCode = "200", description = "Cambio de contraseña forzado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(example = """
           {
-            "timestamp": "2024-01-01T10:00:00.000+00:00",
-            "status": 404,
-            "error": "Not Found",
-            "message": "User not found with id: 1",
-            "path": "/api/admin/users/1"
-          }
-          """))),
-      @ApiResponse(responseCode = "403", description = "Acceso denegado - Se requiere rol ADMIN", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
-          {
-            "timestamp": "2024-01-01T10:00:00.000+00:00",
-            "status": 403,
-            "error": "Forbidden",
-            "message": "Access Denied",
-            "path": "/api/admin/users/1"
-          }
-          """))),
-      @ApiResponse(responseCode = "409", description = "No se puede eliminar - Usuario tiene reservas activas", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
-          {
-            "timestamp": "2024-01-01T10:00:00.000+00:00",
-            "status": 409,
-            "error": "Conflict",
-            "message": "Cannot delete user with active reservations",
-            "path": "/api/admin/users/1"
+            "message": "Usuario debe cambiar su contraseña en el próximo login"
           }
           """)))
   })
+  public ResponseEntity<Map<String, String>> forcePasswordChange(
+      @Parameter(description = "ID del usuario", example = "1") @PathVariable("id") Long id) {
+    adminUserApplicationService.forcePasswordChange(id);
+    return ResponseEntity.ok(Map.of("message", "Usuario debe cambiar su contraseña en el próximo login"));
+  }
+
+  @DeleteMapping("/{id}")
+  @Operation(summary = "Eliminar usuario", description = "Elimina un usuario del sistema por su ID", responses = {
+      @ApiResponse(responseCode = "200", description = "Usuario eliminado exitosamente")
+  })
   public ResponseEntity<Void> delete(
-      @Parameter(description = "ID del usuario a eliminar", example = "1") @PathVariable("id") Long id) {
+      @Parameter(description = "ID del usuario", example = "1") @PathVariable("id") Long id) {
     adminUserApplicationService.deleteUser(id);
-    return ResponseEntity.noContent().build();
+    return ResponseEntity.ok().build();
   }
 }

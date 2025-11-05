@@ -32,10 +32,15 @@ Asegúrate de que tu aplicación esté ejecutándose en `http://localhost:8080` 
 
 ### Paso 1: Autenticación
 
-1. **Login - Admin** → Obtiene tokens de administrador
-2. **Login - Profesor** → Obtiene tokens de profesor
-3. **Login - Pensionado** → Obtiene tokens de pensionado
-4. **Register New User** → Registra nuevo usuario y obtiene tokens
+1. **Login - Admin** → Obtiene tokens de administrador (usa contraseña: `Admin#12345`)
+2. **Login - Profesor** → Obtiene tokens de profesor (usa PIN: `1234`)
+3. **Login - Pensionado** → Obtiene tokens de pensionado (usa PIN: `1234`)
+4. **Register New User** → Registra nuevo usuario y obtiene tokens (PIN de 4 dígitos requerido)
+
+**Importante:**
+
+- Los administradores usan contraseña de 6-50 caracteres
+- Los usuarios normales (PROFESSOR, RETIREE) usan PIN de 4 dígitos
 
 ### Paso 2: Consultas Públicas
 
@@ -52,6 +57,7 @@ Asegúrate de que tu aplicación esté ejecutándose en `http://localhost:8080` 
 
 1. **Get User Profile** → Ver perfil del usuario (requiere autenticación)
 2. **Update User Profile** → Actualizar datos del perfil
+3. **Change Password** → Cambiar contraseña o PIN (requiere autenticación)
 
 ### Paso 4: Reservas
 
@@ -72,13 +78,18 @@ Asegúrate de que tu aplicación esté ejecutándose en `http://localhost:8080` 
 
 ### 👥 Usuarios
 
-| Rol        | Documento | Contraseña | Email                        |
-| ---------- | --------- | ---------- | ---------------------------- |
-| Admin      | 12345678  | password   | admin@cooperativa.com        |
-| Profesor   | 87654321  | password   | profesor1@universidad.edu.co |
-| Profesor   | 11223344  | password   | profesor2@universidad.edu.co |
-| Pensionado | 99887766  | password   | pensionado1@email.com        |
-| Nuevo      | 99999999  | 1234       | nuevo.usuario@email.com      |
+| Rol        | Documento | Contraseña/PIN | Email                        | Nota                                |
+| ---------- | --------- | -------------- | ---------------------------- | ----------------------------------- |
+| Admin      | 12345678  | Admin#12345    | admin@cooperativa.com        | Administrador usa contraseña        |
+| Profesor   | 87654321  | 1234           | profesor1@universidad.edu.co | Usuario normal usa PIN de 4 dígitos |
+| Profesor   | 11223344  | 1234           | profesor2@universidad.edu.co | Usuario normal usa PIN de 4 dígitos |
+| Pensionado | 99887766  | 1234           | pensionado1@email.com        | Usuario normal usa PIN de 4 dígitos |
+| Nuevo      | 99999999  | 1234           | nuevo.usuario@email.com      | Usuario normal usa PIN de 4 dígitos |
+
+**Nota importante sobre autenticación:**
+
+- **Administradores (ADMIN)**: Usan contraseña de 6-50 caracteres (ejemplo: `Admin#12345`)
+- **Usuarios normales (PROFESSOR, RETIREE)**: Usan PIN de exactamente 4 dígitos (ejemplo: `1234`)
 
 ### 🏠 Cabañas
 

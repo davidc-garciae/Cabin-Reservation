@@ -10,9 +10,11 @@ public interface AdminUserApplicationService {
 
     AdminUserResponse updateProfile(Long userId, String email, String documentNumber, String fullName);
 
-    java.util.List<AdminUserResponse> listUsers();
+    java.util.List<AdminUserResponse> listUsers(String email, String documentNumber, Integer page, Integer size);
 
     AdminUserResponse getById(Long id);
 
     void deleteUser(Long id);
+
+    void forcePasswordChange(Long userId);
 }

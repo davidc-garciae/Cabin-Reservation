@@ -14,6 +14,7 @@ INSERT INTO
         pin_hash,
         role,
         active,
+        must_change_password,
         created_at,
         updated_at
     )
@@ -24,9 +25,10 @@ VALUES
         '12345678',
         'Administrador Sistema',
         '+57-300-123-4567',
-        '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+        '$2b$10$9RH7z1ZGp1zArp/h.o3atOlwQQhZr06Wptekhu4t7F5Cp1Ty7dCju',
         'ADMIN',
         true,
+        false,
         NOW (),
         NOW ()
     );
@@ -42,6 +44,7 @@ INSERT INTO
         pin_hash,
         role,
         active,
+        must_change_password,
         created_at,
         updated_at
     )
@@ -52,9 +55,10 @@ VALUES
         '87654321',
         'María González',
         '+57-310-234-5678',
-        '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+        '$2b$10$UIhhwyiC6zJHDG1Wyc/7oOBYyEMXNy8csIKNFyRxG.nckU6pJuiB2',
         'PROFESSOR',
         true,
+        false,
         NOW (),
         NOW ()
     ),
@@ -64,9 +68,10 @@ VALUES
         '11223344',
         'Carlos Rodríguez',
         '+57-315-345-6789',
-        '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+        '$2b$10$UIhhwyiC6zJHDG1Wyc/7oOBYyEMXNy8csIKNFyRxG.nckU6pJuiB2',
         'PROFESSOR',
         true,
+        false,
         NOW (),
         NOW ()
     ),
@@ -76,9 +81,10 @@ VALUES
         '55667788',
         'Ana Martínez',
         '+57-320-456-7890',
-        '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+        '$2b$10$UIhhwyiC6zJHDG1Wyc/7oOBYyEMXNy8csIKNFyRxG.nckU6pJuiB2',
         'PROFESSOR',
         true,
+        false,
         NOW (),
         NOW ()
     );
@@ -94,6 +100,7 @@ INSERT INTO
         pin_hash,
         role,
         active,
+        must_change_password,
         created_at,
         updated_at
     )
@@ -104,9 +111,10 @@ VALUES
         '99887766',
         'Roberto Silva',
         '+57-325-567-8901',
-        '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+        '$2b$10$UIhhwyiC6zJHDG1Wyc/7oOBYyEMXNy8csIKNFyRxG.nckU6pJuiB2',
         'RETIREE',
         true,
+        false,
         NOW (),
         NOW ()
     ),
@@ -116,9 +124,10 @@ VALUES
         '44332211',
         'Carmen López',
         '+57-330-678-9012',
-        '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+        '$2b$10$UIhhwyiC6zJHDG1Wyc/7oOBYyEMXNy8csIKNFyRxG.nckU6pJuiB2',
         'RETIREE',
         true,
+        false,
         NOW (),
         NOW ()
     );

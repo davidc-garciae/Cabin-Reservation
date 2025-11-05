@@ -108,6 +108,42 @@ Notas:
 - Seguridad definida en `SecurityConfig` (stateless, CORS configurado para desarrollo frontend).
 - CORS configurado para permitir `http://localhost:3000` y `http://localhost:3001` (frontend React/Next.js).
 
+### Sistema de autenticación
+
+**Usuarios normales (PROFESSOR, RETIREE):**
+
+- Usan **PIN de 4 dígitos** tanto para registro como para login
+- El PIN se almacena con hash BCrypt en la base de datos
+- Pueden cambiar voluntariamente a una contraseña de 6-50 caracteres
+
+**Administradores (ADMIN):**
+
+- Usan **contraseña de 6-50 caracteres**
+- La contraseña se almacena con hash BCrypt en la base de datos
+- No pueden usar PIN de 4 dígitos (validación automática)
+
+### Sistema de cambio de contraseña
+
+**Endpoints disponibles:**
+
+- `PUT /api/users/change-password` - Cambio de contraseña para usuarios autenticados
+- `POST /api/admin/users/{id}/force-password-change` - Forzar cambio de contraseña (solo admin)
+
+**Flujos soportados:**
+
+1. **Cambio voluntario**: Cualquier usuario autenticado puede cambiar su contraseña/PIN proporcionando la contraseña actual
+2. **Promoción a ADMIN**: Cuando un usuario normal es promovido a ADMIN, se marca automáticamente para cambiar su contraseña si tiene PIN de 4 dígitos
+3. **Forzar cambio**: Los administradores pueden forzar que un usuario cambie su contraseña
+
+**Validaciones:**
+
+- Contraseña actual debe ser correcta
+- Nueva contraseña debe cumplir requisitos según rol:
+  - **ADMIN**: Mínimo 6 caracteres, máximo 50. No puede ser PIN de 4 dígitos
+  - **PROFESSOR/RETIREE**: PIN de 4 dígitos O contraseña de 6-50 caracteres
+- Nueva contraseña no puede ser igual a la actual
+- Al cambiar contraseña exitosamente, se desactiva el flag de cambio obligatorio
+
 ## OpenAPI y Swagger UI
 
 - **Swagger UI**: `http://localhost:8080/swagger-ui.html`
@@ -158,7 +194,7 @@ src/main/java/com/cooperative/cabin/
 
 Autenticación (`/api/auth/*`): login, refresh, recover-password, reset-password, validate-token, register (POST) con selección de rol
 
-Usuarios: GET/PUT `/api/users/profile`
+Usuarios: GET/PUT `/api/users/profile`, PUT `/api/users/change-password`
 
 Reservas: GET/POST `/api/reservations` (con horarios), GET `/api/reservations/{id}`, DELETE `/api/reservations/{id}`
 

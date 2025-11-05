@@ -13,6 +13,7 @@ import com.cooperative.cabin.infrastructure.repository.UserJpaRepository;
 import com.cooperative.cabin.infrastructure.repository.CabinJpaRepository;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 public class ReservationApplicationService {
@@ -53,6 +54,11 @@ public class ReservationApplicationService {
     }
 
     public Reservation createPreReservation(Long userId, Long cabinId, LocalDate start, LocalDate end, int guests) {
+        return createPreReservation(userId, cabinId, start, end, guests, null, null);
+    }
+
+    public Reservation createPreReservation(Long userId, Long cabinId, LocalDate start, LocalDate end, int guests,
+            LocalTime checkInTime, LocalTime checkOutTime) {
         List<Reservation> userReservations = reservationRepository.findByUserId(userId);
         if (ReservationPolicies.hasActiveReservation(userId, userReservations)) {
             throw new IllegalStateException("El usuario ya tiene una reserva activa");
@@ -82,12 +88,16 @@ public class ReservationApplicationService {
         Cabin cabin = cabinRepository.findById(cabinId)
                 .orElseThrow(() -> new CabinNotFoundException("Cabin not found with id: " + cabinId));
 
+        // Usar horarios proporcionados o los horarios por defecto de la cabaña
+        LocalTime finalCheckInTime = checkInTime != null ? checkInTime : cabin.getDefaultCheckInTime();
+        LocalTime finalCheckOutTime = checkOutTime != null ? checkOutTime : cabin.getDefaultCheckOutTime();
+
         // Calcular precios (por ahora usar valores por defecto)
         java.math.BigDecimal basePrice = java.math.BigDecimal.valueOf(100.00);
         java.math.BigDecimal finalPrice = java.math.BigDecimal.valueOf(100.00);
 
-        Reservation r = new Reservation(user, cabin, start, end, guests, ReservationStatus.PENDING, basePrice,
-                finalPrice);
+        Reservation r = new Reservation(user, cabin, start, end, finalCheckInTime, finalCheckOutTime, guests,
+                ReservationStatus.PENDING, basePrice, finalPrice);
         Reservation saved = reservationRepository.save(r);
         if (businessMetrics != null)
             businessMetrics.incrementReservationCreated();

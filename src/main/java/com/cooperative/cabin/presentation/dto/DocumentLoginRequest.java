@@ -15,8 +15,8 @@ public class DocumentLoginRequest {
     private String documentNumber;
 
     @NotBlank(message = "La contraseña es obligatoria")
-    @Size(min = 6, max = 50, message = "La contraseña debe tener entre 6 y 50 caracteres")
-    @Schema(description = "Contraseña del usuario", example = "password123", required = true)
+    @Size(min = 4, max = 50, message = "La contraseña/PIN debe tener entre 4 y 50 caracteres (PIN de 4 dígitos para usuarios normales, contraseña de 6-50 caracteres para administradores)")
+    @Schema(description = "Contraseña del usuario (PIN de 4 dígitos para usuarios normales, contraseña de 6-50 caracteres para administradores)", example = "1234", required = true)
     private String password;
 
     // Constructors

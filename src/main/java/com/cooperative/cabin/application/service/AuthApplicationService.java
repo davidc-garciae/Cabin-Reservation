@@ -1,8 +1,11 @@
 package com.cooperative.cabin.application.service;
 
+import com.cooperative.cabin.domain.exception.MustChangePasswordException;
+import com.cooperative.cabin.domain.exception.UserNotFoundException;
 import com.cooperative.cabin.domain.model.DocumentNumber;
 import com.cooperative.cabin.domain.model.PasswordResetToken;
 import com.cooperative.cabin.domain.model.User;
+import com.cooperative.cabin.domain.policy.PasswordValidator;
 import com.cooperative.cabin.infrastructure.repository.DocumentNumberJpaRepository;
 import com.cooperative.cabin.infrastructure.repository.PasswordResetTokenRepository;
 import com.cooperative.cabin.infrastructure.repository.UserJpaRepository;
@@ -62,7 +65,13 @@ public class AuthApplicationService {
             throw new IllegalArgumentException("Contraseña incorrecta");
         }
 
-        // 5. Generar tokens JWT
+        // 5. Verificar si el usuario debe cambiar su contraseña
+        if (Boolean.TRUE.equals(user.getMustChangePassword())) {
+            throw new MustChangePasswordException(
+                    "Debe cambiar su contraseña antes de continuar. Use el endpoint PUT /api/users/change-password");
+        }
+
+        // 6. Generar tokens JWT
         String access = jwtService.generateAccessToken(user.getEmail(), user.getRole().name());
         String refresh = jwtService.generateRefreshToken(user.getEmail());
 
@@ -194,11 +203,14 @@ public class AuthApplicationService {
         User.UserRole userRole;
         try {
             userRole = User.UserRole.valueOf(role);
-            if (userRole == User.UserRole.ADMIN) {
-                throw new IllegalArgumentException("No se puede registrar un usuario con rol ADMIN");
-            }
         } catch (IllegalArgumentException e) {
+            // El rol no existe en el enum
             throw new IllegalArgumentException("Rol inválido. Solo se permiten PROFESSOR o RETIREE");
+        }
+
+        // Validar que no sea ADMIN
+        if (userRole == User.UserRole.ADMIN) {
+            throw new IllegalArgumentException("No se puede registrar un usuario con rol ADMIN");
         }
 
         user.setRole(userRole);
@@ -211,5 +223,51 @@ public class AuthApplicationService {
         String refresh = jwtService.generateRefreshToken(savedUser.getEmail());
 
         return Map.of("accessToken", access, "refreshToken", refresh);
+    }
+
+    /**
+     * Cambia la contraseña de un usuario autenticado.
+     * 
+     * @param userId          ID del usuario que quiere cambiar su contraseña
+     * @param currentPassword Contraseña o PIN actual
+     * @param newPassword     Nueva contraseña o PIN
+     * @return Mensaje de confirmación y estado de mustChangePassword
+     */
+    public Map<String, Object> changePassword(Long userId, String currentPassword, String newPassword) {
+        // 1. Buscar el usuario
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+
+        // 2. Verificar que el usuario está activo
+        if (!user.getActive()) {
+            throw new IllegalArgumentException("Usuario deshabilitado");
+        }
+
+        // 3. Verificar la contraseña actual
+        if (!passwordEncoder.matches(currentPassword, user.getPinHash())) {
+            throw new IllegalArgumentException("Contraseña actual incorrecta");
+        }
+
+        // 4. Verificar que la nueva contraseña no sea igual a la actual
+        if (passwordEncoder.matches(newPassword, user.getPinHash())) {
+            throw new IllegalArgumentException("La nueva contraseña debe ser diferente a la actual");
+        }
+
+        // 5. Validar la nueva contraseña según el rol del usuario
+        PasswordValidator.validatePasswordForRole(newPassword, user.getRole());
+
+        // 6. Actualizar la contraseña
+        String hashedPassword = passwordEncoder.encode(newPassword);
+        user.setPinHash(hashedPassword);
+
+        // 7. Desactivar el flag de cambio obligatorio
+        user.setMustChangePassword(false);
+
+        userRepository.save(user);
+
+        // 8. Retornar respuesta
+        return Map.of(
+                "message", "Contraseña actualizada exitosamente",
+                "mustChangePassword", false);
     }
 }

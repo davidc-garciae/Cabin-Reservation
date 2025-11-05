@@ -10,7 +10,7 @@ Documentación técnica completa del sistema de reservas de cabañas implementad
 
 ### **Características Técnicas:**
 
-- ✅ **58/58 endpoints** REST implementados (100% completado)
+- ✅ **60/60 endpoints** REST implementados (100% completado)
 - ✅ **OpenAPI 3.0 + Swagger UI** integrado
 - ✅ **Arquitectura en capas** (Presentation, Application, Domain, Infrastructure, Common)
 - ✅ **Flujo de datos** optimizado
@@ -26,24 +26,37 @@ Documentación técnica completa del sistema de reservas de cabañas implementad
 #### **✅ Módulo de Autenticación (6 endpoints)**
 
 ```
-POST   /api/auth/login                    # Login con PIN + cédula
+POST   /api/auth/login                    # Login con PIN/contraseña + cédula (PIN de 4 dígitos para usuarios normales, contraseña 6-50 caracteres para administradores)
 POST   /api/auth/refresh                  # Refresh JWT token
 POST   /api/auth/recover-password         # Recuperación por email
 POST   /api/auth/reset-password           # Reset con token
 POST   /api/auth/validate-token           # Validación de token
-POST   /api/auth/register                 # Registro público de nuevos usuarios (con selección de rol)
+POST   /api/auth/register                 # Registro público de nuevos usuarios (con selección de rol, PIN de 4 dígitos)
 ```
 
-#### **✅ Módulo de Usuarios (6 endpoints)**
+**Sistema de autenticación:**
+
+- **Usuarios normales (PROFESSOR, RETIREE)**: Usan PIN de 4 dígitos
+- **Administradores (ADMIN)**: Usan contraseña de 6-50 caracteres
+
+#### **✅ Módulo de Usuarios (8 endpoints)**
 
 ```
 GET    /api/users/profile                 # Perfil del usuario logueado
 PUT    /api/users/profile                 # Actualizar perfil
+PUT    /api/users/change-password         # Cambiar contraseña/PIN (usuario autenticado)
 GET    /api/admin/users                   # Listar usuarios (admin)
 GET    /api/admin/users/{id}              # Ver usuario específico
 PUT    /api/admin/users/{id}              # Crear/actualizar usuario (idempotente)
+POST   /api/admin/users/{id}/force-password-change  # Forzar cambio de contraseña (admin)
 DELETE /api/admin/users/{id}              # Desactivar usuario
 ```
+
+**Sistema de cambio de contraseña:**
+
+- **Cambio voluntario**: Cualquier usuario autenticado puede cambiar su contraseña/PIN
+- **Promoción a ADMIN**: Cuando un usuario normal es promovido a ADMIN, se marca automáticamente para cambiar su contraseña si tiene PIN de 4 dígitos
+- **Forzar cambio**: Los administradores pueden forzar que un usuario cambie su contraseña
 
 #### **✅ Módulo de Reservas (6 endpoints)**
 

@@ -38,7 +38,12 @@
 						],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n  \"documentNumber\": \"12345678\",\n  \"password\": \"password\"\n}"
+                            "raw": "{\n  \"documentNumber\": \"12345678\",\n  \"password\": \"Admin#12345\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
 						},
 						"url": {
 							"raw": "{{base_url}}/api/auth/login",
@@ -51,7 +56,7 @@
 								"login"
 							]
 						},
-						"description": "Login como administrador usando documento 12345678 y PIN 1234"
+						                        "description": "Login como administrador usando documento 12345678 y contraseña Admin#12345"
 					},
 					"response": []
 				},
@@ -83,7 +88,7 @@
 						],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n  \"documentNumber\": \"87654321\",\n  \"password\": \"password\"\n}"
+                            "raw": "{\n  \"documentNumber\": \"87654321\",\n  \"password\": \"1234\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/auth/login",
@@ -128,7 +133,7 @@
 						],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n  \"documentNumber\": \"99887766\",\n  \"password\": \"password\"\n}"
+                            "raw": "{\n  \"documentNumber\": \"99887766\",\n  \"password\": \"1234\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/auth/login",
@@ -681,6 +686,50 @@
 						"description": "Actualizar perfil del usuario autenticado"
 					},
 					"response": []
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_professor}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-User-Id",
+								"value": "2",
+								"description": "ID del usuario autenticado"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"currentPassword\": \"1234\",\n  \"newPassword\": \"SecurePass123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/change-password",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"change-password"
+							]
+						},
+						"description": "Cambiar contraseña o PIN del usuario autenticado. Para administradores requiere contraseña de mínimo 6 caracteres. Para usuarios normales puede ser PIN de 4 dígitos o contraseña de 6-50 caracteres."
+					},
+					"response": []
 				}
 			],
 			"description": "Endpoints para gestión del perfil de usuario"
@@ -1160,6 +1209,217 @@
 				}
 			],
 			"description": "Endpoints administrativos para gestión de reservas"
+		},
+		{
+			"name": "👑 Admin - Users",
+			"item": [
+				{
+					"name": "Force Password Change",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/users/2/force-password-change",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"users",
+								"2",
+								"force-password-change"
+							]
+						},
+						"description": "Forzar que un usuario cambie su contraseña en el próximo login (requiere rol ADMIN)"
+					},
+					"response": []
+				},
+				{
+					"name": "List Users",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"users"
+							]
+						},
+						"description": "Listar todos los usuarios (ADMIN)"
+					},
+					"response": []
+				},
+				{
+					"name": "List Users (Filtered)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/users?email=john.doe@example.com",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"users"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "john.doe@example.com"
+								}
+							]
+						},
+						"description": "Listar usuarios filtrando por email exacto (ADMIN)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/users/2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"users",
+								"2"
+							]
+						},
+						"description": "Obtener usuario por ID (ADMIN)"
+					},
+					"response": []
+				},
+				{
+					"name": "Upsert User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"johnny@example.com\",\n  \"documentNumber\": \"87654321\",\n  \"fullName\": \"Johnny\",\n  \"role\": \"PROFESSOR\",\n  \"active\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/admin/users/2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"users",
+								"2"
+							]
+						},
+						"description": "Crear o actualizar usuario (ADMIN)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/users/2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"users",
+								"2"
+							]
+						},
+						"description": "Desactivar/Eliminar usuario (ADMIN)"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints administrativos para gestión de usuarios"
 		},
 		{
 			"name": "👑 Admin - Waiting List",

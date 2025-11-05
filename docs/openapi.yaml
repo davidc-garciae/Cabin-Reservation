@@ -44,7 +44,12 @@ paths:
       tags:
         - 🔐 Autenticación
       summary: Iniciar sesión
-      description: Autentica un usuario existente y retorna tokens JWT
+      description: |
+        Autentica un usuario existente y retorna tokens JWT.
+        
+        **Nota importante sobre contraseñas:**
+        - Usuarios normales (PROFESSOR, RETIREE): Usan PIN de 4 dígitos
+        - Administradores (ADMIN): Usan contraseña de 6-50 caracteres
       security: []
       requestBody:
         required: true
@@ -57,12 +62,12 @@ paths:
                 summary: Login de administrador
                 value:
                   documentNumber: "12345678"
-                  password: "password"
+                  password: "Admin#12345"
               professor:
-                summary: Login de profesor
+                summary: Login de profesor (con PIN de 4 dígitos)
                 value:
                   documentNumber: "87654321"
-                  password: "password"
+                  password: "1234"
       responses:
         '200':
           description: Login exitoso
@@ -89,8 +94,10 @@ paths:
         - Documento debe existir en la base de datos de asociados activos
         - Email debe ser único
         - Documento no puede estar ya registrado
-        - PIN debe tener exactamente 4 dígitos
+        - PIN debe tener exactamente 4 dígitos (solo para usuarios normales PROFESSOR/RETIREE)
         - Rol debe ser PROFESSOR o RETIREE (no se permite ADMIN)
+        
+        **Nota:** Los usuarios normales (PROFESSOR, RETIREE) usan PIN de 4 dígitos. Los administradores usan contraseña de 6-50 caracteres.
       security: []
       requestBody:
         required: true
@@ -987,8 +994,10 @@ components:
           example: "12345678"
         password:
           type: string
-          description: Contraseña del usuario
-          example: "password"
+          description: "Contraseña del usuario (PIN de 4 dígitos para usuarios normales PROFESSOR/RETIREE, contraseña de 6-50 caracteres para administradores)"
+          minLength: 4
+          maxLength: 50
+          example: "1234"
 
     RegisterRequest:
       type: object
