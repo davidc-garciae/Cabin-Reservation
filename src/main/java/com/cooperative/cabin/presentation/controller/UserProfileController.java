@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +27,7 @@ import java.util.Map;
 @SecurityRequirement(name = "bearerAuth")
 public class UserProfileController {
 
+  private static final Logger logger = LoggerFactory.getLogger(UserProfileController.class);
   private final AdminUserApplicationService adminUserApplicationService;
   private final AuthApplicationService authApplicationService;
 
@@ -68,8 +71,20 @@ public class UserProfileController {
           """)))
   })
   public ResponseEntity<AdminUserResponse> get(
-      @Parameter(description = "ID del usuario autenticado", example = "1") @RequestHeader("X-User-Id") Long userId) {
-    return ResponseEntity.ok(adminUserApplicationService.getProfile(userId));
+      @Parameter(hidden = true) @RequestAttribute("userId") Long userId) {
+    logger.info("UserProfileController.get() - Received userId: {}", userId);
+    try {
+      if (userId == null) {
+        logger.error("UserProfileController.get() - userId is null!");
+        throw new IllegalStateException("User ID is required but was not found in request");
+      }
+      AdminUserResponse response = adminUserApplicationService.getProfile(userId);
+      logger.info("UserProfileController.get() - Successfully retrieved profile for userId: {}", userId);
+      return ResponseEntity.ok(response);
+    } catch (Exception e) {
+      logger.error("UserProfileController.get() - Error processing request for userId: {}", userId, e);
+      throw e;
+    }
   }
 
   @Schema(description = "Solicitud de actualización de perfil")
@@ -145,11 +160,22 @@ public class UserProfileController {
           """)))
   })
   public ResponseEntity<AdminUserResponse> put(
-      @Parameter(description = "ID del usuario autenticado", example = "1") @RequestHeader("X-User-Id") Long userId,
+      @Parameter(hidden = true) @RequestAttribute("userId") Long userId,
       @RequestBody UpdateUserProfileRequest request) {
-    return ResponseEntity
-        .ok(adminUserApplicationService.updateProfile(userId, request.getEmail(),
-            request.getDocumentNumber(), request.getFullName()));
+    logger.info("UserProfileController.put() - Received userId: {}, email: {}", userId, request.getEmail());
+    try {
+      if (userId == null) {
+        logger.error("UserProfileController.put() - userId is null!");
+        throw new IllegalStateException("User ID is required but was not found in request");
+      }
+      AdminUserResponse response = adminUserApplicationService.updateProfile(userId, request.getEmail(),
+          request.getDocumentNumber(), request.getFullName());
+      logger.info("UserProfileController.put() - Successfully updated profile for userId: {}", userId);
+      return ResponseEntity.ok(response);
+    } catch (Exception e) {
+      logger.error("UserProfileController.put() - Error processing request for userId: {}", userId, e);
+      throw e;
+    }
   }
 
   @PutMapping("/change-password")
@@ -185,13 +211,24 @@ public class UserProfileController {
           """)))
   })
   public ResponseEntity<ChangePasswordResponse> changePassword(
-      @Parameter(description = "ID del usuario autenticado", example = "1") @RequestHeader("X-User-Id") Long userId,
+      @Parameter(hidden = true) @RequestAttribute("userId") Long userId,
       @Valid @RequestBody ChangePasswordRequest request) {
-    Map<String, Object> result = authApplicationService.changePassword(userId, request.getCurrentPassword(),
-        request.getNewPassword());
-    ChangePasswordResponse response = new ChangePasswordResponse(
-        (String) result.get("message"),
-        (Boolean) result.get("mustChangePassword"));
-    return ResponseEntity.ok(response);
+    logger.info("UserProfileController.changePassword() - Received userId: {}", userId);
+    try {
+      if (userId == null) {
+        logger.error("UserProfileController.changePassword() - userId is null!");
+        throw new IllegalStateException("User ID is required but was not found in request");
+      }
+      Map<String, Object> result = authApplicationService.changePassword(userId, request.getCurrentPassword(),
+          request.getNewPassword());
+      ChangePasswordResponse response = new ChangePasswordResponse(
+          (String) result.get("message"),
+          (Boolean) result.get("mustChangePassword"));
+      logger.info("UserProfileController.changePassword() - Successfully changed password for userId: {}", userId);
+      return ResponseEntity.ok(response);
+    } catch (Exception e) {
+      logger.error("UserProfileController.changePassword() - Error processing request for userId: {}", userId, e);
+      throw e;
+    }
   }
 }

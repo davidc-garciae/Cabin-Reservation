@@ -89,7 +89,7 @@ class ReservationControllerMvcTest {
                 given(reservationApplicationService.cancelByUser(eq(1L), eq(10L))).willReturn(cancelled);
 
                 mockMvc.perform(delete("/api/reservations/{id}", 10).with(csrf())
-                                .header("X-User-Id", "1"))
+                                .requestAttr("userId", 1L))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.id").value(10))
                                 .andExpect(jsonPath("$.status").value("CANCELLED"));

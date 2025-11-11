@@ -44,11 +44,20 @@ public class JwtService {
         return List.of();
     }
 
-    public String generateAccessToken(String username, String role) {
+    public Long extractUserId(String token) {
+        Claims claims = getAllClaims(token);
+        Object userId = claims.get("userId");
+        if (userId instanceof Number) {
+            return ((Number) userId).longValue();
+        }
+        return null;
+    }
+
+    public String generateAccessToken(String username, String role, Long userId) {
         Instant now = Instant.now();
         return Jwts.builder()
                 .setSubject(username)
-                .addClaims(Map.of("roles", List.of(role)))
+                .addClaims(Map.of("roles", List.of(role), "userId", userId))
                 .setIssuedAt(Date.from(now))
                 .setExpiration(Date.from(now.plus(accessExpirationMinutes, ChronoUnit.MINUTES)))
                 .signWith(signingKey)
@@ -66,14 +75,13 @@ public class JwtService {
                 .compact();
     }
 
-    public String refreshAccessToken(String refreshToken) {
+    public String refreshAccessToken(String refreshToken, Long userId, String role) {
         Claims claims = getAllClaims(refreshToken);
         if (!"refresh".equals(claims.get("type"))) {
             throw new IllegalArgumentException("Token de refresh inválido");
         }
         String username = claims.getSubject();
-        // Roles opcionalmente desde una store; aquí vacío por simplicidad
-        return generateAccessToken(username, "USER");
+        return generateAccessToken(username, role, userId);
     }
 
     public boolean isTokenValid(String token) {

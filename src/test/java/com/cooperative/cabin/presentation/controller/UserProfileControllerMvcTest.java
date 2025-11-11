@@ -51,7 +51,7 @@ class UserProfileControllerMvcTest {
                                 true);
                 given(adminUserApplicationService.getProfile(7L)).willReturn(response);
 
-                mockMvc.perform(get("/api/users/profile").header("X-User-Id", "7"))
+                mockMvc.perform(get("/api/users/profile").requestAttr("userId", 7L))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.id").value(7))
                                 .andExpect(jsonPath("$.email").value("john.doe@example.com"));
@@ -72,7 +72,7 @@ class UserProfileControllerMvcTest {
                                 "}";
 
                 mockMvc.perform(put("/api/users/profile").with(csrf())
-                                .header("X-User-Id", "7")
+                                .requestAttr("userId", 7L)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(body))
                                 .andExpect(status().isOk())
@@ -91,7 +91,7 @@ class UserProfileControllerMvcTest {
                                 "}";
 
                 mockMvc.perform(put("/api/users/change-password").with(csrf())
-                                .header("X-User-Id", "7")
+                                .requestAttr("userId", 7L)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(body))
                                 .andExpect(status().isOk())

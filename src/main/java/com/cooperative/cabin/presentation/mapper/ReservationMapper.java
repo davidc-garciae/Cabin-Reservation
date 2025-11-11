@@ -24,6 +24,8 @@ public interface ReservationMapper {
     @Mapping(source = "status", target = "status")
     @Mapping(source = "checkInTime", target = "checkInTime", dateFormat = "HH:mm")
     @Mapping(source = "checkOutTime", target = "checkOutTime", dateFormat = "HH:mm")
+    @Mapping(source = "basePrice", target = "basePrice")
+    @Mapping(source = "finalPrice", target = "finalPrice")
     ReservationResponse toResponse(Reservation r);
 
     @Mapping(source = "userId", target = "user.id")

@@ -14,6 +14,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +27,7 @@ import java.util.List;
 @SecurityRequirement(name = "bearerAuth")
 public class ReservationQueryController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ReservationQueryController.class);
     private final ReservationApplicationService reservationApplicationService;
 
     public ReservationQueryController(ReservationApplicationService reservationApplicationService) {
@@ -81,10 +84,22 @@ public class ReservationQueryController {
                     """)))
     })
     public ResponseEntity<List<ReservationResponse>> list(
-            @Parameter(description = "ID del usuario autenticado", example = "1") @RequestHeader("X-User-Id") Long userId) {
-        List<Reservation> list = reservationApplicationService.listByUser(userId);
-        List<ReservationResponse> dto = list.stream().map(ReservationMapper.INSTANCE::toResponse).toList();
-        return ResponseEntity.ok(dto);
+            @Parameter(hidden = true) @RequestAttribute("userId") Long userId) {
+        logger.info("ReservationQueryController.list() - Received userId: {}", userId);
+        try {
+            if (userId == null) {
+                logger.error("ReservationQueryController.list() - userId is null!");
+                throw new IllegalStateException("User ID is required but was not found in request");
+            }
+            List<Reservation> list = reservationApplicationService.listByUser(userId);
+            logger.info("ReservationQueryController.list() - Found {} reservations for userId: {}", list.size(), userId);
+            List<ReservationResponse> dto = list.stream().map(ReservationMapper.INSTANCE::toResponse).toList();
+            logger.info("ReservationQueryController.list() - Successfully mapped {} reservations to DTOs", dto.size());
+            return ResponseEntity.ok(dto);
+        } catch (Exception e) {
+            logger.error("ReservationQueryController.list() - Error processing request for userId: {}", userId, e);
+            throw e;
+        }
     }
 
     @GetMapping("/{id}")
@@ -141,9 +156,22 @@ public class ReservationQueryController {
                     """)))
     })
     public ResponseEntity<ReservationResponse> get(
-            @Parameter(description = "ID del usuario autenticado", example = "1") @RequestHeader("X-User-Id") Long userId,
+            @Parameter(hidden = true) @RequestAttribute("userId") Long userId,
             @Parameter(description = "ID de la reserva", example = "1") @PathVariable("id") Long id) {
-        Reservation r = reservationApplicationService.getByIdForUser(userId, id);
-        return ResponseEntity.ok(ReservationMapper.INSTANCE.toResponse(r));
+        logger.info("ReservationQueryController.get() - Received userId: {}, reservationId: {}", userId, id);
+        try {
+            if (userId == null) {
+                logger.error("ReservationQueryController.get() - userId is null!");
+                throw new IllegalStateException("User ID is required but was not found in request");
+            }
+            Reservation r = reservationApplicationService.getByIdForUser(userId, id);
+            logger.info("ReservationQueryController.get() - Found reservation {} for userId: {}", id, userId);
+            ReservationResponse response = ReservationMapper.INSTANCE.toResponse(r);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("ReservationQueryController.get() - Error processing request for userId: {}, reservationId: {}", 
+                    userId, id, e);
+            throw e;
+        }
     }
 }

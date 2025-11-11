@@ -58,11 +58,12 @@ class AuthApplicationServiceTest {
         when(passwordEncoder.encode(pin)).thenReturn("encoded_pin");
 
         User savedUser = new User();
+        savedUser.setId(1L);
         savedUser.setEmail(email);
         savedUser.setRole(User.UserRole.PROFESSOR);
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
 
-        when(jwtService.generateAccessToken(email, "PROFESSOR")).thenReturn("access_token");
+        when(jwtService.generateAccessToken(email, "PROFESSOR", 1L)).thenReturn("access_token");
         when(jwtService.generateRefreshToken(email)).thenReturn("refresh_token");
 
         // When
@@ -141,11 +142,12 @@ class AuthApplicationServiceTest {
         when(passwordEncoder.encode(pin)).thenReturn("encoded_pin");
 
         User savedUser = new User();
+        savedUser.setId(1L);
         savedUser.setEmail(email);
         savedUser.setRole(User.UserRole.PROFESSOR);
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
 
-        when(jwtService.generateAccessToken(email, "PROFESSOR")).thenReturn("access_token");
+        when(jwtService.generateAccessToken(email, "PROFESSOR", 1L)).thenReturn("access_token");
         when(jwtService.generateRefreshToken(email)).thenReturn("refresh_token");
 
         // When
@@ -155,7 +157,7 @@ class AuthApplicationServiceTest {
         assertThat(result).hasSize(2);
         assertThat(result).containsKey("accessToken");
         assertThat(result).containsKey("refreshToken");
-        verify(jwtService).generateAccessToken(email, "PROFESSOR");
+        verify(jwtService).generateAccessToken(email, "PROFESSOR", 1L);
         verify(jwtService).generateRefreshToken(email);
     }
 

@@ -72,14 +72,22 @@ public class AuthApplicationService {
         }
 
         // 6. Generar tokens JWT
-        String access = jwtService.generateAccessToken(user.getEmail(), user.getRole().name());
+        String access = jwtService.generateAccessToken(user.getEmail(), user.getRole().name(), user.getId());
         String refresh = jwtService.generateRefreshToken(user.getEmail());
 
         return Map.of("accessToken", access, "refreshToken", refresh);
     }
 
     public Map<String, String> refreshToken(String refreshToken) {
-        String newAccess = jwtService.refreshAccessToken(refreshToken);
+        // Extraer el username del refresh token
+        String username = jwtService.extractUsername(refreshToken);
+        
+        // Buscar el usuario para obtener su ID y rol actual
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado"));
+        
+        // Generar nuevo access token con userId y rol actual
+        String newAccess = jwtService.refreshAccessToken(refreshToken, user.getId(), user.getRole().name());
         return Map.of("accessToken", newAccess);
     }
 
@@ -219,7 +227,7 @@ public class AuthApplicationService {
         User savedUser = userRepository.save(user);
 
         // 5. Generar tokens JWT (REUTILIZAR lógica existente)
-        String access = jwtService.generateAccessToken(savedUser.getEmail(), savedUser.getRole().name());
+        String access = jwtService.generateAccessToken(savedUser.getEmail(), savedUser.getRole().name(), savedUser.getId());
         String refresh = jwtService.generateRefreshToken(savedUser.getEmail());
 
         return Map.of("accessToken", access, "refreshToken", refresh);

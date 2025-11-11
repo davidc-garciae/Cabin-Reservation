@@ -1,6 +1,7 @@
 package com.cooperative.cabin.presentation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.math.BigDecimal;
 
 @Schema(description = "Reserva")
 public class ReservationResponse {
@@ -24,6 +25,12 @@ public class ReservationResponse {
 
     @Schema(example = "12:00", description = "Hora de check-out")
     private String checkOutTime;
+
+    @Schema(example = "150000.00", description = "Precio base de la reserva")
+    private BigDecimal basePrice;
+
+    @Schema(example = "180000.00", description = "Precio final de la reserva")
+    private BigDecimal finalPrice;
 
     public ReservationResponse() {
     }
@@ -123,5 +130,21 @@ public class ReservationResponse {
 
     public void setCheckOutTime(String checkOutTime) {
         this.checkOutTime = checkOutTime;
+    }
+
+    public BigDecimal getBasePrice() {
+        return basePrice;
+    }
+
+    public void setBasePrice(BigDecimal basePrice) {
+        this.basePrice = basePrice;
+    }
+
+    public BigDecimal getFinalPrice() {
+        return finalPrice;
+    }
+
+    public void setFinalPrice(BigDecimal finalPrice) {
+        this.finalPrice = finalPrice;
     }
 }

@@ -53,7 +53,7 @@ class ReservationQueryControllerMvcTest {
                 list.get(0).setId(1L);
                 given(reservationApplicationService.listByUser(eq(1L))).willReturn(list);
 
-                mockMvc.perform(get("/api/reservations").header("X-User-Id", "1"))
+                mockMvc.perform(get("/api/reservations").requestAttr("userId", 1L))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$[0].id").value(1));
         }
@@ -68,7 +68,7 @@ class ReservationQueryControllerMvcTest {
                 r.setId(5L);
                 given(reservationApplicationService.getByIdForUser(eq(1L), eq(5L))).willReturn(r);
 
-                mockMvc.perform(get("/api/reservations/{id}", 5).header("X-User-Id", "1"))
+                mockMvc.perform(get("/api/reservations/{id}", 5).requestAttr("userId", 1L))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.id").value(5));
         }

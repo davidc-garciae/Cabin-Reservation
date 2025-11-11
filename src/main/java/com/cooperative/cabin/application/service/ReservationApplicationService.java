@@ -11,6 +11,7 @@ import com.cooperative.cabin.domain.exception.CabinNotFoundException;
 import com.cooperative.cabin.domain.exception.UserNotFoundException;
 import com.cooperative.cabin.infrastructure.repository.UserJpaRepository;
 import com.cooperative.cabin.infrastructure.repository.CabinJpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -57,6 +58,7 @@ public class ReservationApplicationService {
         return createPreReservation(userId, cabinId, start, end, guests, null, null);
     }
 
+    @Transactional
     public Reservation createPreReservation(Long userId, Long cabinId, LocalDate start, LocalDate end, int guests,
             LocalTime checkInTime, LocalTime checkOutTime) {
         List<Reservation> userReservations = reservationRepository.findByUserId(userId);
@@ -101,6 +103,11 @@ public class ReservationApplicationService {
         Reservation saved = reservationRepository.save(r);
         if (businessMetrics != null)
             businessMetrics.incrementReservationCreated();
+        
+        // Inicializar relaciones lazy para evitar LazyInitializationException al mappear
+        saved.getUser().getId();
+        saved.getCabin().getId();
+        
         return saved;
     }
 

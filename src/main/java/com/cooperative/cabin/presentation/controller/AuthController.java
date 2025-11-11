@@ -31,12 +31,26 @@ public class AuthController {
   }
 
   @PostMapping("/login")
-  @Operation(summary = "Iniciar sesión", description = "Autentica un usuario con número de documento y devuelve tokens JWT de acceso y refresh", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Credenciales de usuario con número de documento", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = DocumentLoginRequest.class), examples = @ExampleObject(value = """
-      {
-        "documentNumber": "12345678",
-        "password": "password123"
-      }
-      """))), responses = {
+  @Operation(summary = "Iniciar sesión", description = """
+      Autentica un usuario con número de documento y devuelve tokens JWT de acceso y refresh.
+      
+      **Nota importante sobre contraseñas:**
+      - **Administradores (ADMIN)**: Usan contraseña de 6-50 caracteres (ejemplo: `Admin#12345`)
+      - **Usuarios normales (PROFESSOR, RETIREE)**: Usan PIN de exactamente 4 dígitos (ejemplo: `1234`)
+      """, requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Credenciales de usuario con número de documento", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = DocumentLoginRequest.class), examples = {
+      @ExampleObject(name = "Login de administrador", summary = "Ejemplo para usuario ADMIN", value = """
+          {
+            "documentNumber": "12345678",
+            "password": "Admin#12345"
+          }
+          """),
+      @ExampleObject(name = "Login de usuario normal", summary = "Ejemplo para PROFESSOR o RETIREE con PIN", value = """
+          {
+            "documentNumber": "87654321",
+            "password": "1234"
+          }
+          """)
+  })), responses = {
       @ApiResponse(responseCode = "200", description = "Autenticación exitosa", content = @Content(mediaType = "application/json", schema = @Schema(example = """
           {
             "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",

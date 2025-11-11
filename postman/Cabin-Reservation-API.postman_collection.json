@@ -621,13 +621,7 @@
 							]
 						},
 						"method": "GET",
-						"header": [
-							{
-								"key": "X-User-Id",
-								"value": "2",
-								"description": "ID del usuario autenticado"
-							}
-						],
+						"header": [],
 						"url": {
 							"raw": "{{base_url}}/api/users/profile",
 							"host": [
@@ -639,7 +633,7 @@
 								"profile"
 							]
 						},
-						"description": "Obtener perfil del usuario autenticado"
+						"description": "Obtener perfil del usuario autenticado. El userId se obtiene automáticamente del JWT token, no es necesario enviar header X-User-Id."
 					},
 					"response": []
 				},
@@ -661,11 +655,6 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json"
-							},
-							{
-								"key": "X-User-Id",
-								"value": "2",
-								"description": "ID del usuario autenticado"
 							}
 						],
 						"body": {
@@ -683,7 +672,7 @@
 								"profile"
 							]
 						},
-						"description": "Actualizar perfil del usuario autenticado"
+						"description": "Actualizar perfil del usuario autenticado. El userId se obtiene automáticamente del JWT token, no es necesario enviar header X-User-Id."
 					},
 					"response": []
 				},
@@ -705,11 +694,6 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json"
-							},
-							{
-								"key": "X-User-Id",
-								"value": "2",
-								"description": "ID del usuario autenticado"
 							}
 						],
 						"body": {
@@ -727,7 +711,7 @@
 								"change-password"
 							]
 						},
-						"description": "Cambiar contraseña o PIN del usuario autenticado. Para administradores requiere contraseña de mínimo 6 caracteres. Para usuarios normales puede ser PIN de 4 dígitos o contraseña de 6-50 caracteres."
+						"description": "Cambiar contraseña o PIN del usuario autenticado. El userId se obtiene automáticamente del JWT token, no es necesario enviar header X-User-Id. Para administradores requiere contraseña de mínimo 6 caracteres. Para usuarios normales puede ser PIN de 4 dígitos o contraseña de 6-50 caracteres."
 					},
 					"response": []
 				}
@@ -740,6 +724,16 @@
 				{
 					"name": "Create Reservation",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_professor}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
 						"header": [
 							{
@@ -761,13 +755,23 @@
 								"reservations"
 							]
 						},
-						"description": "Crear nueva pre-reserva"
+						"description": "Crear nueva pre-reserva. Incluye checkInTime y checkOutTime opcionales (formato HH:mm). El userId se obtiene automáticamente del JWT token, pero también puede especificarse en el body para compatibilidad."
 					},
 					"response": []
 				},
 				{
 					"name": "Create Reservation (Testing Block)",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_professor}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
 						"header": [
 							{
@@ -789,13 +793,23 @@
 								"reservations"
 							]
 						},
-						"description": "Crear reserva que respeta bloqueo obligatorio (15-17 marzo)"
+						"description": "Crear reserva que respeta bloqueo obligatorio (15-17 marzo). Incluye checkInTime y checkOutTime."
 					},
 					"response": []
 				},
 				{
 					"name": "Create Reservation (Partial Block - Should Fail)",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_professor}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
 						"header": [
 							{
@@ -817,21 +831,25 @@
 								"reservations"
 							]
 						},
-						"description": "Intentar crear reserva parcial en bloqueo (debe fallar)"
+						"description": "Intentar crear reserva parcial en bloqueo (debe fallar con 409 Conflict). Incluye checkInTime y checkOutTime."
 					},
 					"response": []
 				},
 				{
 					"name": "Cancel Reservation",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_professor}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "DELETE",
-						"header": [
-							{
-								"key": "X-User-Id",
-								"value": "2",
-								"description": "ID del usuario autenticado"
-							}
-						],
+						"header": [],
 						"url": {
 							"raw": "{{base_url}}/api/reservations/1",
 							"host": [
@@ -843,7 +861,7 @@
 								"1"
 							]
 						},
-						"description": "Cancelar reserva del usuario autenticado"
+						"description": "Cancelar reserva del usuario autenticado. El userId se obtiene automáticamente del JWT token, no es necesario enviar header X-User-Id."
 					},
 					"response": []
 				}

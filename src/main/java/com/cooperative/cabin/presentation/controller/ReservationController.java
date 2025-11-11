@@ -3,6 +3,8 @@ package com.cooperative.cabin.presentation.controller;
 import com.cooperative.cabin.application.service.ReservationApplicationService;
 import com.cooperative.cabin.domain.model.Reservation;
 import com.cooperative.cabin.presentation.dto.CreateReservationRequest;
+import com.cooperative.cabin.presentation.dto.ReservationResponse;
+import com.cooperative.cabin.presentation.mapper.ReservationMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -80,7 +82,7 @@ public class ReservationController {
                                         }
                                         """)))
         })
-        public ResponseEntity<Reservation> create(@RequestBody CreateReservationRequest request) {
+        public ResponseEntity<ReservationResponse> create(@RequestBody CreateReservationRequest request) {
                 // Parsear horarios opcionales
                 LocalTime checkInTime = null;
                 LocalTime checkOutTime = null;
@@ -97,7 +99,8 @@ public class ReservationController {
                                 request.getUserId(), request.getCabinId(), LocalDate.parse(request.getStartDate()),
                                 LocalDate.parse(request.getEndDate()),
                                 request.getGuests(), checkInTime, checkOutTime);
-                return ResponseEntity.status(HttpStatus.CREATED).body(created);
+                ReservationResponse response = ReservationMapper.INSTANCE.toResponse(created);
+                return ResponseEntity.status(HttpStatus.CREATED).body(response);
         }
 
         @DeleteMapping("/{id}")
@@ -146,7 +149,7 @@ public class ReservationController {
         })
         public ResponseEntity<Reservation> cancel(
                         @Parameter(description = "ID de la reserva a cancelar", example = "1") @PathVariable("id") Long reservationId,
-                        @Parameter(description = "ID del usuario autenticado", example = "1") @RequestHeader("X-User-Id") Long userId) {
+                        @Parameter(hidden = true) @RequestAttribute("userId") Long userId) {
                 Reservation cancelled = reservationApplicationService.cancelByUser(userId, reservationId);
                 return ResponseEntity.ok(cancelled);
         }
