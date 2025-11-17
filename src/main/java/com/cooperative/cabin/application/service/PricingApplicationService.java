@@ -12,7 +12,7 @@ public interface PricingApplicationService {
         java.util.List<PriceRange> listPriceRanges();
 
         PriceRange createPriceRange(Long cabinId, LocalDate startDate, LocalDate endDate, BigDecimal basePrice,
-                        BigDecimal multiplier);
+                        BigDecimal multiplier, Long userId);
 
         PriceRange updatePriceRange(Long id, Long cabinId, LocalDate startDate, LocalDate endDate, BigDecimal basePrice,
                         BigDecimal multiplier);

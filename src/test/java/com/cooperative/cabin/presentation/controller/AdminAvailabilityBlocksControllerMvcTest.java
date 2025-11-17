@@ -73,7 +73,7 @@ class AdminAvailabilityBlocksControllerMvcTest {
                                 LocalDate.of(2025, 5, 3), "Test block", admin);
                 created.setId(10L);
                 BlockResponse response = new BlockResponse(10L, 2L, "2025-05-01", "2025-05-03");
-                given(service.create(eq(2L), eq(LocalDate.of(2025, 5, 1)), eq(LocalDate.of(2025, 5, 3))))
+                given(service.create(eq(2L), eq(LocalDate.of(2025, 5, 1)), eq(LocalDate.of(2025, 5, 3)), eq(1L)))
                                 .willReturn(created);
                 given(mapper.toResponse(created)).willReturn(response);
 
@@ -85,7 +85,8 @@ class AdminAvailabilityBlocksControllerMvcTest {
 
                 mockMvc.perform(post("/api/admin/availability/blocks").with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(body))
+                                .content(body)
+                                .requestAttr("userId", 1L))
                                 .andExpect(status().isCreated())
                                 .andExpect(jsonPath("$.id").value(10));
         }
@@ -98,7 +99,7 @@ class AdminAvailabilityBlocksControllerMvcTest {
                                 LocalDate.of(2025, 6, 5), "Test block", admin);
                 updated.setId(10L);
                 BlockResponse response = new BlockResponse(10L, 3L, "2025-06-01", "2025-06-05");
-                given(service.update(eq(10L), eq(3L), eq(LocalDate.of(2025, 6, 1)), eq(LocalDate.of(2025, 6, 5))))
+                given(service.update(eq(10L), eq(3L), eq(LocalDate.of(2025, 6, 1)), eq(LocalDate.of(2025, 6, 5)), eq(1L)))
                                 .willReturn(updated);
                 given(mapper.toResponse(updated)).willReturn(response);
 
@@ -110,7 +111,8 @@ class AdminAvailabilityBlocksControllerMvcTest {
 
                 mockMvc.perform(put("/api/admin/availability/blocks/{id}", 10).with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(body))
+                                .content(body)
+                                .requestAttr("userId", 1L))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.id").value(10))
                                 .andExpect(jsonPath("$.cabinId").value(3));

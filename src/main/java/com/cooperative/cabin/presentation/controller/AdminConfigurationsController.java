@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 
 import java.util.Map;
 
@@ -33,11 +35,11 @@ public class AdminConfigurationsController {
     @Operation(summary = "Listar todas las configuraciones", description = "Obtiene todas las configuraciones del sistema", responses = {
             @ApiResponse(responseCode = "200", description = "Lista de configuraciones obtenida exitosamente", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
                     {
-                      "max_reservations_per_user": "5",
-                      "default_booking_days": "30",
-                      "cancellation_hours": "24",
-                      "maintenance_mode": "false",
-                      "email_notifications": "true"
+                      "reservation.max.per.year": "3",
+                      "reservation.timeout.minutes": "60",
+                      "reservation.penalty.days": "30",
+                      "jwt.access.minutes": "15",
+                      "jwt.refresh.days": "7"
                     }
                     """))),
             @ApiResponse(responseCode = "403", description = "Acceso denegado - Se requiere rol ADMIN", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
@@ -65,7 +67,8 @@ public class AdminConfigurationsController {
 
     @Schema(description = "Solicitud de actualización de configuración")
     public static record UpdateConfigurationRequest(
-            @Schema(description = "Nuevo valor de la configuración", example = "10") String value) {
+            @NotBlank(message = "El valor de la configuración es obligatorio")
+            @Schema(description = "Nuevo valor de la configuración", example = "10", required = true) String value) {
     }
 
     @PutMapping("/{key}")
@@ -81,7 +84,7 @@ public class AdminConfigurationsController {
                       "status": 400,
                       "error": "Bad Request",
                       "message": "Value is required",
-                      "path": "/api/admin/configurations/max_reservations_per_user"
+                      "path": "/api/admin/configurations/reservation.max.per.year"
                     }
                     """))),
             @ApiResponse(responseCode = "403", description = "Acceso denegado - Se requiere rol ADMIN", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
@@ -90,7 +93,7 @@ public class AdminConfigurationsController {
                       "status": 403,
                       "error": "Forbidden",
                       "message": "Access Denied",
-                      "path": "/api/admin/configurations/max_reservations_per_user"
+                      "path": "/api/admin/configurations/reservation.max.per.year"
                     }
                     """))),
             @ApiResponse(responseCode = "404", description = "Configuración no encontrada", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
@@ -108,13 +111,13 @@ public class AdminConfigurationsController {
                       "status": 500,
                       "error": "Internal Server Error",
                       "message": "An unexpected error occurred",
-                      "path": "/api/admin/configurations/max_reservations_per_user"
+                      "path": "/api/admin/configurations/reservation.max.per.year"
                     }
                     """)))
     })
     public ResponseEntity<Void> update(
-            @Parameter(description = "Clave de la configuración", example = "max_reservations_per_user") @PathVariable("key") String key,
-            @RequestBody UpdateConfigurationRequest request) {
+            @Parameter(description = "Clave de la configuración", example = "reservation.max.per.year") @PathVariable("key") String key,
+            @Valid @RequestBody UpdateConfigurationRequest request) {
         configurationService.setValue(key, request.value());
         return ResponseEntity.ok().build();
     }

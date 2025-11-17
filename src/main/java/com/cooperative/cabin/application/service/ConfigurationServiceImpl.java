@@ -50,20 +50,66 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     @Override
     public void setValue(String key, String value) {
-        Optional<SystemConfiguration> existing = repository.findByConfigKey(key);
-        if (existing.isPresent()) {
-            SystemConfiguration cfg = existing.get();
-            String old = cfg.getConfigValue();
-            cfg.setConfigValue(value);
-            repository.save(cfg);
-            auditRepository.save(new AuditLog("UPDATE", "SystemConfiguration", cfg.getId(),
-                    "{\"value\":\"" + old + "\"}", "{\"value\":\"" + value + "\"}", null, null));
-        } else {
-            SystemConfiguration toSave = new SystemConfiguration(key, value);
-            SystemConfiguration saved = repository.save(toSave);
-            Long entityId = saved != null ? saved.getId() : null;
-            auditRepository.save(new AuditLog("CREATE", "SystemConfiguration", entityId, null,
-                    "{\"value\":\"" + value + "\"}", null, null));
+        if (key == null || key.isBlank()) {
+            throw new IllegalArgumentException("La clave de configuración no puede estar vacía");
         }
+        if (value == null) {
+            throw new IllegalArgumentException("El valor de configuración no puede ser null");
+        }
+        
+        try {
+            Optional<SystemConfiguration> existing = repository.findByConfigKey(key);
+            if (existing.isPresent()) {
+                SystemConfiguration cfg = existing.get();
+                String old = cfg.getConfigValue();
+                cfg.setConfigValue(value);
+                repository.save(cfg);
+                // Intentar guardar en audit log (no crítico si falla)
+                try {
+                    String oldJson = escapeJsonValue(old);
+                    String newJson = escapeJsonValue(value);
+                    AuditLog auditLog = new AuditLog("UPDATE", "SystemConfiguration", cfg.getId(),
+                            "{\"value\":\"" + oldJson + "\"}", "{\"value\":\"" + newJson + "\"}", null, null);
+                    auditLog.setCreatedAt(java.time.LocalDateTime.now());
+                    auditLog.setUpdatedAt(java.time.LocalDateTime.now());
+                    auditRepository.save(auditLog);
+                } catch (Exception auditException) {
+                    // Log pero no fallar la operación principal
+                    System.err.println("Warning: No se pudo guardar en audit log: " + auditException.getMessage());
+                }
+            } else {
+                SystemConfiguration toSave = new SystemConfiguration(key, value);
+                SystemConfiguration saved = repository.save(toSave);
+                Long entityId = saved != null ? saved.getId() : null;
+                // Intentar guardar en audit log (no crítico si falla)
+                try {
+                    String newJson = escapeJsonValue(value);
+                    AuditLog auditLog = new AuditLog("CREATE", "SystemConfiguration", entityId, null,
+                            "{\"value\":\"" + newJson + "\"}", null, null);
+                    auditLog.setCreatedAt(java.time.LocalDateTime.now());
+                    auditLog.setUpdatedAt(java.time.LocalDateTime.now());
+                    auditRepository.save(auditLog);
+                } catch (Exception auditException) {
+                    // Log pero no fallar la operación principal
+                    System.err.println("Warning: No se pudo guardar en audit log: " + auditException.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error al actualizar configuración: " + e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * Escapa caracteres especiales en valores JSON para evitar inyección o JSON inválido.
+     */
+    private String escapeJsonValue(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replace("\\", "\\\\")
+                   .replace("\"", "\\\"")
+                   .replace("\n", "\\n")
+                   .replace("\r", "\\r")
+                   .replace("\t", "\\t");
     }
 }

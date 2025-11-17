@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.Map;
@@ -56,7 +57,7 @@ public class AdminUsersController {
   })
   public ResponseEntity<AdminUserResponse> upsert(
       @Parameter(description = "ID del usuario", example = "1") @PathVariable("id") Long id,
-      @RequestBody AdminUserRequest request) {
+      @Valid @RequestBody AdminUserRequest request) {
     AdminUserResponse response = adminUserApplicationService.upsertUser(
         id, request.getEmail(), request.getDocumentNumber(), request.getFullName(), request.getRole(),
         request.isActive());

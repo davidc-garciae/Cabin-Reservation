@@ -101,7 +101,7 @@ class AdminPricingControllerMvcTest {
                 created.setId(9L);
                 given(pricingApplicationService.createPriceRange(
                                 eq(1L), eq(LocalDate.of(2025, 3, 1)), eq(LocalDate.of(2025, 3, 31)),
-                                eq(new BigDecimal("130.00")), eq(new BigDecimal("1.15"))))
+                                eq(new BigDecimal("130.00")), eq(new BigDecimal("1.15")), eq(1L)))
                                 .willReturn(created);
 
                 String body = "{" +
@@ -114,7 +114,8 @@ class AdminPricingControllerMvcTest {
 
                 mockMvc.perform(post("/api/admin/pricing/ranges").with(csrf())
                                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                                .content(body))
+                                .content(body)
+                                .requestAttr("userId", 1L))
                                 .andExpect(status().isCreated())
                                 .andExpect(jsonPath("$.id").value(9));
         }
@@ -176,14 +177,14 @@ class AdminPricingControllerMvcTest {
                                                 java.util.Map.of(
                                                                 "id", 1,
                                                                 "cabinId", 1,
-                                                                "date", "2025-02-01",
-                                                                "oldPrice", new java.math.BigDecimal("110.00"),
-                                                                "newPrice", new java.math.BigDecimal("120.00"))));
+                                                                "startDate", "2025-02-01",
+                                                                "basePrice", new java.math.BigDecimal("110.00"),
+                                                                "finalPrice", new java.math.BigDecimal("120.00"))));
 
                 mockMvc.perform(get("/api/admin/pricing/history"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$[0].id").value(1))
-                                .andExpect(jsonPath("$[0].newPrice").value(120.00));
+                                .andExpect(jsonPath("$[0].newPrice").value("120.00"));
         }
 
         @Test

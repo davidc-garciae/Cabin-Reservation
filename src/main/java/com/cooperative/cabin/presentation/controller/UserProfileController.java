@@ -89,12 +89,17 @@ public class UserProfileController {
 
   @Schema(description = "Solicitud de actualización de perfil")
   public static class UpdateUserProfileRequest {
+    @jakarta.validation.constraints.Email(message = "El email debe tener un formato válido")
+    @jakarta.validation.constraints.Size(max = 255, message = "El email no puede exceder 255 caracteres")
     @Schema(description = "Nuevo email del usuario", example = "nuevo@ejemplo.com")
     private String email;
 
+    @jakarta.validation.constraints.Size(min = 8, max = 20, message = "El número de documento debe tener entre 8 y 20 caracteres")
+    @jakarta.validation.constraints.Pattern(regexp = "^\\d+$", message = "El número de documento solo puede contener dígitos")
     @Schema(description = "Nuevo número de documento del usuario", example = "87654321")
     private String documentNumber;
 
+    @jakarta.validation.constraints.Size(min = 2, max = 100, message = "El nombre completo debe tener entre 2 y 100 caracteres")
     @Schema(description = "Nuevo nombre completo del usuario", example = "Juan Carlos Pérez")
     private String fullName;
 
@@ -161,7 +166,7 @@ public class UserProfileController {
   })
   public ResponseEntity<AdminUserResponse> put(
       @Parameter(hidden = true) @RequestAttribute("userId") Long userId,
-      @RequestBody UpdateUserProfileRequest request) {
+      @Valid @RequestBody UpdateUserProfileRequest request) {
     logger.info("UserProfileController.put() - Received userId: {}, email: {}", userId, request.getEmail());
     try {
       if (userId == null) {

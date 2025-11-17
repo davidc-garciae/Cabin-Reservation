@@ -15,6 +15,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -106,7 +108,7 @@ public class PricingAdminController {
               "multiplier": 1.2
             }
             """))), responses = {
-            @ApiResponse(responseCode = "201", description = "Rango de precios creado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PriceRange.class), examples = @ExampleObject(value = """
+            @ApiResponse(responseCode = "201", description = "Rango de precios creado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PriceRangeResponse.class), examples = @ExampleObject(value = """
                     {
                       "id": 1,
                       "cabinId": 1,
@@ -153,11 +155,14 @@ public class PricingAdminController {
                     }
                     """)))
     })
-    public ResponseEntity<PriceRange> create(@RequestBody CreatePriceRangeRequest request) {
+    public ResponseEntity<PriceRangeResponse> create(
+            @Parameter(hidden = true) @RequestAttribute("userId") Long userId,
+            @Valid @RequestBody CreatePriceRangeRequest request) {
         PriceRange created = pricingApplicationService.createPriceRange(
                 request.getCabinId(), request.getStartDate(), request.getEndDate(), request.getBasePrice(),
-                request.getMultiplier());
-        return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED).body(created);
+                request.getMultiplier(), userId);
+        PriceRangeResponse response = PriceRangeMapper.INSTANCE.toResponse(created);
+        return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/calendar/{year}/{month}")
@@ -170,12 +175,14 @@ public class PricingAdminController {
     @Operation(summary = "Historial de cambios de precio")
     public ResponseEntity<List<PriceChangeResponse>> history() {
         List<Map<String, Object>> rows = pricingApplicationService.getHistory();
-        List<PriceChangeResponse> dto = rows.stream().map(row -> new PriceChangeResponse(
-                ((Number) row.get("id")).longValue(),
-                ((Number) row.get("cabinId")).longValue(),
-                String.valueOf(row.get("date")),
-                String.valueOf(row.get("oldPrice")),
-                String.valueOf(row.get("newPrice")))).toList();
+        List<PriceChangeResponse> dto = rows.stream().map(row -> {
+            Long id = row.get("id") != null ? ((Number) row.get("id")).longValue() : null;
+            Long cabinId = row.get("cabinId") != null ? ((Number) row.get("cabinId")).longValue() : null;
+            String date = row.get("startDate") != null ? String.valueOf(row.get("startDate")) : null;
+            String oldPrice = row.get("basePrice") != null ? String.valueOf(row.get("basePrice")) : "0.00";
+            String newPrice = row.get("finalPrice") != null ? String.valueOf(row.get("finalPrice")) : "0.00";
+            return new PriceChangeResponse(id, cabinId, date, oldPrice, newPrice);
+        }).toList();
         return ResponseEntity.ok(dto);
     }
 
@@ -198,9 +205,11 @@ public class PricingAdminController {
         @Schema(description = "Fecha de fin del rango", example = "2024-02-29")
         private LocalDate endDate;
 
+        @NotNull(message = "El precio base es obligatorio")
         @Schema(description = "Precio base del rango", example = "150.00")
         private java.math.BigDecimal basePrice;
 
+        @NotNull(message = "El multiplicador es obligatorio")
         @Schema(description = "Multiplicador de precio", example = "1.2")
         private java.math.BigDecimal multiplier;
 
@@ -246,12 +255,13 @@ public class PricingAdminController {
     }
 
     @PutMapping("/ranges/{id}")
-    public ResponseEntity<PriceRange> update(@PathVariable("id") Long id,
-            @RequestBody CreatePriceRangeRequest request) {
+    public ResponseEntity<PriceRangeResponse> update(@PathVariable("id") Long id,
+            @Valid @RequestBody CreatePriceRangeRequest request) {
         PriceRange updated = pricingApplicationService.updatePriceRange(
                 id, request.getCabinId(), request.getStartDate(), request.getEndDate(), request.getBasePrice(),
                 request.getMultiplier());
-        return ResponseEntity.ok(updated);
+        PriceRangeResponse response = PriceRangeMapper.INSTANCE.toResponse(updated);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/ranges/{id}")

@@ -133,17 +133,22 @@ public class AdminAvailabilityBlocksController {
           }
           """)))
   })
-  public ResponseEntity<BlockResponse> create(@RequestBody BlockRequest request) {
-    AvailabilityBlock created = service.create(request.getCabinId(), request.getStartDate(), request.getEndDate());
+  public ResponseEntity<BlockResponse> create(
+      @Parameter(hidden = true) @RequestAttribute("userId") Long userId,
+      @RequestBody BlockRequest request) {
+    AvailabilityBlock created = service.create(request.getCabinId(), request.getStartDate(), request.getEndDate(), userId);
     return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED)
         .body(mapper.toResponse(created));
   }
 
   @PutMapping("/{id}")
   @Operation(summary = "Actualizar bloqueo", responses = @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = BlockResponse.class))))
-  public ResponseEntity<BlockResponse> update(@PathVariable("id") Long id, @RequestBody BlockRequest request) {
+  public ResponseEntity<BlockResponse> update(
+      @Parameter(hidden = true) @RequestAttribute("userId") Long userId,
+      @PathVariable("id") Long id, 
+      @RequestBody BlockRequest request) {
     AvailabilityBlock updated = service.update(id, request.getCabinId(), request.getStartDate(),
-        request.getEndDate());
+        request.getEndDate(), userId);
     return ResponseEntity.ok(mapper.toResponse(updated));
   }
 

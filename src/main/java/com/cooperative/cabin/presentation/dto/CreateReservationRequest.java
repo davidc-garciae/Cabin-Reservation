@@ -1,24 +1,41 @@
 package com.cooperative.cabin.presentation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 @Schema(description = "Solicitud de creación de pre-reserva")
 public class CreateReservationRequest {
-    @Schema(example = "1")
+    @NotNull(message = "El ID del usuario es obligatorio")
+    @Schema(example = "1", required = true)
     private Long userId;
-    @Schema(example = "2")
+
+    @NotNull(message = "El ID de la cabaña es obligatorio")
+    @Schema(example = "2", required = true)
     private Long cabinId;
-    @Schema(example = "2025-01-10")
+
+    @NotBlank(message = "La fecha de inicio es obligatoria")
+    @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}$", message = "La fecha de inicio debe tener el formato YYYY-MM-DD")
+    @Schema(example = "2025-01-10", required = true)
     private String startDate;
-    @Schema(example = "2025-01-12")
+
+    @NotBlank(message = "La fecha de fin es obligatoria")
+    @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}$", message = "La fecha de fin debe tener el formato YYYY-MM-DD")
+    @Schema(example = "2025-01-12", required = true)
     private String endDate;
-    @Schema(example = "2")
+
+    @Min(value = 1, message = "El número de huéspedes debe ser al menos 1")
+    @Schema(example = "2", required = true)
     private int guests;
 
-    @Schema(example = "14:00", description = "Hora de check-in")
+    @Pattern(regexp = "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$", message = "La hora de check-in debe tener el formato HH:mm")
+    @Schema(example = "14:00", description = "Hora de check-in (formato HH:mm)")
     private String checkInTime;
 
-    @Schema(example = "12:00", description = "Hora de check-out")
+    @Pattern(regexp = "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$", message = "La hora de check-out debe tener el formato HH:mm")
+    @Schema(example = "12:00", description = "Hora de check-out (formato HH:mm)")
     private String checkOutTime;
 
     public CreateReservationRequest() {

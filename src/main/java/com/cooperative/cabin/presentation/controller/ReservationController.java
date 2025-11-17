@@ -19,6 +19,8 @@ import java.time.format.DateTimeFormatter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
+import java.time.format.DateTimeParseException;
 
 @RestController
 @RequestMapping("/api/reservations")
@@ -82,22 +84,43 @@ public class ReservationController {
                                         }
                                         """)))
         })
-        public ResponseEntity<ReservationResponse> create(@RequestBody CreateReservationRequest request) {
+        public ResponseEntity<ReservationResponse> create(@Valid @RequestBody CreateReservationRequest request) {
                 // Parsear horarios opcionales
                 LocalTime checkInTime = null;
                 LocalTime checkOutTime = null;
 
                 if (request.getCheckInTime() != null && !request.getCheckInTime().isEmpty()) {
-                        checkInTime = LocalTime.parse(request.getCheckInTime(), DateTimeFormatter.ofPattern("HH:mm"));
+                        try {
+                                checkInTime = LocalTime.parse(request.getCheckInTime(), DateTimeFormatter.ofPattern("HH:mm"));
+                        } catch (DateTimeParseException e) {
+                                throw new IllegalArgumentException("Formato de hora de check-in inválido. Use HH:mm", e);
+                        }
                 }
 
                 if (request.getCheckOutTime() != null && !request.getCheckOutTime().isEmpty()) {
-                        checkOutTime = LocalTime.parse(request.getCheckOutTime(), DateTimeFormatter.ofPattern("HH:mm"));
+                        try {
+                                checkOutTime = LocalTime.parse(request.getCheckOutTime(), DateTimeFormatter.ofPattern("HH:mm"));
+                        } catch (DateTimeParseException e) {
+                                throw new IllegalArgumentException("Formato de hora de check-out inválido. Use HH:mm", e);
+                        }
+                }
+
+                // Parsear fechas con manejo de errores
+                LocalDate startDate;
+                LocalDate endDate;
+                try {
+                        startDate = LocalDate.parse(request.getStartDate());
+                } catch (DateTimeParseException e) {
+                        throw new IllegalArgumentException("Formato de fecha de inicio inválido. Use YYYY-MM-DD", e);
+                }
+                try {
+                        endDate = LocalDate.parse(request.getEndDate());
+                } catch (DateTimeParseException e) {
+                        throw new IllegalArgumentException("Formato de fecha de fin inválido. Use YYYY-MM-DD", e);
                 }
 
                 Reservation created = reservationApplicationService.createPreReservation(
-                                request.getUserId(), request.getCabinId(), LocalDate.parse(request.getStartDate()),
-                                LocalDate.parse(request.getEndDate()),
+                                request.getUserId(), request.getCabinId(), startDate, endDate,
                                 request.getGuests(), checkInTime, checkOutTime);
                 ReservationResponse response = ReservationMapper.INSTANCE.toResponse(created);
                 return ResponseEntity.status(HttpStatus.CREATED).body(response);
