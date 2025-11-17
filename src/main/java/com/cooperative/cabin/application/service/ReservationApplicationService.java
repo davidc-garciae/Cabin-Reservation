@@ -111,6 +111,7 @@ public class ReservationApplicationService {
         return saved;
     }
 
+    @Transactional
     public Reservation cancelByUser(Long userId, Long reservationId) {
         Reservation r = reservationRepository.findById(reservationId);
         if (r == null || !r.getUser().getId().equals(userId)) {
@@ -130,6 +131,10 @@ public class ReservationApplicationService {
                     saved.getEndDate(),
                     4));
         }
+
+        // Inicializar relaciones lazy para evitar LazyInitializationException al mappear
+        saved.getUser().getId();
+        saved.getCabin().getId();
 
         // TODO: IMPLEMENTAR NOTIFICACIÓN DE CANCELACIÓN
         //
@@ -153,6 +158,7 @@ public class ReservationApplicationService {
         return saved;
     }
 
+    @Transactional
     public Reservation changeStatusByAdmin(Long reservationId, ReservationStatus newStatus) {
         Reservation current = reservationRepository.findById(reservationId);
         if (current == null) {
@@ -166,6 +172,9 @@ public class ReservationApplicationService {
         if (newStatus == ReservationStatus.CONFIRMED) {
             current.setConfirmedAt(java.time.LocalDateTime.now());
         }
+        if (newStatus == ReservationStatus.CANCELLED) {
+            current.setCancelledAt(java.time.LocalDateTime.now());
+        }
         Reservation saved = reservationRepository.save(current);
         if (businessMetrics != null)
             businessMetrics.incrementStatusTransition(oldStatus.name(), newStatus.name());
@@ -178,6 +187,10 @@ public class ReservationApplicationService {
                     saved.getEndDate(),
                     4));
         }
+
+        // Inicializar relaciones lazy para evitar LazyInitializationException al mappear
+        saved.getUser().getId();
+        saved.getCabin().getId();
 
         // TODO: IMPLEMENTAR NOTIFICACIONES DE CAMBIO DE ESTADO
         //

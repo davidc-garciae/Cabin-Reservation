@@ -4,6 +4,8 @@ import com.cooperative.cabin.application.service.ReservationApplicationService;
 import com.cooperative.cabin.domain.model.Reservation;
 import com.cooperative.cabin.domain.model.ReservationStatus;
 import com.cooperative.cabin.presentation.dto.ChangeReservationStatusRequest;
+import com.cooperative.cabin.presentation.dto.ReservationResponse;
+import com.cooperative.cabin.presentation.mapper.ReservationMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -94,11 +96,12 @@ public class AdminReservationController {
                     }
                     """)))
     })
-    public ResponseEntity<Reservation> changeStatus(
+    public ResponseEntity<ReservationResponse> changeStatus(
             @Parameter(description = "ID de la reserva", example = "1") @PathVariable("id") Long reservationId,
             @RequestBody ChangeReservationStatusRequest request) {
         ReservationStatus to = ReservationStatus.valueOf(request.getStatus());
         Reservation updated = reservationApplicationService.changeStatusByAdmin(reservationId, to);
-        return ResponseEntity.ok(updated);
+        ReservationResponse response = ReservationMapper.INSTANCE.toResponse(updated);
+        return ResponseEntity.ok(response);
     }
 }

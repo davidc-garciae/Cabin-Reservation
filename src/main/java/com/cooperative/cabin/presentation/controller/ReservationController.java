@@ -147,10 +147,11 @@ public class ReservationController {
                                         }
                                         """)))
         })
-        public ResponseEntity<Reservation> cancel(
+        public ResponseEntity<ReservationResponse> cancel(
                         @Parameter(description = "ID de la reserva a cancelar", example = "1") @PathVariable("id") Long reservationId,
                         @Parameter(hidden = true) @RequestAttribute("userId") Long userId) {
                 Reservation cancelled = reservationApplicationService.cancelByUser(userId, reservationId);
-                return ResponseEntity.ok(cancelled);
+                ReservationResponse response = ReservationMapper.INSTANCE.toResponse(cancelled);
+                return ResponseEntity.ok(response);
         }
 }
