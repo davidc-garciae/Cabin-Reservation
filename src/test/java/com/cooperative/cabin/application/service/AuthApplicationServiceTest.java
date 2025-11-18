@@ -12,6 +12,7 @@ import org.mockito.Mockito;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -201,5 +202,59 @@ class AuthApplicationServiceTest {
         assertThatThrownBy(() -> authApplicationService.register(documentNumber, email, name, phone, pin, role))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Rol inválido. Solo se permiten PROFESSOR o RETIREE");
+    }
+
+    @Test
+    @DisplayName("Debería devolver tokens y mustChangePassword=false cuando no se requiere cambio")
+    void shouldReturnTokensWhenMustChangePasswordIsFalse() {
+        String documentNumber = "12345678";
+        String password = "secret";
+
+        when(documentNumberRepository.existsByDocumentNumberAndActive(documentNumber)).thenReturn(true);
+
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("user@email.com");
+        user.setRole(User.UserRole.ADMIN);
+        user.setActive(true);
+        user.setPinHash("hashed");
+        user.setMustChangePassword(false);
+
+        when(userRepository.findByIdentificationNumber(documentNumber)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(password, "hashed")).thenReturn(true);
+        when(jwtService.generateAccessToken(user.getEmail(), user.getRole().name(), user.getId())).thenReturn("access");
+        when(jwtService.generateRefreshToken(user.getEmail())).thenReturn("refresh");
+
+        Map<String, Object> result = authApplicationService.login(documentNumber, password);
+
+        assertThat(result).containsEntry("accessToken", "access");
+        assertThat(result).containsEntry("refreshToken", "refresh");
+        assertThat(result).containsEntry("mustChangePassword", false);
+    }
+
+    @Test
+    @DisplayName("Debería devolver mustChangePassword=true cuando el usuario debe cambiarla")
+    void shouldReturnFlagWhenMustChangePasswordIsTrue() {
+        String documentNumber = "12345678";
+        String password = "secret";
+
+        when(documentNumberRepository.existsByDocumentNumberAndActive(documentNumber)).thenReturn(true);
+
+        User user = new User();
+        user.setId(2L);
+        user.setEmail("admin@email.com");
+        user.setRole(User.UserRole.ADMIN);
+        user.setActive(true);
+        user.setPinHash("hashed");
+        user.setMustChangePassword(true);
+
+        when(userRepository.findByIdentificationNumber(documentNumber)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(password, "hashed")).thenReturn(true);
+        when(jwtService.generateAccessToken(user.getEmail(), user.getRole().name(), user.getId())).thenReturn("access2");
+        when(jwtService.generateRefreshToken(user.getEmail())).thenReturn("refresh2");
+
+        Map<String, Object> result = authApplicationService.login(documentNumber, password);
+
+        assertThat(result).containsEntry("mustChangePassword", true);
     }
 }

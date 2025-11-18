@@ -51,7 +51,10 @@ class AuthControllerMvcTest {
         @Test
         void login_returnsAccessAndRefreshTokens() throws Exception {
                 given(authApplicationService.login(anyString(), anyString()))
-                                .willReturn(Map.of("accessToken", "access.jwt", "refreshToken", "refresh.jwt"));
+                                .willReturn(Map.ofEntries(
+                                                Map.entry("accessToken", "access.jwt"),
+                                                Map.entry("refreshToken", "refresh.jwt"),
+                                                Map.entry("mustChangePassword", false)));
 
                 String body = "{" +
                                 "\"documentNumber\":\"12345678\"," +
@@ -61,7 +64,26 @@ class AuthControllerMvcTest {
                 mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON).content(body))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.accessToken").value("access.jwt"))
-                                .andExpect(jsonPath("$.refreshToken").value("refresh.jwt"));
+                                .andExpect(jsonPath("$.refreshToken").value("refresh.jwt"))
+                                .andExpect(jsonPath("$.mustChangePassword").value(false));
+        }
+
+        @Test
+        void login_includesMustChangePasswordFlag() throws Exception {
+                given(authApplicationService.login(anyString(), anyString()))
+                                .willReturn(Map.ofEntries(
+                                                Map.entry("accessToken", "access.jwt"),
+                                                Map.entry("refreshToken", "refresh.jwt"),
+                                                Map.entry("mustChangePassword", true)));
+
+                String body = "{" +
+                                "\"documentNumber\":\"87654321\"," +
+                                "\"password\":\"secret\"" +
+                                "}";
+
+                mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON).content(body))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.mustChangePassword").value(true));
         }
 
         @Test

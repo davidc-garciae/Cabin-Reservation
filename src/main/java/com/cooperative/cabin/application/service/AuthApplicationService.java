@@ -1,6 +1,5 @@
 package com.cooperative.cabin.application.service;
 
-import com.cooperative.cabin.domain.exception.MustChangePasswordException;
 import com.cooperative.cabin.domain.exception.UserNotFoundException;
 import com.cooperative.cabin.domain.model.DocumentNumber;
 import com.cooperative.cabin.domain.model.PasswordResetToken;
@@ -41,7 +40,7 @@ public class AuthApplicationService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public Map<String, String> login(String documentNumber, String password) {
+    public Map<String, Object> login(String documentNumber, String password) {
         // 1. Verificar que el número de documento existe y está activo
         if (!documentNumberRepository.existsByDocumentNumberAndActive(documentNumber)) {
             throw new IllegalArgumentException("Número de documento no válido o deshabilitado");
@@ -65,17 +64,15 @@ public class AuthApplicationService {
             throw new IllegalArgumentException("Contraseña incorrecta");
         }
 
-        // 5. Verificar si el usuario debe cambiar su contraseña
-        if (Boolean.TRUE.equals(user.getMustChangePassword())) {
-            throw new MustChangePasswordException(
-                    "Debe cambiar su contraseña antes de continuar. Use el endpoint PUT /api/users/change-password");
-        }
-
-        // 6. Generar tokens JWT
+        // 5. Generar tokens JWT
         String access = jwtService.generateAccessToken(user.getEmail(), user.getRole().name(), user.getId());
         String refresh = jwtService.generateRefreshToken(user.getEmail());
 
-        return Map.of("accessToken", access, "refreshToken", refresh);
+        // 6. Incluir flag de cambio de contraseña
+        return Map.of(
+                "accessToken", access,
+                "refreshToken", refresh,
+                "mustChangePassword", Boolean.TRUE.equals(user.getMustChangePassword()));
     }
 
     public Map<String, String> refreshToken(String refreshToken) {

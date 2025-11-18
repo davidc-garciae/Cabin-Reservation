@@ -1,7 +1,6 @@
 package com.cooperative.cabin.presentation.controller;
 
 import com.cooperative.cabin.domain.exception.CabinNotFoundException;
-import com.cooperative.cabin.domain.exception.MustChangePasswordException;
 import com.cooperative.cabin.domain.exception.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,14 +109,4 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
     }
 
-    @ExceptionHandler(MustChangePasswordException.class)
-    public ResponseEntity<Map<String, Object>> handleMustChangePasswordException(MustChangePasswordException ex) {
-        Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("timestamp", Instant.now());
-        errorResponse.put("status", HttpStatus.FORBIDDEN.value());
-        errorResponse.put("error", "Forbidden");
-        errorResponse.put("message", ex.getMessage());
-        errorResponse.put("requiresPasswordChange", true);
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
-    }
 }

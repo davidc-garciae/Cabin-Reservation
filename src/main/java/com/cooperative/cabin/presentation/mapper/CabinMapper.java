@@ -81,5 +81,9 @@ public class CabinMapper {
             cabin.setAmenities(req.amenities());
         if (req.location() != null)
             cabin.setLocation(req.location());
+        if (req.defaultCheckInTime() != null && !req.defaultCheckInTime().isEmpty())
+            cabin.setDefaultCheckInTime(LocalTime.parse(req.defaultCheckInTime(), TIME_FORMATTER));
+        if (req.defaultCheckOutTime() != null && !req.defaultCheckOutTime().isEmpty())
+            cabin.setDefaultCheckOutTime(LocalTime.parse(req.defaultCheckOutTime(), TIME_FORMATTER));
     }
 }

@@ -150,14 +150,14 @@ class AdminCabinControllerMvcTest {
                 UpdateCabinRequest request = new UpdateCabinRequest(
                                 "Cabaña Actualizada", "Nueva descripción", 8, 4, 3,
                                 BigDecimal.valueOf(180.00), 8, true, "{\"wifi\": true, \"pool\": true}",
-                                "{\"address\": \"Actualizada 123\"}");
+                                "{\"address\": \"Actualizada 123\"}", "16:00", "12:00");
 
                 CabinResponse updatedCabin = new CabinResponse(
                                 1L, "Cabaña Actualizada", "Nueva descripción", 8, 4, 3,
                                 BigDecimal.valueOf(180.00), 8, true, "{\"wifi\": true, \"pool\": true}",
                                 "{\"address\": \"Actualizada 123\"}",
                                 LocalDateTime.parse("2024-01-15T10:30:00"), LocalDateTime.parse("2024-01-25T16:00:00"),
-                                "15:00", "11:00");
+                                "16:00", "12:00");
 
                 when(cabinApplicationService.updateCabin(eq(1L), any(UpdateCabinRequest.class)))
                                 .thenReturn(updatedCabin);
@@ -171,14 +171,16 @@ class AdminCabinControllerMvcTest {
                                 .andExpect(jsonPath("$.id").value(1))
                                 .andExpect(jsonPath("$.name").value("Cabaña Actualizada"))
                                 .andExpect(jsonPath("$.capacity").value(8))
-                                .andExpect(jsonPath("$.basePrice").value(180.00));
+                                .andExpect(jsonPath("$.basePrice").value(180.00))
+                                .andExpect(jsonPath("$.defaultCheckInTime").value("16:00"))
+                                .andExpect(jsonPath("$.defaultCheckOutTime").value("12:00"));
         }
 
         @Test
         void updateCabin_notFound_returns404() throws Exception {
                 UpdateCabinRequest request = new UpdateCabinRequest(
                                 "Cabaña Actualizada", null, null, null, null,
-                                null, null, null, null, null);
+                                null, null, null, null, null, null, null);
 
                 when(cabinApplicationService.updateCabin(eq(999L), any(UpdateCabinRequest.class)))
                                 .thenThrow(new CabinNotFoundException("Cabin not found with id: 999"));

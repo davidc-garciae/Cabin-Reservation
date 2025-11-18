@@ -24,5 +24,9 @@ public record UpdateCabinRequest(
 
                 @Schema(description = "Comodidades disponibles como array JSON", example = "[\"WiFi\", \"Chimenea\", \"Cocina completa\", \"Terraza\", \"Parrilla\", \"Estacionamiento\"]") String amenities,
 
-                @Schema(description = "Ubicación (JSON con coordenadas y dirección)", example = "{\"address\": \"Lago del Sol 123\", \"coordinates\": {\"lat\": 40.7128, \"lng\": -74.0060}}") String location) {
+                @Schema(description = "Ubicación (JSON con coordenadas y dirección)", example = "{\"address\": \"Lago del Sol 123\", \"coordinates\": {\"lat\": 40.7128, \"lng\": -74.0060}}") String location,
+
+                @Pattern(regexp = "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$", message = "La hora de check-in debe tener el formato HH:mm") @Schema(description = "Hora de check-in por defecto (formato HH:mm)", example = "15:00") String defaultCheckInTime,
+
+                @Pattern(regexp = "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$", message = "La hora de check-out debe tener el formato HH:mm") @Schema(description = "Hora de check-out por defecto (formato HH:mm)", example = "11:00") String defaultCheckOutTime) {
 }

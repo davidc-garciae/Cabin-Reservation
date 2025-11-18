@@ -54,7 +54,8 @@ public class AuthController {
       @ApiResponse(responseCode = "200", description = "Autenticación exitosa", content = @Content(mediaType = "application/json", schema = @Schema(example = """
           {
             "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-            "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            "mustChangePassword": false
           }
           """))),
       @ApiResponse(responseCode = "401", description = "Credenciales inválidas o número de documento deshabilitado", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
@@ -76,8 +77,8 @@ public class AuthController {
           }
           """)))
   })
-  public ResponseEntity<Map<String, String>> login(@Valid @RequestBody DocumentLoginRequest request) {
-    Map<String, String> tokens = authApplicationService.login(request.getDocumentNumber(), request.getPassword());
+  public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody DocumentLoginRequest request) {
+    Map<String, Object> tokens = authApplicationService.login(request.getDocumentNumber(), request.getPassword());
     return ResponseEntity.ok(tokens);
   }
 
