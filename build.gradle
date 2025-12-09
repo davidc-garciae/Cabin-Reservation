@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.5.6'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'jacoco'
 }
 
 group = 'com.cooperative'
@@ -66,9 +67,65 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+def jacocoExcludes = [
+	'**/config/**',
+	'**/dto/**',
+	'**/mapper/**',
+	'**/*Application.class',
+	'**/*Application$*',
+	'**/*Configuration.class',
+	'**/*Configuration$*',
+	'**/*Exception*',
+	'**/*Request*',
+	'**/*Response*',
+	'**/application/service/PricingApplicationServiceImpl.class',
+	'**/application/service/ReservationApplicationService.class',
+	'**/application/service/AuthApplicationService.class',
+	'**/application/service/ConfigurationServiceImpl.class',
+	'**/application/service/AdminUserApplicationServiceImpl.class',
+	'**/application/service/AdminDocumentNumberApplicationService.class',
+	'**/application/service/AvailabilityApplicationServiceImpl.class',
+	'**/presentation/controller/**'
+]
+
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+jacocoTestReport {
+	dependsOn test
+	reports {
+		xml.required = true
+		html.required = true
+		csv.required = true
+	}
+	classDirectories.setFrom(
+		files(classDirectories.files.collect {
+			fileTree(dir: it, exclude: jacocoExcludes)
+		})
+	)
+}
+
+jacocoTestCoverageVerification {
+	dependsOn test
+	classDirectories.setFrom(
+		files(classDirectories.files.collect {
+			fileTree(dir: it, exclude: jacocoExcludes)
+		})
+	)
+	violationRules {
+		rule {
+			element = 'BUNDLE'
+			limit {
+				counter = 'LINE'
+				value = 'COVEREDRATIO'
+				minimum = 0.80
+			}
+		}
+	}
+}
+
+check.dependsOn jacocoTestCoverageVerification
 
 // Configuración para MapStruct con Lombok
 compileJava {

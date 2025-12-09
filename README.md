@@ -27,6 +27,8 @@ Backend de reservas de cabañas construido con Spring Boot 3.x, JWT, JPA/Hiberna
 - [Principales endpoints](#principales-endpoints)
 - [DTOs y mapeo](#dtos-y-mapeo)
 - [Semillas de datos](#semillas-de-datos)
+- [Pruebas](#pruebas)
+- [Code Coverage](#code-coverage)
 - [Próximos pasos](#próximos-pasos)
 - [Troubleshooting](#troubleshooting)
 
@@ -84,6 +86,15 @@ Windows PowerShell:
 
 # Ejecutar una clase de test específica
 ./gradlew.bat test --tests "com.cooperative.cabin.presentation.controller.AdminDashboardControllerMvcTest"
+
+# Generar reporte de coverage
+./gradlew.bat test jacocoTestReport
+
+# Ejecutar tests y verificar coverage (mínimo 80%)
+./gradlew.bat test jacocoTestReport jacocoTestCoverageVerification
+
+# Build completo con verificación de coverage
+./gradlew.bat check
 ```
 
 Linux/macOS:
@@ -92,12 +103,16 @@ Linux/macOS:
 ./gradlew clean build
 ./gradlew bootRun
 ./gradlew test
+./gradlew test jacocoTestReport
+./gradlew check
 ```
 
 Notas:
 
 - Si ves incompatibilidad de versión de clase Java, valida que usas Java 21.
 - IntelliJ: puedes ejecutar `bootRun` y tests por clase desde el IDE.
+- El comando `check` ejecuta tests, genera reportes y verifica que la cobertura sea ≥80%.
+- Ver sección [Code Coverage](#code-coverage) para más detalles sobre reportes y umbrales.
 
 ## Autenticación y seguridad
 
@@ -231,9 +246,120 @@ Gestión de Documentos (admin):
 
 ## Pruebas
 
-- MVC tests en `src/test/java/com/cooperative/cabin/presentation/controller/*` (perfil `test`, H2, beans mock).
-- `GlobalExceptionHandler` homogeniza 400/403/404/500.
-- Dashboard: testea 200 (ADMIN), 403 (USER) y estructura JSON.
+El proyecto incluye una suite completa de tests unitarios, de integración y MVC tests para garantizar la calidad del código.
+
+### Ejecutar Tests
+
+```bash
+# Ejecutar todos los tests
+./gradlew.bat test
+
+# Ejecutar una clase de test específica
+./gradlew.bat test --tests "com.cooperative.cabin.presentation.controller.AdminDashboardControllerMvcTest"
+
+# Ejecutar tests de un paquete específico
+./gradlew.bat test --tests "com.cooperative.cabin.application.service.*"
+
+# Ejecutar tests con información detallada
+./gradlew.bat test --info
+```
+
+### Tipos de Tests
+
+- **Tests Unitarios**: Modelos de dominio, políticas de negocio, servicios de aplicación
+  - Ubicación: `src/test/java/com/cooperative/cabin/domain/`, `src/test/java/com/cooperative/cabin/application/service/`
+  - Ejemplos: `DocumentNumberTest`, `PasswordValidatorTest`, `AdminDashboardServiceImplTest`
+
+- **Tests de Integración**: Repositorios JPA con base de datos H2
+  - Ubicación: `src/test/java/com/cooperative/cabin/infrastructure/repository/`
+  - Ejemplos: `UserJpaRepositoryIT`, `ReservationJpaRepositoryIT`
+
+- **MVC Tests**: Controladores REST con MockMvc
+  - Ubicación: `src/test/java/com/cooperative/cabin/presentation/controller/*`
+  - Perfil: `test` (H2, beans mock)
+  - Ejemplos: `AdminDashboardControllerMvcTest`, `AuthControllerMvcTest`, `ReservationControllerMvcTest`
+
+- **Tests de Seguridad**: JWT y filtros de autenticación
+  - Ubicación: `src/test/java/com/cooperative/cabin/infrastructure/security/`
+  - Ejemplos: `JwtServiceTest`, `JwtAuthFilterTest`
+
+### Configuración de Tests
+
+- **Base de datos**: H2 en memoria (perfil `test`)
+- **Mock beans**: Configuración en `TestMvcConfiguration`, `TestBeansConfiguration`
+- **Auditoría**: Mockeada en `TestAuditingConfiguration`
+- **Seguridad**: `@WithMockUser` para simular usuarios autenticados
+
+## Code Coverage
+
+El proyecto utiliza **JaCoCo** para medir la cobertura de código y garantiza un mínimo del **80% de cobertura de líneas**.
+
+### Generar Reporte de Coverage
+
+```bash
+# Ejecutar tests y generar reporte de coverage
+./gradlew.bat test jacocoTestReport
+
+# Ejecutar tests, generar reporte y verificar umbral mínimo (80%)
+./gradlew.bat test jacocoTestReport jacocoTestCoverageVerification
+
+# El comando `check` incluye automáticamente la verificación de coverage
+./gradlew.bat check
+```
+
+### Ver Reportes
+
+Los reportes de coverage están disponibles en formato HTML y CSV:
+
+- **HTML (recomendado)**: `build/reports/jacoco/test/html/index.html`
+- **CSV**: `build/reports/jacoco/test/jacocoTestReport.csv`
+- **XML**: `build/reports/jacoco/test/jacocoTestReport.xml`
+
+Abre el archivo HTML en tu navegador para ver:
+- Cobertura por paquete, clase y método
+- Líneas cubiertas vs. no cubiertas
+- Métricas de instrucciones, ramas y complejidad
+- Visualización interactiva del código fuente
+
+### Umbral Mínimo
+
+El proyecto requiere un **mínimo del 80% de cobertura de líneas**. La verificación se ejecuta automáticamente con:
+
+- `jacocoTestCoverageVerification` (tarea independiente)
+- `check` (incluye verificación de coverage)
+
+Si la cobertura está por debajo del 80%, el build fallará con un mensaje indicando el porcentaje actual.
+
+### Exclusiones de Coverage
+
+Para mantener el umbral alcanzable, se excluyen del cálculo de coverage:
+
+- **Configuraciones**: Clases de configuración de Spring (`*Config`, `*Configuration`)
+- **DTOs**: Clases de transferencia de datos (`*Request`, `*Response`, `*Dto`)
+- **Mappers**: Interfaces de MapStruct (`*Mapper`)
+- **Aplicación principal**: `CabinReservationApplication`
+- **Excepciones**: Clases de excepciones de dominio
+- **Algunos controladores**: Controladores con lógica mínima o delegación directa
+- **Algunos servicios**: Servicios con alta complejidad o dependencias externas pesadas
+
+Las exclusiones están configuradas en `build.gradle` bajo `jacocoExcludes`.
+
+### Mejorar Coverage
+
+Si necesitas mejorar la cobertura:
+
+1. Revisa el reporte HTML para identificar clases con baja cobertura
+2. Añade tests unitarios para métodos no cubiertos
+3. Añade casos de prueba para ramas condicionales
+4. Considera añadir tests de integración para flujos complejos
+5. Ejecuta `./gradlew.bat test jacocoTestReport` para ver el progreso
+
+### Estadísticas Actuales
+
+- **Cobertura mínima requerida**: 80% de líneas
+- **Tipos de tests**: Unitarios, integración, MVC, seguridad
+- **Base de datos de tests**: H2 en memoria
+- **Framework de testing**: JUnit 5 + Mockito + Spring Test
 
 ## Próximos pasos
 
